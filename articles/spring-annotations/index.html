@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Spring Framework・Spring Boot・Spring Data・Spring Security と、あわせて使う Jakarta のアノテーションを、公式ドキュメントに基づき日本語でまとめた一覧。">
+<style>
+html{color-scheme:light dark}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>Spring アノテーション一覧</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+
+<style>
+:root{
+  --paper:#F6F7F4; --surface:#FFFFFF; --surface-2:#EDF0EA;
+  --ink:#15181A; --ink-2:#555C55; --ink-3:#848B82;
+  --rule:#DDE1D8; --rule-strong:#C2C8BB;
+  --accent:#0E6B58; --accent-ink:#0A5445;
+  --warn:#87590F; --warn-soft:#F2E7CE;
+  --mono:'JetBrains Mono','SFMono-Regular',Consolas,'Liberation Mono',monospace;
+  --sans:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic UI',system-ui,sans-serif;
+  --bar:56px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111412; --surface:#171B18; --surface-2:#1D221E;
+    --ink:#E9ECE5; --ink-2:#A0A89C; --ink-3:#7A8278;
+    --rule:#272D28; --rule-strong:#39413A;
+    --accent:#5CCFAE; --accent-ink:#7FDDC2;
+    --warn:#DFB35F; --warn-soft:#33280F;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111412; --surface:#171B18; --surface-2:#1D221E;
+  --ink:#E9ECE5; --ink-2:#A0A89C; --ink-3:#7A8278;
+  --rule:#272D28; --rule-strong:#39413A;
+  --accent:#5CCFAE; --accent-ink:#7FDDC2;
+  --warn:#DFB35F; --warn-soft:#33280F;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:15px;line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+code{font-family:var(--mono);font-size:.88em;font-weight:500}
+
+.bar{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--rule-strong)}
+.bar-in{max-width:1280px;margin:0 auto;padding:10px 28px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+.brand{display:flex;align-items:baseline;gap:10px;flex:0 0 auto}
+.brand-name{font-size:15px;font-weight:700;letter-spacing:.01em;white-space:nowrap}
+.brand-meta{font-family:var(--mono);font-size:11px;color:var(--ink-3);white-space:nowrap}
+.search{flex:1 1 240px;min-width:0;position:relative;display:flex;align-items:center}
+.search::before{content:'/';position:absolute;left:11px;font-family:var(--mono);font-weight:700;color:var(--accent);pointer-events:none}
+.search input{
+  width:100%;font-family:var(--sans);font-size:13.5px;color:var(--ink);
+  background:var(--paper);border:1px solid var(--rule-strong);border-radius:2px;padding:6px 12px 6px 26px;
+}
+.search input::placeholder{color:var(--ink-3)}
+.search input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{
+  font-family:var(--mono);font-size:11.5px;border:1px solid var(--rule-strong);
+  background:transparent;color:var(--ink-2);padding:5px 10px;border-radius:2px;cursor:pointer;
+}
+.chip:hover{background:var(--surface-2)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+:root[data-theme="dark"] .chip[aria-pressed="true"]{color:#0D1210}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .chip[aria-pressed="true"]{color:#0D1210}
+}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hitcount{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap;margin-left:auto}
+
+.shell{max-width:1280px;margin:0 auto;padding:0 28px 90px;display:grid;grid-template-columns:214px minmax(0,1fr);gap:40px;align-items:start}
+.rail{
+  position:sticky;top:var(--bar);max-height:calc(100vh - var(--bar));
+  overflow-y:auto;overscroll-behavior:contain;padding:24px 10px 40px 0;
+  scrollbar-width:thin;scrollbar-color:var(--rule-strong) transparent;
+}
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-track{background:transparent}
+.rail::-webkit-scrollbar-thumb{background:var(--rule-strong);border-radius:3px}
+.rail h2{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin:0 0 6px;font-weight:500}
+.rail h2:not(:first-child){margin-top:20px}
+.navlist{display:flex;flex-direction:column}
+.rail a{
+  display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+  padding:3px 0 3px 10px;margin-left:-12px;color:var(--ink-2);text-decoration:none;
+  font-size:13px;line-height:1.45;border-left:2px solid transparent;
+}
+.rail a:hover{color:var(--ink)}
+.rail a[aria-current="true"]{color:var(--accent-ink);border-left-color:var(--accent);font-weight:500}
+.rail a span{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.rail a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+main{padding-top:24px;min-width:0}
+.preface{margin:0 0 30px;color:var(--ink-2);font-size:13px;max-width:76ch}
+
+.sec{margin:0 0 40px;scroll-margin-top:calc(var(--bar) + 14px)}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;border-bottom:1px solid var(--rule-strong);padding-bottom:7px}
+.sec-head h3{font-size:17px;font-weight:700;margin:0;line-height:1.4;text-wrap:balance}
+.sec-head .n{font-family:var(--mono);font-size:11px;color:var(--ink-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.sec-note{margin:9px 0 0;color:var(--ink-2);font-size:13px;max-width:70ch}
+
+.tablewrap{overflow-x:auto;margin-top:12px}
+table{border-collapse:collapse;width:100%;min-width:760px}
+thead th{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:500;text-align:left;padding:0 14px 6px 0;
+  border-bottom:1px solid var(--rule-strong);white-space:nowrap;
+}
+tbody td{padding:11px 14px 12px 0;border-bottom:1px solid var(--rule);vertical-align:top;font-size:13px;line-height:1.65}
+tbody tr:hover td{background:var(--surface-2)}
+tbody td:last-child,thead th:last-child{padding-right:0}
+.c-cmd{width:18%}
+.c-sum{width:20%}
+.c-det{width:auto}
+.c-par{width:27%}
+.cols-3 .c-cmd{width:22%}
+.cols-3 .c-sum{width:auto}
+.cols-3 .c-par{width:34%}
+.tkeys th:nth-child(1),.tkeys td:nth-child(1){width:26%}
+.tkeys th:nth-child(2),.tkeys td:nth-child(2){width:21%}
+.tkeys th:nth-child(3),.tkeys td:nth-child(3){width:21%}
+.tkeys th:nth-child(4),.tkeys td:nth-child(4){width:auto}
+
+.cmd{
+  font-family:var(--mono);font-size:12.5px;font-weight:500;background:none;border:0;
+  padding:0;margin:0;cursor:pointer;color:var(--ink);text-align:left;line-height:1.5;
+  border-bottom:1px dashed transparent;word-break:break-word;
+}
+.cmd i{color:var(--accent);font-style:normal}
+.cmd:hover{border-bottom-color:var(--rule-strong)}
+.cmd:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cmd.copied{color:var(--accent-ink)}
+.act{color:var(--ink);font-weight:500}
+.aliases{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.alias{font-family:var(--mono);font-size:10px;color:var(--ink-3);border:1px solid var(--rule);border-radius:2px;padding:1px 5px;white-space:nowrap}
+.pcell{min-width:0}
+.par{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);word-break:break-word;display:block}
+.par.none{color:var(--ink-3)}
+.sum{color:var(--ink)}
+.det{color:var(--ink-2)}
+.det code,.sum code{background:var(--surface-2);border-radius:2px;padding:1px 4px;color:var(--ink)}
+.ex{
+  display:flex;gap:7px;margin-top:7px;width:100%;
+  font-family:var(--mono);font-size:11.5px;line-height:1.6;text-align:left;
+  background:var(--surface-2);border:0;border-left:2px solid var(--accent);
+  padding:5px 8px;color:var(--ink);cursor:pointer;white-space:pre-wrap;word-break:break-word;
+}
+.ex:hover{box-shadow:inset 0 0 0 1px var(--rule-strong)}
+.ex:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.ex.copied{box-shadow:inset 0 0 0 1px var(--accent)}
+.ex b{color:var(--accent);font-weight:700;flex:0 0 auto;user-select:none;width:.9em}
+
+.keycell{
+  display:flex;flex-wrap:wrap;gap:4px;align-items:center;width:100%;
+  background:none;border:0;padding:1px 0;margin:0;cursor:pointer;text-align:left;
+}
+.keycell:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.keycell.copied kbd{border-color:var(--accent);color:var(--accent-ink)}
+kbd{
+  font-family:var(--mono);font-size:11px;line-height:1.6;
+  border:1px solid var(--rule-strong);border-bottom-width:2px;border-radius:3px;
+  padding:1px 6px;background:var(--surface);color:var(--ink);white-space:nowrap;
+}
+.keycell:hover kbd{border-color:var(--ink-3)}
+.ksep{font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+.knone{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+
+.tag{display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:2px;margin-top:6px;background:var(--warn-soft);color:var(--warn)}
+.kindchip{display:inline-block;font-size:9.5px;letter-spacing:.06em;padding:0 5px;border-radius:2px;margin-top:5px;border:1px solid}
+.k-read{color:var(--ink-3);border-color:var(--rule-strong)}
+.k-write{color:var(--accent-ink);border-color:var(--accent)}
+.k-delete{color:var(--warn);border-color:var(--warn);background:var(--warn-soft)}
+tr.flagged td:first-child{box-shadow:inset 2px 0 0 var(--warn);padding-left:10px}
+
+.priority td:first-child{font-family:var(--mono);font-size:12px;color:var(--accent-ink);white-space:nowrap}
+
+footer{max-width:1280px;margin:0 auto;padding:24px 28px 60px;border-top:1px solid var(--rule-strong);color:var(--ink-2);font-size:12.5px}
+footer ul{margin:8px 0 0;padding-left:1.1em}
+footer li{margin-bottom:5px}
+footer .siblings{margin-top:16px;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px}
+footer .siblings a{color:var(--accent-ink)}
+
+.empty{display:none;padding:40px 0;color:var(--ink-3);font-family:var(--mono);font-size:13px;text-align:center}
+.empty.on{display:block}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .rail{position:static;max-height:none;overflow:visible;padding:20px 0 16px;border-bottom:1px solid var(--rule)}
+  .navlist{flex-direction:row;flex-wrap:wrap;gap:2px 5px}
+  .rail a{border-left:0;border:1px solid var(--rule);border-radius:2px;padding:3px 8px;margin-left:0}
+  .rail a[aria-current="true"]{border-color:var(--accent)}
+  .rail h2:not(:first-child){margin-top:14px}
+}
+@media (max-width:680px){
+  .bar-in,.shell,footer{padding-left:18px;padding-right:18px}
+  .hitcount{margin-left:0}
+  table{min-width:0}
+  thead{display:none}
+  tbody tr{display:block;border-bottom:1px solid var(--rule-strong);padding:12px 0}
+  tbody tr:hover td{background:none}
+  tbody td{display:grid;grid-template-columns:5.6em minmax(0,1fr);gap:10px;border:0;padding:3px 0}
+  tbody td::before{content:attr(data-label);font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-3);padding-top:4px}
+  .tkeys th:nth-child(n),.tkeys td:nth-child(n){width:auto}
+  tr.flagged td:first-child{box-shadow:none;padding-left:0}
+  tr.flagged{box-shadow:inset 2px 0 0 var(--warn);padding-left:10px}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="bar" id="bar">
+  <div class="bar-in">
+    <div class="brand">
+      <span class="brand-name">Spring アノテーション一覧</span>
+      <span class="brand-meta">Spring Framework 7.0 / Boot 4.1 / 2026-09-04</span>
+    </div>
+    <label class="search">
+      <input id="q" type="search" placeholder="アノテーション名・用途・属性で絞り込む" autocomplete="off" spellcheck="false" aria-label="検索">
+    </label>
+    <div class="chips" role="group" aria-label="種別で絞り込む">
+        <button class="chip" data-scope="all" aria-pressed="true">すべて</button>
+        <button class="chip" data-scope="core" aria-pressed="false">DI・設定</button>
+        <button class="chip" data-scope="web" aria-pressed="false">Web</button>
+        <button class="chip" data-scope="data" aria-pressed="false">データ / JPA</button>
+        <button class="chip" data-scope="boot" aria-pressed="false">Spring Boot</button>
+        <button class="chip" data-scope="sec" aria-pressed="false">セキュリティ</button>
+        <button class="chip" data-scope="misc" aria-pressed="false">AOP・非同期・その他</button>
+        <button class="chip" data-scope="valid" aria-pressed="false">バリデーション</button>
+        <button class="chip" data-scope="test" aria-pressed="false">テスト</button>
+    </div>
+    <span class="hitcount" id="hits"></span>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="カテゴリ"></nav>
+  <main id="main">
+    <p class="preface">Spring で使うアノテーションを、DI・Web・データ・Boot・セキュリティ・テストの順にまとめた一覧。 JPA(<code>jakarta.persistence</code>)と Bean Validation(<code>jakarta.validation</code>)も、Spring と組で使うため同じ表に載せている。 <b>アノテーション名と記述例はクリックでコピーできる。</b> 説明は公式ドキュメントの記述を日本語にしたもので、各区分の見出しに所属パッケージを書いてある。</p>
+    <p class="empty" id="empty">該当なし</p>
+  </main>
+</div>
+
+<footer>
+  <strong>注記</strong>
+  <ul>
+    <li>説明は公式ドキュメントの記述を日本語化したもの。参照元は <b>Spring Framework 7.0 Javadoc</b>、<b>Spring Boot 4.1 Javadoc / リファレンス</b>、<b>Spring Data JPA / Commons Javadoc</b>、<b>Spring Security リファレンス</b>、<b>Jakarta Persistence 3.1</b>、<b>Jakarta Bean Validation 3.0</b>。</li>
+    <li><b>バージョン表記のないものは、Spring Framework 5.x / Spring Boot 2.x の頃から使える。</b>「Spring 6.2+」「Spring Boot 3.4+」などの表記があるものは、そのバージョン以降でのみ利用できる。</li>
+    <li>各区分の見出しに<b>所属パッケージ</b>を書いてある。同名で出自の違うもの(<code>@Id</code> <code>@Version</code> <code>@Transient</code> <code>@Cacheable</code> など)は、どちらを import するかで挙動が変わるので注意すること。</li>
+    <li>「主な属性」は使用頻度の高いものだけを挙げている。全属性は Javadoc を参照すること。</li>
+    <li>記述例の <code>User</code> / <code>Order</code> などは架空の型。ローカルに Spring 環境が無いため<b>コンパイル・実行による検証はしておらず、公式ドキュメント準拠</b>である。</li>
+  </ul>
+  <div class="siblings"><span>同じシリーズ:</span><a href="../claude-code-commands/">Claude Code コマンド索引</a><a href="../git-commands/">Git コマンド索引</a><a href="../aws-cli-commands/">AWS CLI コマンド索引</a><a href="../gcp-cli-commands/">gcloud コマンド索引</a><a href="../intellij-shortcuts/">IntelliJ IDEA ショートカット索引</a><a href="../vscode-shortcuts/">VS Code ショートカット索引</a><a href="../java-stream/">Java Stream 早見表</a></div>
+</footer>
+
+<script>
+const SIGIL = "›";
+const DATA = [{"g":"core","id":"stereotype","t":"ステレオタイプ","note":"所属パッケージ: <code>org.springframework.stereotype</code>。付けたクラスがコンポーネントスキャンの対象になり、Bean として登録される。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@Component","このクラスがコンポーネントであることを示す。すべてのステレオタイプの土台","クラス","value(Bean名)",{"ex":"@Component\npublic class PriceCalculator { }"}],["@Service","ビジネスロジックを担う「サービス」であることを示す。DDD でいう、状態を持たない操作の提供者","クラス","value(Bean名)",{"ex":"@Service\npublic class OrderService { }"}],["@Repository","永続化を担う「リポジトリ」であることを示す。データアクセス例外を Spring の DataAccessException に変換する効果もある","クラス","value(Bean名)",{"ex":"@Repository\npublic class JdbcUserRepository implements UserRepository { }"}],["@Controller","Web のコントローラであることを示す。戻り値はビュー名として解決される","クラス","value(Bean名)",{"ex":"@Controller\npublic class HomeController { }"}],["@Indexed","このアノテーションがステレオタイプであることを示し、コンポーネントインデックスに載せる","アノテーション定義","—",{"ex":"@Indexed\npublic @interface MyStereotype { }"}]]},{"g":"core","id":"di","t":"DI(依存性注入)","note":"所属パッケージ: <code>org.springframework.beans.factory.annotation</code> ほか。Bean をどう注ぎ込むかを指定する。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@Autowired","コンストラクタ・フィールド・setter を DI 対象にする。コンストラクタが1つだけなら省略できる","コンストラクタ・メソッド・フィールド・引数","required(既定 true)",{"ex":"@Autowired\npublic OrderService(UserRepository repo) { this.repo = repo; }"}],["@Qualifier","同じ型の Bean が複数あるとき、どれを注入するか名前で指定する","フィールド・引数・クラス","value(修飾子名)",{"ex":"@Autowired\npublic Sender(@Qualifier(\"smtp\") MailSender sender) { }"}],["@Value","フィールドや引数に、設定値や SpEL 式の評価結果を注入する","フィールド・メソッド・引数","value(式)",{"ex":"@Value(\"${app.timeout:30}\")\nprivate int timeout;"}],["@Primary","同じ型の候補が複数あるとき、優先して注入される Bean を1つ決める","クラス・@Bean メソッド","—",{"ex":"@Bean @Primary\npublic DataSource primaryDataSource() { ... }"}],["@Fallback","他に候補が無いときだけ使われる、控えの Bean であることを示す","クラス・@Bean メソッド","— / Spring 6.2+",{"ex":"@Bean @Fallback\npublic DataSource embeddedDataSource() { ... }"}],["@Lazy","Bean の初期化を、最初に必要になるまで遅らせる","クラス・メソッド・フィールド・引数","value(既定 true)",{"ex":"@Lazy\n@Component\npublic class HeavyIndexLoader { }"}],["@DependsOn","この Bean より先に生成すべき Bean を名前で指定する","クラス・@Bean メソッド","value(Bean名の配列)",{"ex":"@Bean @DependsOn(\"flywayInitializer\")\npublic MyService myService() { ... }"}],["@Scope","Bean のスコープを指定する。singleton / prototype / request / session など","クラス・@Bean メソッド","value, scopeName, proxyMode",{"ex":"@Component\n@Scope(value = \"request\", proxyMode = ScopedProxyMode.TARGET_CLASS)\npublic class RequestContext { }"}],["@Lookup","コンテナが実装を差し替える「ルックアップメソッド」を宣言する。シングルトンから prototype を都度取りたいときに使う","メソッド","value(Bean名)",{"ex":"@Lookup\nprotected abstract Task createTask();"}],["@Order","コンポーネントの並び順を決める。値が小さいほど先","クラス・メソッド・フィールド","value(既定 Ordered.LOWEST_PRECEDENCE)",{"ex":"@Order(1)\n@Component\npublic class FirstFilter implements MyFilter { }"}],["@Role","Bean の役割ヒント。ユーザー向け(0)か、基盤内部向け(2)かを示す","クラス・@Bean メソッド","value(BeanDefinition.ROLE_*)",{"ex":"@Bean @Role(BeanDefinition.ROLE_INFRASTRUCTURE)\npublic BeanPostProcessor bpp() { ... }"}],["@Description","Bean 定義に説明文を付ける","クラス・@Bean メソッド","value(説明)",{"ex":"@Bean @Description(\"日次集計のスケジューラ\")\npublic Scheduler scheduler() { ... }"}],["@Configurable","Spring 管理外の new したオブジェクトにも DI を効かせる(AspectJ ウィービングが必要)","クラス","value, autowire, preConstruction",{"ex":"@Configurable(autowire = Autowire.BY_TYPE)\npublic class DomainEntity { }"}],["@Proxyable","@Bean メソッドや @Component に対して、生成するプロキシの種類を指定する","クラス・@Bean メソッド","— / Spring 7.0+",{"ex":"@Bean @Proxyable\npublic MyService myService() { ... }"}],["@AliasFor","アノテーション属性の別名を宣言する。自作アノテーションで属性を引き継ぐときに使う","アノテーション属性","value, attribute, annotation",{"ex":"@AliasFor(annotation = RequestMapping.class, attribute = \"path\")\nString[] value() default {};"}]]},{"g":"core","id":"config","t":"設定クラスと Bean 定義","note":"所属パッケージ: <code>org.springframework.context.annotation</code>。Java コンフィグの中核。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@Configuration","@Bean メソッドを持つ設定クラスであることを示す。既定では CGLIB プロキシで Bean の単一性が保たれる","クラス","value, proxyBeanMethods(既定 true), enforceUniqueMethods",{"ex":"@Configuration\npublic class AppConfig {\n    @Bean\n    public Clock clock() { return Clock.systemUTC(); }\n}"}],["@Bean","このメソッドの戻り値をコンテナ管理の Bean にする","メソッド","name, value, autowireCandidate, initMethod, destroyMethod",{"ex":"@Bean(initMethod = \"start\", destroyMethod = \"stop\")\npublic Server server() { return new Server(); }"}],["@ComponentScan","コンポーネントスキャンの対象パッケージとフィルタを設定する","クラス","basePackages, basePackageClasses, includeFilters, excludeFilters, lazyInit",{"ex":"@ComponentScan(basePackages = \"com.example.app\",\n    excludeFilters = @Filter(type = FilterType.REGEX, pattern = \".*Legacy.*\"))"}],["@ComponentScan.Filter","スキャンの include / exclude フィルタを定義する","@ComponentScan の属性内","type, classes, pattern",{"ex":"@Filter(type = FilterType.ANNOTATION, classes = Deprecated.class)"}],["@ComponentScans","複数の @ComponentScan をまとめるコンテナ","クラス","value",{"ex":"@ComponentScans({@ComponentScan(\"a\"), @ComponentScan(\"b\")})"}],["@Import","別の設定クラスやコンポーネントクラスを取り込む","クラス","value(クラスの配列)",{"ex":"@Configuration\n@Import({SecurityConfig.class, DataConfig.class})\npublic class AppConfig { }"}],["@ImportResource","XML など、Bean 定義を含むリソースを取り込む","クラス","locations, value, reader",{"ex":"@ImportResource(\"classpath:legacy-beans.xml\")"}],["@ImportAware","取り込み元の @Configuration のメタデータを受け取るためのインターフェース","クラス(実装)","—",{"ex":"public class MyConfig implements ImportAware {\n    public void setImportMetadata(AnnotationMetadata m) { }\n}"}],["@ImportRuntimeHints","RuntimeHintsRegistrar を登録する。GraalVM ネイティブイメージ向け","クラス・メソッド","value(Registrar の配列)",{"ex":"@ImportRuntimeHints(MyRuntimeHints.class)"}],["@Conditional","指定した条件をすべて満たすときだけ登録する","クラス・メソッド","value(Condition の配列)",{"ex":"@Bean @Conditional(OnProductionCondition.class)\npublic Auditor auditor() { ... }"}],["@Profile","指定したプロファイルが有効なときだけ登録する","クラス・メソッド","value(プロファイル名。! で否定)",{"ex":"@Profile(\"!test\")\n@Component\npublic class RealMailSender implements MailSender { }"}],["@PropertySource","プロパティファイルを Environment に追加する","クラス","value, name, encoding, ignoreResourceNotFound",{"ex":"@PropertySource(value = \"classpath:app.properties\", encoding = \"UTF-8\")"}],["@PropertySources","複数の @PropertySource をまとめるコンテナ","クラス","value",{"ex":"@PropertySources({@PropertySource(\"a.properties\"), @PropertySource(\"b.properties\")})"}],["@EnableAspectJAutoProxy","@Aspect を付けたクラスによる AOP を有効にする","クラス","proxyTargetClass, exposeProxy",{"ex":"@Configuration\n@EnableAspectJAutoProxy(proxyTargetClass = true)\npublic class AopConfig { }"}],["@EnableLoadTimeWeaving","ロードタイムウィービングを有効にする","クラス","aspectjWeaving",{"ex":"@Configuration\n@EnableLoadTimeWeaving\npublic class WeavingConfig { }"}],["@EnableMBeanExport","標準 MBean と @ManagedResource の JMX 公開を有効にする","クラス","defaultDomain, server, registration",{"ex":"@Configuration\n@EnableMBeanExport\npublic class JmxConfig { }"}],["@ReflectiveScan","@Reflective の利用箇所を探すためにパッケージを走査する","クラス","basePackages / Spring 6.2+",{"ex":"@ReflectiveScan(\"com.example.domain\")"}]]},{"g":"web","id":"mvc-map","t":"リクエストマッピング","note":"所属パッケージ: <code>org.springframework.web.bind.annotation</code>。Spring MVC・WebFlux 共通。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@RequestMapping","URL とハンドラメソッドを対応づける。クラスとメソッドの両方に付けられる","クラス・メソッド","path, value, method, params, headers, consumes, produces, name",{"ex":"@RequestMapping(path = \"/users\", method = RequestMethod.GET, produces = \"application/json\")"}],["@GetMapping","HTTP GET を割り当てる。@RequestMapping(method = GET) の短縮形","メソッド","path, value, params, headers, consumes, produces",{"ex":"@GetMapping(\"/users/{id}\")\npublic User get(@PathVariable Long id) { ... }"}],["@PostMapping","HTTP POST を割り当てる","メソッド","path, value, params, headers, consumes, produces",{"ex":"@PostMapping(path = \"/users\", consumes = \"application/json\")\npublic User create(@RequestBody UserForm form) { ... }"}],["@PutMapping","HTTP PUT を割り当てる","メソッド","path, value, params, headers, consumes, produces",{"ex":"@PutMapping(\"/users/{id}\")\npublic User update(@PathVariable Long id, @RequestBody UserForm f) { ... }"}],["@PatchMapping","HTTP PATCH を割り当てる","メソッド","path, value, params, headers, consumes, produces",{"ex":"@PatchMapping(\"/users/{id}\")\npublic User patch(@PathVariable Long id, @RequestBody Map<String,Object> p) { ... }"}],["@DeleteMapping","HTTP DELETE を割り当てる","メソッド","path, value, params, headers, produces",{"ex":"@DeleteMapping(\"/users/{id}\")\n@ResponseStatus(HttpStatus.NO_CONTENT)\npublic void delete(@PathVariable Long id) { ... }"}],["@Mapping","Web のマッピング系アノテーションであることを示すメタアノテーション","アノテーション定義","—",{"ex":"@Mapping\npublic @interface MyMapping { }"}],["@CrossOrigin","特定のクラス・メソッドに対して CORS を許可する","クラス・メソッド","origins, originPatterns, allowedHeaders, methods, maxAge, allowCredentials",{"ex":"@CrossOrigin(origins = \"https://example.com\", maxAge = 3600)\n@GetMapping(\"/api/items\")"}],["@ResponseStatus","メソッドや例外クラスに、返すステータスコードと理由を指定する","メソッド・例外クラス","code, value, reason",{"ex":"@ResponseStatus(value = HttpStatus.NOT_FOUND, reason = \"ユーザーが存在しません\")\npublic class UserNotFoundException extends RuntimeException { }"}],["@RestController","@Controller と @ResponseBody を合わせた便利アノテーション。REST API 用","クラス","value(Bean名)",{"ex":"@RestController\n@RequestMapping(\"/api/users\")\npublic class UserApi { }"}]]},{"g":"web","id":"mvc-bind","t":"引数と戻り値のバインド","note":"所属パッケージ: <code>org.springframework.web.bind.annotation</code>。リクエストの各部分をメソッド引数に結びつける。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@PathVariable","URI テンプレート変数を引数に結びつける","引数","name, value, required",{"ex":"@GetMapping(\"/users/{id}\")\npublic User get(@PathVariable(\"id\") Long id) { ... }"}],["@RequestParam","クエリ文字列やフォームのパラメータを引数に結びつける","引数","name, value, required, defaultValue",{"ex":"@GetMapping(\"/search\")\npublic List<Item> search(@RequestParam(defaultValue = \"1\") int page) { ... }"}],["@RequestBody","リクエストボディを、変換して引数に結びつける","引数","required",{"ex":"@PostMapping(\"/users\")\npublic User create(@Valid @RequestBody UserForm form) { ... }"}],["@ResponseBody","戻り値をビューではなくレスポンスボディとして書き出す","クラス・メソッド","—",{"ex":"@GetMapping(\"/ping\")\n@ResponseBody\npublic String ping() { return \"pong\"; }"}],["@RequestHeader","リクエストヘッダを引数に結びつける","引数","name, value, required, defaultValue",{"ex":"public void handle(@RequestHeader(\"X-Request-Id\") String reqId) { ... }"}],["@CookieValue","HTTP クッキーを引数に結びつける","引数","name, value, required, defaultValue",{"ex":"public void handle(@CookieValue(name = \"SESSION\", required = false) String sid) { ... }"}],["@RequestPart","multipart/form-data の1パートを引数に結びつける","引数","name, value, required",{"ex":"@PostMapping(\"/upload\")\npublic void upload(@RequestPart(\"file\") MultipartFile file) { ... }"}],["@RequestAttribute","リクエストスコープの属性を引数に結びつける","引数","name, value, required",{"ex":"public void handle(@RequestAttribute(\"tenant\") Tenant tenant) { ... }"}],["@SessionAttribute","セッションスコープの属性を引数に結びつける","引数","name, value, required",{"ex":"public void handle(@SessionAttribute(\"cart\") Cart cart) { ... }"}],["@SessionAttributes","このハンドラが使うモデル属性をセッションに保持する","クラス","names, value, types",{"ex":"@Controller\n@SessionAttributes(\"order\")\npublic class OrderWizard { }"}],["@MatrixVariable","パスセグメント内の名前=値ペアを引数に結びつける","引数","name, value, pathVar, required, defaultValue",{"ex":"@GetMapping(\"/cars/{id}\")\npublic void get(@MatrixVariable String color) { ... }   // /cars/1;color=red"}],["@ModelAttribute","引数や戻り値を、ビューに渡すモデル属性に結びつける","メソッド・引数","name, value, binding",{"ex":"@ModelAttribute(\"form\")\npublic UserForm form() { return new UserForm(); }"}],["@BindParam","リクエストパラメータやパス変数を、オブジェクトのフィールドに結びつける名前を指定する","フィールド・引数","value / Spring 6.1+",{"ex":"public record Query(@BindParam(\"q\") String keyword) { }"}]]},{"g":"web","id":"mvc-adv","t":"コントローラ横断・例外処理","note":"所属パッケージ: <code>org.springframework.web.bind.annotation</code>。複数のコントローラに共通の処理を差し込む。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@ControllerAdvice","@ExceptionHandler / @InitBinder / @ModelAttribute を複数のコントローラで共有する","クラス","basePackages, assignableTypes, annotations",{"ex":"@ControllerAdvice(basePackages = \"com.example.api\")\npublic class ApiAdvice { }"}],["@RestControllerAdvice","@ControllerAdvice と @ResponseBody を合わせたもの。例外ハンドラの戻り値がそのままボディになる","クラス","basePackages, assignableTypes, annotations",{"ex":"@RestControllerAdvice\npublic class ApiExceptionHandler {\n    @ExceptionHandler(UserNotFoundException.class)\n    @ResponseStatus(HttpStatus.NOT_FOUND)\n    public ErrorBody handle(UserNotFoundException e) { ... }\n}"}],["@ExceptionHandler","特定の例外を処理するメソッドを指定する","メソッド","value(例外クラスの配列), produces",{"ex":"@ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})\npublic ResponseEntity<?> badRequest(Exception e) { ... }"}],["@InitBinder","引数バインドを行う WebDataBinder を初期化するメソッドを指定する","メソッド","value(対象の属性名)",{"ex":"@InitBinder\npublic void init(WebDataBinder binder) {\n    binder.registerCustomEditor(LocalDate.class, new LocalDateEditor());\n}"}]]},{"g":"web","id":"httpif","t":"HTTP インターフェース(宣言的HTTPクライアント)","note":"所属パッケージ: <code>org.springframework.web.service.annotation</code>。インターフェースを書くだけで HTTP クライアントを生成する。Spring 6.0 以降。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@HttpExchange","HTTP サービスインターフェースのメソッドを HTTP エンドポイントとして宣言する","クラス・メソッド","url, value, method, contentType, accept",{"ex":"@HttpExchange(url = \"/users\", method = \"GET\", accept = \"application/json\")\nList<User> list();"}],["@GetExchange","GET リクエスト用の @HttpExchange 短縮形","メソッド","url, value, contentType, accept",{"ex":"@GetExchange(\"/users/{id}\")\nUser get(@PathVariable Long id);"}],["@PostExchange","POST リクエスト用の短縮形","メソッド","url, value, contentType, accept",{"ex":"@PostExchange(\"/users\")\nUser create(@RequestBody UserForm form);"}],["@PutExchange","PUT リクエスト用の短縮形","メソッド","url, value, contentType, accept",{"ex":"@PutExchange(\"/users/{id}\")\nvoid update(@PathVariable Long id, @RequestBody UserForm form);"}],["@PatchExchange","PATCH リクエスト用の短縮形","メソッド","url, value, contentType, accept",{"ex":"@PatchExchange(\"/users/{id}\")\nUser patch(@PathVariable Long id, @RequestBody Map<String,Object> body);"}],["@DeleteExchange","DELETE リクエスト用の短縮形","メソッド","url, value, accept",{"ex":"@DeleteExchange(\"/users/{id}\")\nvoid delete(@PathVariable Long id);"}]]},{"g":"data","id":"tx","t":"トランザクション","note":"所属パッケージ: <code>org.springframework.transaction.annotation</code>。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@Transactional","メソッドやクラスにトランザクション属性を与える","クラス・メソッド","propagation, isolation, timeout, readOnly, rollbackFor, noRollbackFor, transactionManager",{"ex":"@Transactional(readOnly = true, timeout = 10)\npublic List<User> findAll() { ... }"}],["@Transactional(propagation)","伝播方法を指定する。REQUIRED(既定)/ REQUIRES_NEW / NESTED / SUPPORTS / NOT_SUPPORTED / MANDATORY / NEVER","メソッド","Propagation 列挙",{"ex":"@Transactional(propagation = Propagation.REQUIRES_NEW)\npublic void writeAuditLog(String msg) { ... }"}],["@Transactional(isolation)","分離レベルを指定する。DEFAULT / READ_UNCOMMITTED / READ_COMMITTED / REPEATABLE_READ / SERIALIZABLE","メソッド","Isolation 列挙",{"ex":"@Transactional(isolation = Isolation.REPEATABLE_READ)\npublic void transfer(Long from, Long to, int amount) { ... }"}],["@Transactional(rollbackFor)","検査例外でもロールバックさせる。既定では非検査例外のみロールバックする","メソッド","rollbackFor, rollbackForClassName, noRollbackFor",{"ex":"@Transactional(rollbackFor = IOException.class)\npublic void importFile(Path p) throws IOException { ... }"}],["@EnableTransactionManagement","アノテーション駆動のトランザクション管理を有効にする。Spring Boot では自動で有効","クラス","proxyTargetClass, mode, order",{"ex":"@Configuration\n@EnableTransactionManagement\npublic class TxConfig { }"}]]},{"g":"data","id":"jpa-entity","t":"JPA:エンティティとカラム","note":"所属パッケージ: <code>jakarta.persistence</code>。Jakarta Persistence(旧 JPA)の仕様アノテーション。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@Entity","このクラスがエンティティであることを示す","クラス","name(エンティティ名)",{"ex":"@Entity\npublic class User { }"}],["@Table","エンティティの主テーブルを指定する","クラス","name, schema, catalog, indexes, uniqueConstraints",{"ex":"@Table(name = \"users\",\n    uniqueConstraints = @UniqueConstraint(columnNames = {\"email\"}))"}],["@Id","エンティティの主キーを示す","フィールド・getter","—",{"ex":"@Id\nprivate Long id;"}],["@GeneratedValue","主キーの生成方法を指定する","フィールド・getter","strategy(AUTO / IDENTITY / SEQUENCE / TABLE / UUID), generator",{"ex":"@Id @GeneratedValue(strategy = GenerationType.IDENTITY)\nprivate Long id;"}],["@Column","対応するテーブルのカラムを指定する","フィールド・getter","name, nullable, unique, length, precision, scale, insertable, updatable, columnDefinition",{"ex":"@Column(name = \"email\", nullable = false, length = 255, unique = true)\nprivate String email;"}],["@Basic","もっとも単純なカラムマッピング。取得方法(遅延/即時)を指定できる","フィールド・getter","fetch, optional",{"ex":"@Basic(fetch = FetchType.LAZY)\nprivate String note;"}],["@Transient","この項目を永続化の対象から外す","フィールド・getter","—",{"ex":"@Transient\nprivate String displayName;"}],["@Enumerated","列挙型の保存形式を指定する。ORDINAL(既定)は順序値なので STRING を推奨","フィールド・getter","value(ORDINAL / STRING)",{"ex":"@Enumerated(EnumType.STRING)\nprivate Status status;"}],["@Lob","大きなオブジェクト(CLOB / BLOB)として保存する","フィールド・getter","—",{"ex":"@Lob\nprivate String body;"}],["@Temporal","java.util.Date / Calendar の精度を指定する。java.time を使う場合は不要","フィールド・getter","value(DATE / TIME / TIMESTAMP)",{"ex":"@Temporal(TemporalType.TIMESTAMP)\nprivate Date createdAt;"}],["@Version","楽観ロック用のバージョン項目を示す","フィールド・getter","—",{"ex":"@Version\nprivate Long version;"}],["@Convert","項目に AttributeConverter を適用する","クラス・フィールド・getter","converter, attributeName, disableConversion",{"ex":"@Convert(converter = JsonConverter.class)\nprivate Map<String,Object> meta;"}],["@Converter","このクラスがコンバータであることを示す","クラス","autoApply",{"ex":"@Converter(autoApply = true)\npublic class BooleanToYNConverter implements AttributeConverter<Boolean,String> { }"}],["@Embeddable","インスタンスが所有エンティティの一部として保存されるクラスであることを示す","クラス","—",{"ex":"@Embeddable\npublic record Address(String zip, String city) { }"}],["@Embedded","項目の値が埋め込みクラスのインスタンスであることを示す","フィールド・getter","—",{"ex":"@Embedded\nprivate Address address;"}],["@EmbeddedId","埋め込みクラスによる複合主キーを示す","フィールド・getter","—",{"ex":"@EmbeddedId\nprivate OrderLineId id;"}],["@IdClass","複数の項目にまたがる複合主キークラスを指定する","クラス","value(主キークラス)",{"ex":"@IdClass(OrderLineId.class)\n@Entity\npublic class OrderLine { }"}],["@MappedSuperclass","マッピング情報だけを継承先のエンティティに渡す基底クラスであることを示す","クラス","—",{"ex":"@MappedSuperclass\npublic abstract class BaseEntity { @Id Long id; }"}],["@Inheritance","エンティティ階層の継承戦略を指定する","クラス","strategy(SINGLE_TABLE / JOINED / TABLE_PER_CLASS)",{"ex":"@Inheritance(strategy = InheritanceType.JOINED)"}],["@DiscriminatorColumn","SINGLE_TABLE / JOINED 戦略での識別カラムを指定する","クラス","name, discriminatorType, length",{"ex":"@DiscriminatorColumn(name = \"type\", discriminatorType = DiscriminatorType.STRING)"}],["@DiscriminatorValue","この型に対する識別カラムの値を指定する","クラス","value",{"ex":"@DiscriminatorValue(\"PREMIUM\")"}],["@Access","エンティティのアクセス方式(フィールド / プロパティ)を指定する","クラス・フィールド・getter","value(FIELD / PROPERTY)",{"ex":"@Access(AccessType.FIELD)"}],["@Index","スキーマ生成時にインデックスを作る","@Table の属性内","name, columnList, unique",{"ex":"@Table(indexes = @Index(name = \"ix_email\", columnList = \"email\"))"}],["@UniqueConstraint","スキーマ生成時に一意制約を作る","@Table の属性内","name, columnNames",{"ex":"@Table(uniqueConstraints = @UniqueConstraint(columnNames = {\"tenant_id\",\"code\"}))"}],["@SecondaryTable","このエンティティに対する副テーブルを指定する","クラス","name, pkJoinColumns, schema",{"ex":"@SecondaryTable(name = \"user_profile\",\n    pkJoinColumns = @PrimaryKeyJoinColumn(name = \"user_id\"))"}],["@AttributeOverride","継承元や埋め込みクラスのカラムマッピングを上書きする","クラス・フィールド","name, column",{"ex":"@AttributeOverride(name = \"zip\", column = @Column(name = \"billing_zip\"))"}],["@SequenceGenerator","シーケンスによる主キー生成器を定義する","クラス・フィールド","name, sequenceName, initialValue, allocationSize",{"ex":"@SequenceGenerator(name = \"user_seq\", sequenceName = \"user_id_seq\", allocationSize = 50)"}],["@TableGenerator","採番テーブルによる主キー生成器を定義する","クラス・フィールド","name, table, pkColumnName, valueColumnName, allocationSize",{"ex":"@TableGenerator(name = \"id_gen\", table = \"id_table\", allocationSize = 20)"}],["@Cacheable(JPA)","persistence.xml のキャッシュ設定に従い、このエンティティをキャッシュするか指定する","クラス","value(既定 true)",{"ex":"@Cacheable\n@Entity\npublic class Country { }"}]]},{"g":"data","id":"jpa-rel","t":"JPA:関連とライフサイクル","note":"所属パッケージ: <code>jakarta.persistence</code>。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@OneToMany","1対多の関連を示す","フィールド・getter","mappedBy, cascade, fetch(既定 LAZY), orphanRemoval, targetEntity",{"ex":"@OneToMany(mappedBy = \"order\", cascade = CascadeType.ALL, orphanRemoval = true)\nprivate List<OrderLine> lines = new ArrayList<>();"}],["@ManyToOne","多対1の関連を示す。既定の fetch は EAGER なので LAZY にすることが多い","フィールド・getter","cascade, fetch(既定 EAGER), optional, targetEntity",{"ex":"@ManyToOne(fetch = FetchType.LAZY, optional = false)\n@JoinColumn(name = \"user_id\")\nprivate User user;"}],["@OneToOne","1対1の関連を示す","フィールド・getter","mappedBy, cascade, fetch, optional, orphanRemoval",{"ex":"@OneToOne(mappedBy = \"user\", cascade = CascadeType.ALL)\nprivate Profile profile;"}],["@ManyToMany","多対多の関連を示す","フィールド・getter","mappedBy, cascade, fetch, targetEntity",{"ex":"@ManyToMany\n@JoinTable(name = \"user_role\",\n    joinColumns = @JoinColumn(name = \"user_id\"),\n    inverseJoinColumns = @JoinColumn(name = \"role_id\"))\nprivate Set<Role> roles;"}],["@JoinColumn","関連や要素コレクションを結合するカラムを指定する","フィールド・getter","name, referencedColumnName, nullable, unique, foreignKey",{"ex":"@JoinColumn(name = \"user_id\", nullable = false)"}],["@JoinTable","多対多などで使う中間テーブルのマッピングを指定する","フィールド・getter","name, joinColumns, inverseJoinColumns, schema",{"ex":"@JoinTable(name = \"user_role\",\n    joinColumns = @JoinColumn(name = \"user_id\"),\n    inverseJoinColumns = @JoinColumn(name = \"role_id\"))"}],["@MapsId","@EmbeddedId 主キーのマッピングを、関連側から提供する","フィールド・getter","value(埋め込みIDの属性名)",{"ex":"@MapsId(\"userId\")\n@ManyToOne\nprivate User user;"}],["@PrimaryKeyJoinColumn","主キーを外部キーとして別テーブルに結合する","クラス・フィールド","name, referencedColumnName",{"ex":"@PrimaryKeyJoinColumn(name = \"user_id\")"}],["@ElementCollection","基本型や埋め込み型のコレクションを示す","フィールド・getter","targetClass, fetch",{"ex":"@ElementCollection\n@CollectionTable(name = \"user_tag\", joinColumns = @JoinColumn(name = \"user_id\"))\nprivate Set<String> tags;"}],["@CollectionTable","要素コレクションを保存するテーブルを指定する","フィールド・getter","name, joinColumns, schema",{"ex":"@CollectionTable(name = \"user_tag\", joinColumns = @JoinColumn(name = \"user_id\"))"}],["@OrderBy","コレクションの並び順を指定する","フィールド・getter","value(プロパティ名 ASC/DESC)",{"ex":"@OneToMany(mappedBy = \"order\")\n@OrderBy(\"lineNo ASC\")\nprivate List<OrderLine> lines;"}],["@OrderColumn","リストの順序を保持する専用カラムを指定する","フィールド・getter","name, nullable, insertable, updatable",{"ex":"@OrderColumn(name = \"line_no\")"}],["@MapKey / @MapKeyColumn","Map 型の関連について、キーとなる項目やカラムを指定する","フィールド・getter","name",{"ex":"@MapKeyColumn(name = \"locale\")\nprivate Map<String,String> labels;"}],["@NamedQuery","JPQL の名前付きクエリを定義する","クラス","name, query, lockMode, hints",{"ex":"@NamedQuery(name = \"User.byEmail\", query = \"select u from User u where u.email = :email\")"}],["@NamedNativeQuery","ネイティブ SQL の名前付きクエリを定義する","クラス","name, query, resultClass, resultSetMapping",{"ex":"@NamedNativeQuery(name = \"User.raw\", query = \"select * from users\", resultClass = User.class)"}],["@NamedEntityGraph","取得範囲(フェッチグラフ)を名前付きで定義する。N+1 対策に使う","クラス","name, attributeNodes, subgraphs",{"ex":"@NamedEntityGraph(name = \"Order.withLines\",\n    attributeNodes = @NamedAttributeNode(\"lines\"))"}],["@SqlResultSetMapping","ネイティブクエリの結果セットのマッピングを定義する","クラス","name, entities, columns, classes",{"ex":"@SqlResultSetMapping(name = \"SummaryMapping\",\n    classes = @ConstructorResult(targetClass = Summary.class,\n        columns = {@ColumnResult(name = \"dept\"), @ColumnResult(name = \"total\")}))"}],["@EntityListeners","エンティティのコールバックリスナークラスを指定する","クラス","value(リスナークラスの配列)",{"ex":"@EntityListeners(AuditingEntityListener.class)\n@Entity\npublic class User { }"}],["@PrePersist / @PostPersist","永続化の直前 / 直後に呼ばれるコールバック","メソッド","—",{"ex":"@PrePersist\nvoid onCreate() { this.createdAt = Instant.now(); }"}],["@PreUpdate / @PostUpdate","更新の直前 / 直後に呼ばれるコールバック","メソッド","—",{"ex":"@PreUpdate\nvoid onUpdate() { this.updatedAt = Instant.now(); }"}],["@PreRemove / @PostRemove","削除の直前 / 直後に呼ばれるコールバック","メソッド","—",{"ex":"@PreRemove\nvoid onRemove() { log.info(\"削除: {}\", id); }"}],["@PostLoad","エンティティ読み込み直後に呼ばれるコールバック","メソッド","—",{"ex":"@PostLoad\nvoid afterLoad() { this.displayName = lastName + firstName; }"}],["@PersistenceContext","コンテナ管理の EntityManager を注入する","フィールド・setter","unitName, type, properties",{"ex":"@PersistenceContext\nprivate EntityManager em;"}],["@PersistenceUnit","EntityManagerFactory を注入する","フィールド・setter","unitName",{"ex":"@PersistenceUnit\nprivate EntityManagerFactory emf;"}]]},{"g":"data","id":"sd-repo","t":"Spring Data:リポジトリ","note":"所属パッケージ: <code>org.springframework.data.jpa.repository</code> ほか。メソッド名からクエリを組み立てる仕組みを補う。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@Query","リポジトリのメソッドに JPQL を直接書く","メソッド","value, countQuery, nativeQuery, name",{"ex":"@Query(\"select u from User u where u.email = :email\")\nOptional<User> findByEmail(@Param(\"email\") String email);"}],["@NativeQuery","リポジトリのメソッドにネイティブ SQL を直接書く","メソッド","value, countQuery / Spring Data JPA 3.4+",{"ex":"@NativeQuery(\"select * from users where email = :email\")\nOptional<User> findByEmail(@Param(\"email\") String email);"}],["@Modifying","更新系のクエリであることを示す。@Query と組み合わせて使う","メソッド","flushAutomatically, clearAutomatically",{"ex":"@Modifying(clearAutomatically = true)\n@Query(\"update User u set u.active = false where u.lastLogin < :d\")\nint deactivate(@Param(\"d\") LocalDate d);"}],["@Param","JPQL の名前付きパラメータと引数を対応づける","引数","value(パラメータ名)",{"ex":"Optional<User> findByEmail(@Param(\"email\") String email);"}],["@EntityGraph","取得時のフェッチグラフを指定する。関連をまとめて取って N+1 を避ける","メソッド","value, type(FETCH / LOAD), attributePaths",{"ex":"@EntityGraph(attributePaths = {\"lines\", \"user\"})\nList<Order> findByStatus(Status status);"}],["@Lock","クエリ実行時のロックモードを指定する","メソッド","value(LockModeType)",{"ex":"@Lock(LockModeType.PESSIMISTIC_WRITE)\nOptional<Stock> findById(Long id);"}],["@QueryHints","クエリに JPA のヒントを与える","メソッド","value(@QueryHint の配列), forCounting",{"ex":"@QueryHints(@QueryHint(name = \"org.hibernate.readOnly\", value = \"true\"))\nList<User> findAll();"}],["@Meta","リポジトリ操作にメタデータ(コメントなど)を付ける","メソッド","comment",{"ex":"@Meta(comment = \"日次バッチ用\")\nList<User> findAllByActiveTrue();"}],["@NoRepositoryBean","この型を実体化せず、共通の基底リポジトリとして扱う","インターフェース","—",{"ex":"@NoRepositoryBean\npublic interface BaseRepository<T> extends JpaRepository<T, Long> { }"}],["@EnableJpaRepositories","JPA リポジトリのスキャンを有効にする。Spring Boot では自動で有効","クラス","basePackages, entityManagerFactoryRef, transactionManagerRef",{"ex":"@EnableJpaRepositories(basePackages = \"com.example.repo\")"}],["@EnableJpaAuditing","@CreatedDate などの監査項目の自動設定を有効にする","クラス","auditorAwareRef, dateTimeProviderRef, modifyOnCreate",{"ex":"@Configuration\n@EnableJpaAuditing(auditorAwareRef = \"auditorProvider\")\npublic class AuditConfig { }"}]]},{"g":"data","id":"sd-map","t":"Spring Data:マッピングと監査","note":"所属パッケージ: <code>org.springframework.data.annotation</code>。JPA 以外(MongoDB / Redis / JDBC)でも共通で使える。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@Id(Data)","識別子を示す。JPA の @Id とは別物","フィールド","—",{"ex":"@Id\nprivate String id;"}],["@Version(Data)","楽観ロックのバージョン項目を示す","フィールド","—",{"ex":"@Version\nprivate Long version;"}],["@Transient(Data)","マッピング対象から外す","フィールド","—",{"ex":"@Transient\nprivate String cachedLabel;"}],["@CreatedDate","作成日時を自動で設定する項目を示す","フィールド","—",{"ex":"@CreatedDate\nprivate Instant createdAt;"}],["@LastModifiedDate","最終更新日時を自動で設定する項目を示す","フィールド","—",{"ex":"@LastModifiedDate\nprivate Instant updatedAt;"}],["@CreatedBy","作成者を自動で設定する項目を示す","フィールド","—",{"ex":"@CreatedBy\nprivate String createdBy;"}],["@LastModifiedBy","最終更新者を自動で設定する項目を示す","フィールド","—",{"ex":"@LastModifiedBy\nprivate String updatedBy;"}],["@PersistenceCreator","読み込み時に使うコンストラクタ / ファクトリメソッドを指定する","コンストラクタ・メソッド","—",{"ex":"@PersistenceCreator\npublic User(String id, String name) { ... }"}],["@AccessType","永続プロパティへのアクセス方式(FIELD / PROPERTY)を指定する","クラス・フィールド","value",{"ex":"@AccessType(AccessType.Type.PROPERTY)"}],["@Immutable","不変な設計のエンティティであることを示す","クラス","—",{"ex":"@Immutable\npublic record Snapshot(String id, Instant at) { }"}],["@ReadOnlyProperty","読み取り専用にし、保存の対象から外す","フィールド","—",{"ex":"@ReadOnlyProperty\nprivate String computedRank;"}],["@Reference","他オブジェクトへの参照を示すメタアノテーション","アノテーション定義・フィールド","—",{"ex":"@Reference\nprivate Department department;"}],["@TypeAlias","型情報を書き出すときに使う短い別名を指定する","クラス","value",{"ex":"@TypeAlias(\"user\")\npublic class User { }"}],["@Persistent","永続化対象の型・項目であることを示すメタアノテーション","クラス・フィールド","—",{"ex":"@Persistent\npublic @interface MyDocument { }"}],["@QueryAnnotation","ストア固有のアノテーションをクエリ用と印づけるメタアノテーション","アノテーション定義","—",{"ex":"@QueryAnnotation\npublic @interface MyQuery { }"}]]},{"g":"boot","id":"boot-core","t":"起動と自動設定","note":"所属パッケージ: <code>org.springframework.boot.autoconfigure</code>。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@SpringBootApplication","@Configuration + @EnableAutoConfiguration + @ComponentScan をまとめた、起動クラス用のアノテーション","クラス","scanBasePackages, exclude, excludeName, proxyBeanMethods",{"ex":"@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)\npublic class Application {\n    public static void main(String[] args) {\n        SpringApplication.run(Application.class, args);\n    }\n}"}],["@EnableAutoConfiguration","クラスパスの内容から必要な Bean を推測して自動設定する","クラス","exclude, excludeName",{"ex":"@Configuration\n@EnableAutoConfiguration\npublic class MinimalApp { }"}],["@SpringBootConfiguration","Spring Boot アプリの主設定クラスであることを示す @Configuration の特化形","クラス","proxyBeanMethods",{"ex":"@SpringBootConfiguration\npublic class TestApp { }"}],["@AutoConfiguration","自動設定クラスであることを示す。ライブラリ側で自動設定を提供するときに使う","クラス","value, before, beforeName, after, afterName",{"ex":"@AutoConfiguration(after = DataSourceAutoConfiguration.class)\npublic class MyAutoConfiguration { }"}],["@AutoConfigurationPackage","このクラスのパッケージを自動設定の基準パッケージとして登録する","クラス","basePackages, basePackageClasses",{"ex":"@AutoConfigurationPackage\npublic class EntityScanMarker { }"}],["@AutoConfigureBefore","指定した自動設定より先に適用するヒント","クラス","value, name",{"ex":"@AutoConfigureBefore(WebMvcAutoConfiguration.class)"}],["@AutoConfigureAfter","指定した自動設定より後に適用するヒント","クラス","value, name",{"ex":"@AutoConfigureAfter(DataSourceAutoConfiguration.class)"}],["@AutoConfigureOrder","自動設定向けの @Order。適用順を数値で決める","クラス","value",{"ex":"@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)"}],["@ImportAutoConfiguration","指定した自動設定クラスだけを取り込んで適用する","クラス","value, classes, exclude",{"ex":"@ImportAutoConfiguration(JacksonAutoConfiguration.class)"}]]},{"g":"boot","id":"boot-cond","t":"条件付き設定(@ConditionalOn…)","note":"所属パッケージ: <code>org.springframework.boot.autoconfigure.condition</code>。条件を満たすときだけ Bean を登録する。自動設定の要。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@ConditionalOnClass","指定したクラスがクラスパスにあるときだけ一致する","クラス・メソッド","value, name",{"ex":"@ConditionalOnClass(name = \"com.zaxxer.hikari.HikariDataSource\")"}],["@ConditionalOnMissingClass","指定したクラスがクラスパスに無いときだけ一致する","クラス・メソッド","value(クラス名の文字列)",{"ex":"@ConditionalOnMissingClass(\"org.apache.tomcat.jdbc.pool.DataSource\")"}],["@ConditionalOnBean","条件を満たす Bean がすでに登録されているときだけ一致する","クラス・メソッド","value, type, name, annotation, search",{"ex":"@Bean @ConditionalOnBean(DataSource.class)\npublic JdbcTemplate jdbcTemplate(DataSource ds) { ... }"}],["@ConditionalOnMissingBean","条件に合う Bean が1つも無いときだけ一致する。利用者定義の Bean を優先させる定石","クラス・メソッド","value, type, name, ignored, annotation",{"ex":"@Bean @ConditionalOnMissingBean\npublic ObjectMapper objectMapper() { return new ObjectMapper(); }"}],["@ConditionalOnSingleCandidate","指定型の Bean があり、候補が1つに定まるときだけ一致する","クラス・メソッド","value, type, search",{"ex":"@ConditionalOnSingleCandidate(DataSource.class)"}],["@ConditionalOnMissingFilterBean","指定型の Filter Bean が無いときだけ一致する","クラス・メソッド","value, type",{"ex":"@ConditionalOnMissingFilterBean(CharacterEncodingFilter.class)"}],["@ConditionalOnProperty","指定したプロパティが特定の値のときだけ一致する","クラス・メソッド","prefix, name, value, havingValue, matchIfMissing",{"ex":"@ConditionalOnProperty(prefix = \"app.cache\", name = \"enabled\", havingValue = \"true\", matchIfMissing = true)"}],["@ConditionalOnProperties","複数の @ConditionalOnProperty をまとめるコンテナ","クラス・メソッド","value / Spring Boot 3.5+",{"ex":"@ConditionalOnProperties({\n    @ConditionalOnProperty(name = \"a.enabled\", havingValue = \"true\"),\n    @ConditionalOnProperty(name = \"b.enabled\", havingValue = \"true\")})"}],["@ConditionalOnBooleanProperty","指定したプロパティが真偽値として特定の値のときだけ一致する","クラス・メソッド","prefix, name, matchIfMissing / Spring Boot 3.4+",{"ex":"@ConditionalOnBooleanProperty(name = \"app.feature.new-ui\")"}],["@ConditionalOnBooleanProperties","複数の @ConditionalOnBooleanProperty をまとめるコンテナ","クラス・メソッド","value",{"ex":"@ConditionalOnBooleanProperties({...})"}],["@ConditionalOnExpression","SpEL 式の評価結果が真のときだけ一致する","クラス・メソッド","value(SpEL)",{"ex":"@ConditionalOnExpression(\"${app.retry.max:3} > 0\")"}],["@ConditionalOnResource","指定したリソースがクラスパスにあるときだけ一致する","クラス・メソッド","resources",{"ex":"@ConditionalOnResource(resources = \"classpath:schema.sql\")"}],["@ConditionalOnJava","動作中の JVM のバージョンで判定する","クラス・メソッド","value, range",{"ex":"@ConditionalOnJava(JavaVersion.TWENTY_ONE)"}],["@ConditionalOnJndi","JNDI の InitialContext が使え、指定した位置が引けるときだけ一致する","クラス・メソッド","value(JNDI 名の配列)",{"ex":"@ConditionalOnJndi(\"java:comp/env/jdbc/myDS\")"}],["@ConditionalOnWebApplication","Web アプリケーションのときだけ一致する","クラス・メソッド","type(ANY / SERVLET / REACTIVE)",{"ex":"@ConditionalOnWebApplication(type = Type.SERVLET)"}],["@ConditionalOnNotWebApplication","Web アプリケーションでないときだけ一致する","クラス・メソッド","—",{"ex":"@ConditionalOnNotWebApplication\n@Bean\npublic BatchRunner runner() { ... }"}],["@ConditionalOnWarDeployment","従来型の WAR デプロイのときだけ一致する","クラス・メソッド","—",{"ex":"@ConditionalOnWarDeployment"}],["@ConditionalOnNotWarDeployment","WAR デプロイでないとき(組み込みサーバ起動)だけ一致する","クラス・メソッド","—",{"ex":"@ConditionalOnNotWarDeployment"}],["@ConditionalOnCloudPlatform","指定したクラウド基盤上で動いているときだけ一致する","クラス・メソッド","value(CloudPlatform)",{"ex":"@ConditionalOnCloudPlatform(CloudPlatform.KUBERNETES)"}],["@ConditionalOnThreading","指定したスレッド方式(プラットフォーム / 仮想スレッド)のときだけ一致する","クラス・メソッド","value(Threading) / Spring Boot 3.2+",{"ex":"@ConditionalOnThreading(Threading.VIRTUAL)"}],["@ConditionalOnCheckpointRestore","CRaC のチェックポイント/リストアを使うときだけ一致する","クラス・メソッド","— / Spring Boot 3.2+",{"ex":"@ConditionalOnCheckpointRestore"}]]},{"g":"boot","id":"boot-prop","t":"設定プロパティ","note":"所属パッケージ: <code>org.springframework.boot.context.properties</code>。application.yml の値を型付きオブジェクトに束ねる。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@ConfigurationProperties","外部設定をオブジェクトにまとめて束縛する","クラス・@Bean メソッド","prefix, value, ignoreUnknownFields, ignoreInvalidFields",{"ex":"@ConfigurationProperties(prefix = \"app.mail\")\npublic record MailProperties(String host, int port, Duration timeout) { }"}],["@EnableConfigurationProperties","@ConfigurationProperties クラスを Bean として登録する","クラス","value(対象クラスの配列)",{"ex":"@Configuration\n@EnableConfigurationProperties(MailProperties.class)\npublic class MailConfig { }"}],["@ConfigurationPropertiesScan","@ConfigurationProperties クラスを走査する基準パッケージを設定する","クラス","basePackages, basePackageClasses",{"ex":"@SpringBootApplication\n@ConfigurationPropertiesScan(\"com.example.config\")\npublic class Application { }"}],["@ConfigurationPropertiesBinding","束縛時に使う独自コンバータであることを示す修飾子","クラス・メソッド","—",{"ex":"@Component @ConfigurationPropertiesBinding\npublic class StringToDurationConverter implements Converter<String,Duration> { }"}],["@ConfigurationPropertiesSource","この型が設定プロパティのメタデータ元であることを示す","クラス","— / Spring Boot 4.0+",{"ex":"@ConfigurationPropertiesSource\npublic record Endpoint(String url) { }"}],["@NestedConfigurationProperty","その項目を入れ子の設定プロパティ型として扱う","フィールド","—",{"ex":"@NestedConfigurationProperty\nprivate final Security security;"}],["@DeprecatedConfigurationProperty","getter が非推奨であることをメタデータに記録する","メソッド","reason, replacement",{"ex":"@DeprecatedConfigurationProperty(replacement = \"app.mail.host\")\npublic String getServer() { return host; }"}]]},{"g":"sec","id":"sec","t":"Spring Security","note":"所属パッケージ: <code>org.springframework.security.*</code>。メソッド単位の認可と、認証情報の取り出し。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@EnableWebSecurity","Web セキュリティ設定を有効にする。SecurityFilterChain の Bean 定義と組み合わせる","クラス","debug",{"ex":"@Configuration\n@EnableWebSecurity\npublic class SecurityConfig {\n    @Bean\n    SecurityFilterChain chain(HttpSecurity http) throws Exception { ... }\n}"}],["@EnableMethodSecurity","メソッド単位の認可を有効にする","クラス","prePostEnabled(既定 true), securedEnabled(既定 false), jsr250Enabled(既定 false), mode",{"ex":"@Configuration\n@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)\npublic class MethodSecurityConfig { }"}],["@PreAuthorize","メソッド実行前に SpEL 式で認可を判定する","クラス・メソッド","value(SpEL)",{"ex":"@PreAuthorize(\"hasRole('ADMIN')\")\npublic Account read(Long id) { ... }"}],["@PostAuthorize","メソッド実行後に SpEL 式で認可を判定する。戻り値を条件に使える","クラス・メソッド","value(SpEL。returnObject が使える)",{"ex":"@PostAuthorize(\"returnObject.owner == authentication.name\")\npublic Account read(Long id) { ... }"}],["@PreFilter","実行前に、引数のコレクションから条件に合わない要素を取り除く","クラス・メソッド","value(SpEL。filterObject), filterTarget",{"ex":"@PreFilter(\"filterObject.owner == authentication.name\")\npublic void update(Collection<Account> accounts) { ... }"}],["@PostFilter","実行後に、戻り値のコレクションから条件に合わない要素を取り除く","クラス・メソッド","value(SpEL。filterObject)",{"ex":"@PostFilter(\"filterObject.owner == authentication.name\")\npublic List<Account> readAll() { ... }"}],["@Secured","ロール名で認可する旧来のアノテーション。現在は @PreAuthorize が推奨","クラス・メソッド","value(ロール名の配列)",{"ex":"@Secured(\"ROLE_ADMIN\")\npublic Account read(Long id) { ... }"}],["@RolesAllowed","JSR-250 のロール指定。jsr250Enabled = true が必要","クラス・メソッド","value(ロール名の配列)",{"ex":"@RolesAllowed(\"ADMIN\")\npublic Account read(Long id) { ... }"}],["@PermitAll","JSR-250。全員に許可する。認証情報の取得も行わない","クラス・メソッド","—",{"ex":"@PermitAll\npublic String health() { return \"OK\"; }"}],["@DenyAll","JSR-250。全員を拒否する","クラス・メソッド","—",{"ex":"@DenyAll\npublic void dangerous() { }"}],["@AuthorizeReturnObject","戻り値をプロキシで包み、その型に付いた認可アノテーションを効かせる","クラス・メソッド","— / Spring Security 6.3+",{"ex":"@AuthorizeReturnObject\npublic User findByName(String name) { ... }"}],["@AuthenticationPrincipal","認証済みユーザー(principal)をコントローラの引数に注入する","引数","expression, errorOnInvalidType",{"ex":"@GetMapping(\"/me\")\npublic User me(@AuthenticationPrincipal UserDetails user) { ... }"}],["@CurrentSecurityContext","SecurityContext やその一部を引数に注入する","引数","expression, errorOnInvalidType",{"ex":"public void handle(@CurrentSecurityContext(expression = \"authentication.name\") String name) { }"}],["@P","SpEL 式から参照するための引数名を明示する","引数","value(パラメータ名)",{"ex":"@PreAuthorize(\"#c.owner == authentication.name\")\npublic void update(@P(\"c\") Account c) { ... }"}],["@WithMockUser","テストで、指定した権限を持つ認証済みユーザーとして実行する","クラス・メソッド","username, roles, authorities, password",{"ex":"@Test @WithMockUser(username = \"admin\", roles = \"ADMIN\")\nvoid adminCanDelete() { ... }"}],["@WithAnonymousUser","テストで、未認証(匿名)ユーザーとして実行する","クラス・メソッド","—",{"ex":"@Test @WithAnonymousUser\nvoid anonymousIsRejected() { ... }"}],["@WithUserDetails","テストで、UserDetailsService から実際に引いたユーザーとして実行する","クラス・メソッド","value, userDetailsServiceBeanName",{"ex":"@Test @WithUserDetails(\"user@example.com\")\nvoid realUserCanRead() { ... }"}]]},{"g":"misc","id":"aop","t":"AOP(アスペクト指向)","note":"所属パッケージ: <code>org.aspectj.lang.annotation</code>。Spring AOP は AspectJ のアノテーションを利用する。有効化は @EnableAspectJAutoProxy(Boot では自動)。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@Aspect","このクラスがアスペクト(横断的関心事)であることを示す。@Component も併せて付ける","クラス","value(instantiation model)",{"ex":"@Aspect\n@Component\npublic class LoggingAspect { }"}],["@Pointcut","再利用するポイントカット式に名前を付ける","メソッド","value(ポイントカット式), argNames",{"ex":"@Pointcut(\"execution(* com.example.service..*(..))\")\npublic void serviceLayer() { }"}],["@Before","対象メソッドの実行前に処理を差し込む","メソッド","value(ポイントカット式), argNames",{"ex":"@Before(\"serviceLayer()\")\npublic void logStart(JoinPoint jp) { log.info(\"開始: {}\", jp.getSignature()); }"}],["@After","対象メソッドの実行後に、成功・失敗を問わず処理を差し込む(finally 相当)","メソッド","value, argNames",{"ex":"@After(\"serviceLayer()\")\npublic void logEnd(JoinPoint jp) { log.info(\"終了\"); }"}],["@AfterReturning","対象メソッドが正常に戻ったときだけ処理を差し込む。戻り値を受け取れる","メソッド","value, pointcut, returning, argNames",{"ex":"@AfterReturning(pointcut = \"serviceLayer()\", returning = \"result\")\npublic void logResult(Object result) { log.info(\"結果: {}\", result); }"}],["@AfterThrowing","対象メソッドが例外を投げたときだけ処理を差し込む","メソッド","value, pointcut, throwing, argNames",{"ex":"@AfterThrowing(pointcut = \"serviceLayer()\", throwing = \"e\")\npublic void logError(Exception e) { log.error(\"失敗\", e); }"}],["@Around","対象メソッドの前後を包み、実行そのものを制御する。もっとも強力","メソッド","value, argNames",{"ex":"@Around(\"serviceLayer()\")\npublic Object measure(ProceedingJoinPoint pjp) throws Throwable {\n    long t = System.nanoTime();\n    try { return pjp.proceed(); }\n    finally { log.info(\"{} ns\", System.nanoTime() - t); }\n}"}],["@DeclareParents","対象の型に、新しいインターフェースの実装を導入する(introduction)","フィールド","value, defaultImpl",{"ex":"@DeclareParents(value = \"com.example.service.*+\", defaultImpl = DefaultAuditable.class)\nprivate Auditable auditable;"}]]},{"g":"misc","id":"async","t":"非同期・スケジューリング","note":"所属パッケージ: <code>org.springframework.scheduling.annotation</code>。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@Async","このメソッドを非同期(別スレッド)で実行する。戻り値は void / Future / CompletableFuture","クラス・メソッド","value(Executor の Bean 名)",{"ex":"@Async(\"taskExecutor\")\npublic CompletableFuture<Report> build(Long id) { ... }"}],["@EnableAsync","@Async による非同期実行を有効にする","クラス","annotation, proxyTargetClass, mode, order",{"ex":"@Configuration\n@EnableAsync\npublic class AsyncConfig { }"}],["@Scheduled","このメソッドを定期実行の対象にする","メソッド","cron, zone, fixedDelay, fixedRate, initialDelay, timeUnit",{"ex":"@Scheduled(cron = \"0 0 3 * * *\", zone = \"Asia/Tokyo\")\npublic void nightlyBatch() { ... }"}],["@Scheduled(fixedDelay)","前回の実行が終わってから指定時間あけて実行する","メソッド","fixedDelay, fixedDelayString, timeUnit",{"ex":"@Scheduled(fixedDelay = 5, timeUnit = TimeUnit.MINUTES)\npublic void poll() { ... }"}],["@Scheduled(fixedRate)","前回の実行開始から指定間隔で実行する","メソッド","fixedRate, fixedRateString, initialDelay",{"ex":"@Scheduled(fixedRate = 30_000, initialDelay = 10_000)\npublic void heartbeat() { ... }"}],["@Schedules","複数の @Scheduled をまとめるコンテナ","メソッド","value",{"ex":"@Schedules({@Scheduled(cron = \"0 0 9 * * MON-FRI\"), @Scheduled(cron = \"0 0 18 * * MON-FRI\")})"}],["@EnableScheduling","@Scheduled による定期実行を有効にする","クラス","—",{"ex":"@Configuration\n@EnableScheduling\npublic class SchedulingConfig { }"}]]},{"g":"misc","id":"cache","t":"キャッシュ","note":"所属パッケージ: <code>org.springframework.cache.annotation</code>。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@Cacheable","メソッドの結果をキャッシュする。次回以降は実行せずキャッシュを返す","クラス・メソッド","cacheNames, value, key, keyGenerator, condition, unless, sync",{"ex":"@Cacheable(cacheNames = \"users\", key = \"#id\", unless = \"#result == null\")\npublic User find(Long id) { ... }"}],["@CachePut","メソッドを必ず実行し、その結果でキャッシュを更新する","クラス・メソッド","cacheNames, value, key, condition, unless",{"ex":"@CachePut(cacheNames = \"users\", key = \"#user.id\")\npublic User save(User user) { ... }"}],["@CacheEvict","キャッシュを削除する","クラス・メソッド","cacheNames, value, key, allEntries, beforeInvocation",{"ex":"@CacheEvict(cacheNames = \"users\", allEntries = true)\npublic void reload() { ... }"}],["@Caching","複数のキャッシュアノテーションを1つのメソッドにまとめて指定する","クラス・メソッド","cacheable, put, evict",{"ex":"@Caching(evict = {\n    @CacheEvict(\"users\"),\n    @CacheEvict(cacheNames = \"userIndex\", allEntries = true)})\npublic void delete(Long id) { ... }"}],["@CacheConfig","クラス単位で共通のキャッシュ設定をまとめる","クラス","cacheNames, keyGenerator, cacheManager, cacheResolver",{"ex":"@CacheConfig(cacheNames = \"users\")\n@Service\npublic class UserService { }"}],["@EnableCaching","アノテーション駆動のキャッシュ管理を有効にする","クラス","proxyTargetClass, mode, order",{"ex":"@Configuration\n@EnableCaching\npublic class CacheConfig { }"}]]},{"g":"misc","id":"event","t":"イベントとメッセージング","note":"所属パッケージ: <code>org.springframework.context.event</code> / <code>org.springframework.messaging.handler.annotation</code>。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@EventListener","アプリケーションイベントを受け取るメソッドを宣言する","メソッド","classes, value, condition, id",{"ex":"@EventListener\npublic void onUserCreated(UserCreatedEvent e) { ... }"}],["@EventListener(condition)","SpEL 式が真のときだけイベントを処理する","メソッド","condition(SpEL)",{"ex":"@EventListener(condition = \"#event.amount > 10000\")\npublic void onLargeOrder(OrderEvent event) { ... }"}],["@TransactionalEventListener","トランザクションの特定のフェーズでイベントを処理する","メソッド","phase(AFTER_COMMIT 既定 / AFTER_ROLLBACK / AFTER_COMPLETION / BEFORE_COMMIT), fallbackExecution",{"ex":"@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)\npublic void sendMail(UserCreatedEvent e) { ... }"}],["@MessageMapping","宛先パターンとメッセージ処理メソッドを対応づける(STOMP / RSocket)","クラス・メソッド","value(宛先パターン)",{"ex":"@MessageMapping(\"/chat/{roomId}\")\npublic void handle(@DestinationVariable String roomId, @Payload ChatMessage msg) { ... }"}],["@DestinationVariable","宛先テンプレート内の変数を引数に結びつける","引数","value",{"ex":"public void handle(@DestinationVariable String roomId) { ... }"}],["@Payload","メッセージ本文を引数に結びつける","引数","value(SpEL), required",{"ex":"public void handle(@Payload @Valid ChatMessage msg) { ... }"}],["@Header","メッセージヘッダの1項目を引数に結びつける","引数","name, value, required, defaultValue",{"ex":"public void handle(@Header(\"sessionId\") String sid) { ... }"}],["@Headers","メッセージヘッダ全体を引数に結びつける","引数","—",{"ex":"public void handle(@Headers Map<String,Object> headers) { ... }"}],["@SendTo","戻り値をメッセージに変換して、指定した宛先へ送る","クラス・メソッド","value(宛先の配列)",{"ex":"@MessageMapping(\"/chat\")\n@SendTo(\"/topic/messages\")\npublic ChatMessage broadcast(ChatMessage in) { return in; }"}],["@SendToUser","戻り値を、送信元ユーザー専用の宛先へ送る","クラス・メソッド","destinations, broadcast",{"ex":"@SendToUser(\"/queue/reply\")\npublic Ack handle(Command c) { ... }"}],["@SubscribeMapping","購読(SUBSCRIBE)に対して1回だけ応答する","メソッド","value(宛先パターン)",{"ex":"@SubscribeMapping(\"/rooms\")\npublic List<Room> rooms() { ... }"}],["@MessageExceptionHandler","メッセージ処理中の例外を処理するメソッドを指定する","メソッド","value(例外クラスの配列)",{"ex":"@MessageExceptionHandler(IllegalArgumentException.class)\n@SendToUser(\"/queue/errors\")\npublic String handle(Exception e) { return e.getMessage(); }"}]]},{"g":"valid","id":"valid","t":"バリデーション","note":"所属パッケージ: <code>jakarta.validation.constraints</code> と <code>org.springframework.validation.annotation</code>。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@Valid","引数やネストしたオブジェクトを検証対象にする(Jakarta 標準)","引数・フィールド・戻り値","—",{"ex":"@PostMapping(\"/users\")\npublic User create(@Valid @RequestBody UserForm form) { ... }"}],["@Validated","Spring 独自。検証グループを指定できるほか、クラスに付けるとメソッド引数の検証を有効にする","クラス・メソッド・引数","value(検証グループ)",{"ex":"@Validated(OnCreate.class)\n@RestController\npublic class UserApi { }"}],["@NotNull","null でないこと","フィールド・引数","message, groups, payload",{"ex":"@NotNull(message = \"必須です\")\nprivate String name;"}],["@Null","null であること","フィールド・引数","message, groups",{"ex":"@Null(groups = OnCreate.class)\nprivate Long id;"}],["@NotEmpty","null でなく、かつ空でないこと(文字列・コレクション・配列・Map)","フィールド・引数","message, groups",{"ex":"@NotEmpty\nprivate List<String> tags;"}],["@NotBlank","null でなく、空白以外の文字を1つ以上含むこと","フィールド・引数","message, groups",{"ex":"@NotBlank(message = \"名前を入力してください\")\nprivate String name;"}],["@Size","要素数や文字数が指定範囲内であること","フィールド・引数","min, max, message",{"ex":"@Size(min = 8, max = 64)\nprivate String password;"}],["@Min","指定した最小値以上の数値であること","フィールド・引数","value, message",{"ex":"@Min(0)\nprivate int quantity;"}],["@Max","指定した最大値以下の数値であること","フィールド・引数","value, message",{"ex":"@Max(100)\nprivate int percentage;"}],["@DecimalMin","指定した最小値以上であること。小数を文字列で指定する","フィールド・引数","value, inclusive, message",{"ex":"@DecimalMin(value = \"0.0\", inclusive = false)\nprivate BigDecimal rate;"}],["@DecimalMax","指定した最大値以下であること","フィールド・引数","value, inclusive, message",{"ex":"@DecimalMax(\"9999.99\")\nprivate BigDecimal price;"}],["@Positive","0 より大きい数値であること","フィールド・引数","message, groups",{"ex":"@Positive\nprivate int count;"}],["@PositiveOrZero","0 以上の数値であること","フィールド・引数","message, groups",{"ex":"@PositiveOrZero\nprivate int stock;"}],["@Negative","0 より小さい数値であること","フィールド・引数","message, groups",{"ex":"@Negative\nprivate int delta;"}],["@NegativeOrZero","0 以下の数値であること","フィールド・引数","message, groups",{"ex":"@NegativeOrZero\nprivate int adjustment;"}],["@Digits","整数部・小数部の桁数が範囲内であること","フィールド・引数","integer, fraction, message",{"ex":"@Digits(integer = 8, fraction = 2)\nprivate BigDecimal amount;"}],["@Pattern","正規表現に一致すること","フィールド・引数","regexp, flags, message",{"ex":"@Pattern(regexp = \"^[0-9]{3}-[0-9]{4}$\", message = \"郵便番号の形式が不正です\")\nprivate String zip;"}],["@Email","正しい形式のメールアドレスであること","フィールド・引数","regexp, flags, message",{"ex":"@Email\nprivate String email;"}],["@AssertTrue","true であること","フィールド・引数","message, groups",{"ex":"@AssertTrue(message = \"利用規約への同意が必要です\")\nprivate boolean agreed;"}],["@AssertFalse","false であること","フィールド・引数","message, groups",{"ex":"@AssertFalse\nprivate boolean deleted;"}],["@Past","過去の日時であること","フィールド・引数","message, groups",{"ex":"@Past\nprivate LocalDate birthDate;"}],["@PastOrPresent","過去または現在の日時であること","フィールド・引数","message, groups",{"ex":"@PastOrPresent\nprivate LocalDateTime recordedAt;"}],["@Future","未来の日時であること","フィールド・引数","message, groups",{"ex":"@Future\nprivate LocalDate dueDate;"}],["@FutureOrPresent","現在または未来の日時であること","フィールド・引数","message, groups",{"ex":"@FutureOrPresent\nprivate LocalDate startDate;"}]]},{"g":"test","id":"test-boot","t":"Spring Boot テスト","note":"所属パッケージ: <code>org.springframework.boot.test.*</code>。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@SpringBootTest","Spring Boot のコンテキストを起動してテストする","クラス","classes, properties, args, webEnvironment(MOCK / RANDOM_PORT / DEFINED_PORT / NONE)",{"ex":"@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT,\n    properties = \"spring.datasource.url=jdbc:h2:mem:test\")\nclass ApplicationTests { }"}],["@TestConfiguration","テスト専用の Bean 定義を追加する @Configuration。コンポーネントスキャンでは拾われない","クラス","proxyBeanMethods",{"ex":"@TestConfiguration\nstatic class TestBeans {\n    @Bean Clock clock() { return Clock.fixed(FIXED, UTC); }\n}"}],["@TestComponent","テストでのみ使う @Component。本番のスキャン対象から除外される","クラス","value",{"ex":"@TestComponent\npublic class StubMailSender implements MailSender { }"}],["@MockitoBean","コンテキスト内の Bean を Mockito のモックに差し替える(旧 @MockBean の後継)","クラス・フィールド","name, types, reset, answers, enforceOverride",{"ex":"@MockitoBean\nprivate MailSender mailSender;"}],["@MockitoSpyBean","コンテキスト内の Bean を、元の実体を包む Mockito のスパイに差し替える","クラス・フィールド","name, types, reset, proxyTargetAware",{"ex":"@MockitoSpyBean\nprivate UserRepository userRepository;"}],["@WebMvcTest","Spring MVC のコントローラ層だけを起動してテストする","クラス","controllers, properties, includeFilters, excludeAutoConfiguration",{"ex":"@WebMvcTest(UserApi.class)\nclass UserApiTests {\n    @Autowired MockMvc mockMvc;\n    @MockitoBean UserService service;\n}"}],["@WebFluxTest","WebFlux のコントローラ層だけを起動してテストする","クラス","controllers, properties, excludeAutoConfiguration",{"ex":"@WebFluxTest(UserHandler.class)\nclass UserHandlerTests { @Autowired WebTestClient client; }"}],["@DataJpaTest","JPA のリポジトリ層だけを起動してテストする。既定で組み込み DB を使い、各テスト後にロールバックする","クラス","properties, showSql, includeFilters",{"ex":"@DataJpaTest\nclass UserRepositoryTests {\n    @Autowired UserRepository repo;\n    @Autowired TestEntityManager em;\n}"}],["@DataJdbcTest","Spring Data JDBC のリポジトリ層だけを起動してテストする","クラス","properties, includeFilters",{"ex":"@DataJdbcTest\nclass OrderRepositoryTests { }"}],["@JdbcTest","JDBC まわり(JdbcTemplate と組み込み DB)だけを起動してテストする","クラス","properties, includeFilters",{"ex":"@JdbcTest\nclass SqlTests { @Autowired JdbcTemplate jdbc; }"}],["@JooqTest","jOOQ を使ったデータアクセスをテストする","クラス","properties, includeFilters",{"ex":"@JooqTest\nclass DslTests { @Autowired DSLContext dsl; }"}],["@DataR2dbcTest","R2DBC(リアクティブ DB)のデータアクセスをテストする","クラス","properties, includeFilters",{"ex":"@DataR2dbcTest\nclass ReactiveRepoTests { }"}],["@DataMongoTest","MongoDB のデータアクセスをテストする","クラス","properties, includeFilters",{"ex":"@DataMongoTest\nclass DocRepositoryTests { }"}],["@DataRedisTest","Redis のデータアクセスをテストする","クラス","properties, includeFilters",{"ex":"@DataRedisTest\nclass CacheRepositoryTests { }"}],["@DataNeo4jTest","Neo4j のデータアクセスをテストする","クラス","properties, includeFilters",{"ex":"@DataNeo4jTest\nclass GraphRepositoryTests { }"}],["@DataCassandraTest","Cassandra のデータアクセスをテストする","クラス","properties, includeFilters",{"ex":"@DataCassandraTest\nclass CassandraRepositoryTests { }"}],["@DataCouchbaseTest","Couchbase のデータアクセスをテストする","クラス","properties, includeFilters",{"ex":"@DataCouchbaseTest\nclass CouchbaseRepositoryTests { }"}],["@DataElasticsearchTest","Elasticsearch のデータアクセスをテストする","クラス","properties, includeFilters",{"ex":"@DataElasticsearchTest\nclass SearchRepositoryTests { }"}],["@DataLdapTest","LDAP のデータアクセスをテストする","クラス","properties, includeFilters",{"ex":"@DataLdapTest\nclass LdapRepositoryTests { }"}],["@JsonTest","JSON のシリアライズ / デシリアライズだけをテストする","クラス","properties, includeFilters",{"ex":"@JsonTest\nclass UserJsonTests { @Autowired JacksonTester<User> json; }"}],["@RestClientTest","RestTemplate / RestClient を使うクライアントをテストする","クラス","value, components, properties",{"ex":"@RestClientTest(WeatherClient.class)\nclass WeatherClientTests { @Autowired MockRestServiceServer server; }"}],["@WebClientTest","WebClient を使うリアクティブクライアントをテストする","クラス","value, components, properties / Spring Boot 4.0+",{"ex":"@WebClientTest(WeatherWebClient.class)\nclass WeatherWebClientTests { }"}],["@GraphQlTest","GraphQL のコントローラ層だけを起動してテストする","クラス","controllers, properties",{"ex":"@GraphQlTest(BookController.class)\nclass BookGraphQlTests { @Autowired GraphQlTester tester; }"}],["@WebServiceClientTest","Spring Web Services のクライアントをテストする","クラス","value, components, properties",{"ex":"@WebServiceClientTest(SoapClient.class)\nclass SoapClientTests { }"}],["@WebServiceServerTest","Spring Web Services のエンドポイントをテストする","クラス","endpoints, properties",{"ex":"@WebServiceServerTest(SoapEndpoint.class)\nclass SoapEndpointTests { }"}],["@AutoConfigureMockMvc","@SpringBootTest に MockMvc の自動設定を足す","クラス","addFilters, printOnlyOnFailure, webClientEnabled",{"ex":"@SpringBootTest\n@AutoConfigureMockMvc\nclass ApiIntegrationTests { @Autowired MockMvc mockMvc; }"}],["@AutoConfigureWebTestClient","WebTestClient の自動設定を足す","クラス","timeout",{"ex":"@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)\n@AutoConfigureWebTestClient\nclass ReactiveApiTests { }"}],["@AutoConfigureTestDatabase","テスト用の DataSource(組み込み DB)に差し替える","クラス","replace(ANY / AUTO_CONFIGURED / NONE), connection",{"ex":"@DataJpaTest\n@AutoConfigureTestDatabase(replace = Replace.NONE)   // 実 DB を使う\nclass RealDbTests { }"}]]},{"g":"test","id":"test-ctx","t":"TestContext フレームワーク","note":"所属パッケージ: <code>org.springframework.test.context</code> ほか。Spring Boot を使わないテストでも使える土台。","cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["@ContextConfiguration","テスト用 ApplicationContext の読み込み方を指定する","クラス","classes, locations, initializers, inheritLocations",{"ex":"@ExtendWith(SpringExtension.class)\n@ContextConfiguration(classes = AppConfig.class)\nclass ServiceTests { }"}],["@ContextHierarchy","テスト用に ApplicationContext の階層を定義する","クラス","value(@ContextConfiguration の配列)",{"ex":"@ContextHierarchy({@ContextConfiguration(classes = RootConfig.class),\n                   @ContextConfiguration(classes = WebConfig.class)})"}],["@ActiveProfiles","テスト時に有効にするプロファイルを指定する","クラス","profiles, value, resolver, inheritProfiles",{"ex":"@SpringBootTest\n@ActiveProfiles(\"test\")\nclass ServiceTests { }"}],["@TestPropertySource","テスト用のプロパティファイルやインラインプロパティを追加する","クラス","locations, properties, inheritLocations, inheritProperties",{"ex":"@TestPropertySource(properties = {\"app.retry.max=1\", \"app.mail.enabled=false\"})"}],["@TestPropertySources","複数の @TestPropertySource をまとめるコンテナ","クラス","value",{"ex":"@TestPropertySources({@TestPropertySource(\"a.properties\"), @TestPropertySource(\"b.properties\")})"}],["@DynamicPropertySource","静的メソッドで、実行時に決まる値をプロパティとして登録する。Testcontainers との併用が定番","メソッド(static)","—",{"ex":"@DynamicPropertySource\nstatic void props(DynamicPropertyRegistry r) {\n    r.add(\"spring.datasource.url\", postgres::getJdbcUrl);\n}"}],["@DirtiesContext","このテストでコンテキストが汚れたことを示し、キャッシュから破棄させる","クラス・メソッド","methodMode, classMode, hierarchyMode",{"ex":"@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)"}],["@Transactional(テスト)","テストをトランザクション内で実行し、既定で終了時にロールバックする","クラス・メソッド","propagation, readOnly など",{"ex":"@SpringBootTest\n@Transactional\nclass RepositoryTests { }"}],["@Rollback","テスト後にロールバックするかどうかを指定する","クラス・メソッド","value(既定 true)",{"ex":"@Test @Rollback(false)\nvoid keepsDataForInspection() { ... }"}],["@Commit","テスト後にコミットする。@Rollback(false) と同義","クラス・メソッド","—",{"ex":"@Test @Commit\nvoid persistsData() { ... }"}],["@Sql","テストの前後に SQL スクリプトや文を実行する","クラス・メソッド","scripts, statements, executionPhase, config",{"ex":"@Sql(scripts = \"/fixtures/users.sql\",\n     executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)\n@Test void findsSeededUser() { ... }"}],["@SqlConfig / @SqlGroup","@Sql の実行設定をまとめる / 複数の @Sql をまとめる","クラス・メソッド","encoding, separator, errorMode, transactionMode",{"ex":"@Sql(scripts = \"/data.sql\", config = @SqlConfig(encoding = \"UTF-8\"))"}],["@TestConstructor","テストクラスのコンストラクタ引数を自動注入するかを指定する","クラス","autowireMode(ANNOTATED / ALL)",{"ex":"@TestConstructor(autowireMode = AutowireMode.ALL)\nclass ServiceTests { ServiceTests(UserService s) { ... } }"}],["@NestedTestConfiguration","入れ子のテストクラスで、外側の設定を継承するかを指定する","クラス","value(INHERIT / OVERRIDE)",{"ex":"@NestedTestConfiguration(EnclosingConfiguration.OVERRIDE)"}],["@TestExecutionListeners","TestExecutionListener の登録内容を指定する","クラス","listeners, value, mergeMode, inheritListeners",{"ex":"@TestExecutionListeners(mergeMode = MergeMode.MERGE_WITH_DEFAULTS,\n    listeners = MyListener.class)"}],["@ContextCustomizerFactories","ContextCustomizerFactory の登録内容を指定する","クラス","value, factories, mergeMode / Spring 6.1+",{"ex":"@ContextCustomizerFactories(MyFactory.class)"}],["@BootstrapWith","TestContext フレームワークの起動方法を指定する","クラス","value(TestContextBootstrapper)",{"ex":"@BootstrapWith(SpringBootTestContextBootstrapper.class)"}],["@RecordApplicationEvents","テスト中に発行された ApplicationEvent を記録し、検証できるようにする","クラス","—",{"ex":"@SpringBootTest\n@RecordApplicationEvents\nclass EventTests { @Autowired ApplicationEvents events; }"}]]},{"g":"misc","id":"pitfalls","t":"よくある落とし穴","note":null,"cols":["アノテーション","説明","対象","主な属性 / 記述例"],"rows":[["自己呼び出しは効かない","@Transactional / @Async / @Cacheable はプロキシ経由で効く。同じクラス内から this.method() で呼ぶと一切効かない","注意","対処: 別 Bean に切り出すか、自分自身を注入して呼ぶ",{"tag":"注意","ex":"// NG: this.saveInTx();   同一クラス内呼び出しはプロキシを通らない\n// OK: 別 Bean に分ける / AopContext.currentProxy() を使う"}],["@Transactional は public のみ","プロキシ方式では private / protected / package-private のメソッドには効かない","注意","対処: public にする",{"tag":"注意","ex":"@Transactional\npublic void save() { ... }   // public であること"}],["検査例外ではロールバックしない","既定では RuntimeException と Error のみロールバック対象","注意","対処: rollbackFor を指定する",{"tag":"注意","ex":"@Transactional(rollbackFor = Exception.class)"}],["@ManyToOne の既定は EAGER","@OneToMany は LAZY だが @ManyToOne / @OneToOne は EAGER。放置すると N+1 になる","注意","対処: fetch = LAZY + @EntityGraph",{"tag":"注意","ex":"@ManyToOne(fetch = FetchType.LAZY)"}],["@Enumerated の既定は ORDINAL","列挙の並び順を変えると既存データの意味が変わる","注意","対処: 必ず STRING を指定する",{"tag":"注意","ex":"@Enumerated(EnumType.STRING)"}],["@Valid と @Validated の違い","@Valid は Jakarta 標準でネストの検証まで届く。@Validated は Spring 独自で検証グループが使え、クラスに付けるとメソッド引数検証が効く","注意","使い分け",{"tag":"注意","ex":"@Validated              // クラスに付けてメソッド引数検証を有効化\npublic User create(@Valid @RequestBody Form f) { }"}],["@ComponentScan の範囲","@SpringBootApplication は自分のパッケージ以下しか走査しない","注意","対処: 起動クラスを最上位パッケージに置く",{"tag":"注意","ex":"@SpringBootApplication(scanBasePackages = \"com.example\")"}],["@MockBean は非推奨","Spring Boot 3.4 以降、@MockBean / @SpyBean は非推奨。@MockitoBean / @MockitoSpyBean に置き換える","注意","対処: 名前を差し替えるだけでよい",{"tag":"注意","ex":"@MockitoBean\nprivate MailSender mailSender;"}],["@Scheduled は既定で単一スレッド","既定のスケジューラはスレッド1本。重い処理を並べると後続が待たされる","注意","対処: プール数を設定する",{"tag":"注意","ex":"spring.task.scheduling.pool.size=5"}],["@Async の戻り値","void だと例外を拾えない。CompletableFuture を返すか AsyncUncaughtExceptionHandler を登録する","注意","対処",{"tag":"注意","ex":"@Async\npublic CompletableFuture<Result> run() { ... }"}],["@Cacheable の key に注意","引数が複数あると既定のキー生成が意図とずれることがある","注意","対処: key を SpEL で明示する",{"tag":"注意","ex":"@Cacheable(cacheNames = \"u\", key = \"#tenantId + ':' + #id\")"}],["@ConfigurationProperties の登録忘れ","クラスに付けただけでは Bean にならない","注意","対処: @EnableConfigurationProperties か @ConfigurationPropertiesScan、または @Component",{"tag":"注意","ex":"@EnableConfigurationProperties(MailProperties.class)"}]]}];
+const NAV_GROUPS = [{"g":"core","label":"DI と設定"},{"g":"web","label":"Web(MVC / WebFlux)"},{"g":"data","label":"データアクセス"},{"g":"boot","label":"Spring Boot"},{"g":"sec","label":"セキュリティ"},{"g":"misc","label":"AOP・非同期・キャッシュ"},{"g":"valid","label":"バリデーション"},{"g":"test","label":"テスト"}];
+const PRIORITY = {"t":"まず押さえる15個","label":"アノテーション","group":"core","note":"この15個で標準的な Web アプリはひととおり書ける。残りは必要になった時に引けばよい。","rows":[["★★★","@SpringBootApplication","起動クラスに1つ。自動設定とスキャンをまとめて有効化する"],["★★★","@RestController + @RequestMapping","REST API の入口"],["★★★","@GetMapping / @PostMapping","HTTP メソッドごとの割り当て"],["★★★","@PathVariable / @RequestParam / @RequestBody","リクエストを引数に受け取る"],["★★★","@Service / @Repository / @Component","Bean として登録する"],["★★★","@Autowired(コンストラクタ注入)","依存を注ぎ込む。コンストラクタが1つなら省略可"],["★★★","@Transactional","トランザクション境界。参照だけなら readOnly = true"],["★★☆","@Entity / @Id / @Column","JPA のエンティティ定義"],["★★☆","@OneToMany / @ManyToOne","エンティティ間の関連。fetch は LAZY が基本"],["★★☆","@Query / @Param","リポジトリに JPQL を直接書く"],["★★☆","@Valid / @NotBlank / @Size","入力チェック"],["★★☆","@ConfigurationProperties","application.yml を型付きオブジェクトに束ねる"],["★☆☆","@RestControllerAdvice + @ExceptionHandler","例外を横断的に処理する"],["★☆☆","@SpringBootTest / @WebMvcTest / @DataJpaTest","テストの起点を選ぶ"],["★☆☆","@MockitoBean","テストで Bean をモックに差し替える"]]};
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = s => esc(s)
+  .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+  .replace(/`([^`]+)`/g, '<code>$1</code>');
+
+function keysHtml(raw){
+  if (!raw || raw === '—') return '<span class="knone">—</span>';
+  const chords = String(raw).split(' ').filter(Boolean);
+  const parts = [];
+  chords.forEach((chord, ci) => {
+    if (ci) parts.push('<span class="ksep">›</span>');
+    chord.split('+').forEach((k, i) => {
+      if (i) parts.push('<span class="ksep">+</span>');
+      parts.push('<kbd>' + esc(k) + '</kbd>');
+    });
+  });
+  return parts.join('');
+}
+
+const main = document.getElementById('main');
+const rail = document.getElementById('rail');
+const frag = document.createDocumentFragment();
+let totalRows = 0;
+
+for (const sec of DATA){
+  const el = document.createElement('section');
+  el.className = 'sec';
+  el.id = sec.id;
+  el.dataset.group = sec.g;
+
+  const nCols = sec.cols.length;
+  const isKeys = sec.kind === 'keys';
+  const cls = nCols === 4 ? ['c-cmd','c-sum','c-det','c-par'] : ['c-cmd','c-sum','c-par'];
+  const sigil = sec.sig || SIGIL;
+
+  const head = '<div class="sec-head"><h3>' + esc(sec.t) + '</h3><span class="n">' + sec.rows.length + ' 項目</span></div>'
+    + (sec.note ? '<p class="sec-note">' + fmt(sec.note) + '</p>' : '');
+  const ths = sec.cols.map((c,i) => '<th class="' + cls[i] + '" scope="col">' + esc(c) + '</th>').join('');
+
+  const trs = sec.rows.map(r => {
+    const meta = (typeof r[r.length-1] === 'object') ? r[r.length-1] : null;
+    const vals = meta ? r.slice(0,-1) : r;
+    totalRows++;
+    const cells = [];
+
+    if (isKeys){
+      let c0 = '<span class="act">' + fmt(vals[0]) + '</span>';
+      if (meta && meta.tag) c0 += '<span class="tag">' + esc(meta.tag) + '</span>';
+      cells.push('<td data-label="' + esc(sec.cols[0]) + '">' + c0 + '</td>');
+      for (let i = 1; i < nCols; i++){
+        const v = vals[i] == null ? '—' : vals[i];
+        if (i <= 2){
+          const btn = (v && v !== '—')
+            ? '<button class="keycell" type="button" title="クリックでコピー" data-copy="' + esc(v) + '">' + keysHtml(v) + '</button>'
+            : '<span class="knone">—</span>';
+          cells.push('<td data-label="' + esc(sec.cols[i]) + '">' + btn + '</td>');
+        } else {
+          cells.push('<td data-label="' + esc(sec.cols[i]) + '"><span class="det' + (v === '—' ? ' none' : '') + '">' + fmt(v) + '</span></td>');
+        }
+      }
+    } else {
+      const name = vals[0];
+      let first = '<button class="cmd" type="button" data-copy="' + esc(name) + '" title="クリックでコピー">'
+        + (name.startsWith('/') ? '<i>/</i>' + esc(name.slice(1)) : esc(name)) + '</button>';
+      if (meta && meta.alias) first += '<div class="aliases">' + meta.alias.map(a => '<span class="alias">' + esc(a) + '</span>').join('') + '</div>';
+      if (meta && meta.tag) first += '<span class="tag">' + esc(meta.tag) + '</span>';
+      if (meta && meta.kind) first += '<span class="kindchip k-' + meta.kind.k + '">' + esc(meta.kind.l) + '</span>';
+      cells.push('<td class="' + cls[0] + '" data-label="' + esc(sec.cols[0]) + '">' + first + '</td>');
+      for (let i = 1; i < nCols; i++){
+        const isLast = (i === nCols - 1);
+        let v = vals[i];
+        if (v == null || v === '') v = isLast ? '' : '—';
+        let inner;
+        if (isLast){
+          const p = (v && v !== '—') ? '<span class="par">' + fmt(v) + '</span>'
+            : (v === '—' ? '<span class="par none">—</span>' : '');
+          const ex = meta && meta.ex
+            ? '<button class="ex" type="button" title="クリックでコピー" data-copy="' + esc(meta.ex) + '"><b>' + sigil + '</b>' + esc(meta.ex) + '</button>'
+            : '';
+          inner = '<div class="pcell">' + p + ex + '</div>';
+        } else {
+          inner = '<span class="' + (i === 1 ? 'sum' : 'det') + (v === '—' ? ' none' : '') + '">' + fmt(v) + '</span>';
+        }
+        cells.push('<td class="' + cls[i] + '" data-label="' + esc(sec.cols[i]) + '">' + inner + '</td>');
+      }
+    }
+
+    const search = (vals.join(' ') + ' '
+      + (meta && meta.alias ? meta.alias.join(' ') : '') + ' '
+      + (meta && meta.tag ? meta.tag : '') + ' '
+      + (meta && meta.ex ? meta.ex : '') + ' '
+      + (meta && meta.s ? meta.s : '') + ' '
+      + (meta && meta.kind ? meta.kind.l : '')).toLowerCase();
+    return '<tr class="row' + (meta && meta.tag ? ' flagged' : '') + '" data-s="' + esc(search) + '">' + cells.join('') + '</tr>';
+  }).join('');
+
+  el.innerHTML = head + '<div class="tablewrap"><table class="cols-' + nCols + (isKeys ? ' tkeys' : '') + '">'
+    + '<thead><tr>' + ths + '</tr></thead><tbody>' + trs + '</tbody></table></div>';
+  frag.appendChild(el);
+}
+main.insertBefore(frag, document.getElementById('empty'));
+
+if (PRIORITY && PRIORITY.rows.length){
+  const last = document.createElement('section');
+  last.className = 'sec';
+  last.id = 'priority';
+  last.dataset.group = PRIORITY.group;
+  last.innerHTML = '<div class="sec-head"><h3>' + esc(PRIORITY.t) + '</h3><span class="n">優先度順</span></div>'
+    + (PRIORITY.note ? '<p class="sec-note">' + fmt(PRIORITY.note) + '</p>' : '')
+    + '<div class="tablewrap"><table class="cols-3 priority"><thead><tr>'
+    + '<th class="c-cmd" scope="col">優先度</th><th class="c-sum" scope="col">' + esc(PRIORITY.label) + '</th>'
+    + '<th class="c-par" scope="col">理由</th></tr></thead><tbody>'
+    + PRIORITY.rows.map(([s,c,w]) =>
+        '<tr class="row" data-s="' + esc((c + ' ' + w).toLowerCase()) + '">'
+        + '<td data-label="優先度">' + s + '</td>'
+        + '<td data-label="' + esc(PRIORITY.label) + '"><span class="sum">'
+        + c.split(' / ').map(x => '<code>' + esc(x) + '</code>').join(' ') + '</span></td>'
+        + '<td data-label="理由"><span class="det">' + esc(w) + '</span></td></tr>').join('')
+    + '</tbody></table></div>';
+  main.insertBefore(last, document.getElementById('empty'));
+}
+
+let navHtml = '';
+for (const grp of NAV_GROUPS){
+  const secs = DATA.filter(s => s.g === grp.g);
+  if (!secs.length) continue;
+  navHtml += '<h2>' + esc(grp.label) + '</h2><div class="navlist">';
+  for (const s of secs){
+    navHtml += '<a href="#' + s.id + '" data-target="' + s.id + '">' + esc(s.t) + '<span>' + s.rows.length + '</span></a>';
+  }
+  navHtml += '</div>';
+}
+rail.innerHTML = navHtml;
+
+const q = document.getElementById('q');
+const hits = document.getElementById('hits');
+const emptyEl = document.getElementById('empty');
+const chips = [...document.querySelectorAll('.chip')];
+let scope = 'all';
+
+function apply(){
+  const term = q.value.trim().toLowerCase();
+  let shown = 0;
+  for (const sec of document.querySelectorAll('.sec')){
+    // 末尾が * のスコープは前方一致(例: f-* はサービス別の全コマンド)
+    const inScope = scope === 'all'
+      || (scope.endsWith('*') ? sec.dataset.group.startsWith(scope.slice(0, -1)) : sec.dataset.group === scope);
+    let n = 0;
+    for (const row of sec.querySelectorAll('tr.row')){
+      const ok = inScope && (!term || row.dataset.s.includes(term));
+      row.hidden = !ok;
+      if (ok) n++;
+    }
+    sec.hidden = n === 0;
+    if (sec.id !== 'priority') shown += n;
+  }
+  hits.textContent = (term || scope !== 'all') ? shown + ' / ' + totalRows + ' 件' : totalRows + ' 件';
+  emptyEl.classList.toggle('on', shown === 0);
+}
+q.addEventListener('input', apply);
+chips.forEach(c => c.addEventListener('click', () => {
+  scope = c.dataset.scope;
+  chips.forEach(x => x.setAttribute('aria-pressed', String(x === c)));
+  apply();
+}));
+apply();
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('.cmd, .ex, .keycell');
+  if (!b || !navigator.clipboard || !navigator.clipboard.writeText) return;
+  navigator.clipboard.writeText(b.dataset.copy).then(() => {
+    b.classList.add('copied');
+    const sig = b.querySelector('b');
+    if (sig && !sig.dataset.orig){ sig.dataset.orig = sig.textContent; sig.textContent = '✓'; }
+    setTimeout(() => {
+      b.classList.remove('copied');
+      if (sig && sig.dataset.orig){ sig.textContent = sig.dataset.orig; delete sig.dataset.orig; }
+    }, 1000);
+  }, () => {});
+});
+
+const bar = document.getElementById('bar');
+const setBar = () => document.documentElement.style.setProperty('--bar', bar.offsetHeight + 'px');
+setBar();
+if (window.ResizeObserver) new ResizeObserver(setBar).observe(bar); else window.addEventListener('resize', setBar);
+
+const links = [...rail.querySelectorAll('a')];
+const byId = new Map(links.map(a => [a.dataset.target, a]));
+const io = new IntersectionObserver(entries => {
+  for (const en of entries){
+    if (en.isIntersecting){
+      links.forEach(a => a.removeAttribute('aria-current'));
+      const a = byId.get(en.target.id);
+      if (a){
+        a.setAttribute('aria-current','true');
+        const r = a.getBoundingClientRect(), rr = rail.getBoundingClientRect();
+        if (rail.scrollHeight > rail.clientHeight && (r.top < rr.top || r.bottom > rr.bottom)){
+          rail.scrollTop += (r.top - rr.top) - rail.clientHeight / 3;
+        }
+      }
+      break;
+    }
+  }
+}, {rootMargin:'-80px 0px -70% 0px', threshold:0});
+document.querySelectorAll('.sec').forEach(s => io.observe(s));
+
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)){
+    e.preventDefault();
+    q.focus();
+  }
+});
+
+</script>
+</body>
+</html>
