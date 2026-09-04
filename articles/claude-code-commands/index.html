@@ -349,7 +349,8 @@ for (const sec of DATA){
     const search = (vals.join(' ') + ' '
       + (meta && meta.alias ? meta.alias.join(' ') : '') + ' '
       + (meta && meta.tag ? meta.tag : '') + ' '
-      + (meta && meta.ex ? meta.ex : '')).toLowerCase();
+      + (meta && meta.ex ? meta.ex : '') + ' '
+      + (meta && meta.s ? meta.s : '')).toLowerCase();
     return '<tr class="row' + (meta && meta.tag ? ' flagged' : '') + '" data-s="' + esc(search) + '">' + cells.join('') + '</tr>';
   }).join('');
 
