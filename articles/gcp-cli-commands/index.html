@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Google Cloud CLI(gcloud / bq)の実務でよく使うコマンドをサービス別に整理した索引。全項目に実行例つき。">
+<style>
+html{color-scheme:light dark}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>gcloud コマンド索引</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+
+<style>
+:root{
+  --paper:#F6F7F4; --surface:#FFFFFF; --surface-2:#EDF0EA;
+  --ink:#15181A; --ink-2:#555C55; --ink-3:#848B82;
+  --rule:#DDE1D8; --rule-strong:#C2C8BB;
+  --accent:#0E6B58; --accent-ink:#0A5445;
+  --warn:#87590F; --warn-soft:#F2E7CE;
+  --mono:'JetBrains Mono','SFMono-Regular',Consolas,'Liberation Mono',monospace;
+  --sans:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic UI',system-ui,sans-serif;
+  --bar:56px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111412; --surface:#171B18; --surface-2:#1D221E;
+    --ink:#E9ECE5; --ink-2:#A0A89C; --ink-3:#7A8278;
+    --rule:#272D28; --rule-strong:#39413A;
+    --accent:#5CCFAE; --accent-ink:#7FDDC2;
+    --warn:#DFB35F; --warn-soft:#33280F;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111412; --surface:#171B18; --surface-2:#1D221E;
+  --ink:#E9ECE5; --ink-2:#A0A89C; --ink-3:#7A8278;
+  --rule:#272D28; --rule-strong:#39413A;
+  --accent:#5CCFAE; --accent-ink:#7FDDC2;
+  --warn:#DFB35F; --warn-soft:#33280F;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:15px;line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+code{font-family:var(--mono);font-size:.88em;font-weight:500}
+
+.bar{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--rule-strong)}
+.bar-in{max-width:1280px;margin:0 auto;padding:10px 28px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+.brand{display:flex;align-items:baseline;gap:10px;flex:0 0 auto}
+.brand-name{font-size:15px;font-weight:700;letter-spacing:.01em;white-space:nowrap}
+.brand-meta{font-family:var(--mono);font-size:11px;color:var(--ink-3);white-space:nowrap}
+.search{flex:1 1 240px;min-width:0;position:relative;display:flex;align-items:center}
+.search::before{content:'/';position:absolute;left:11px;font-family:var(--mono);font-weight:700;color:var(--accent);pointer-events:none}
+.search input{
+  width:100%;font-family:var(--sans);font-size:13.5px;color:var(--ink);
+  background:var(--paper);border:1px solid var(--rule-strong);border-radius:2px;padding:6px 12px 6px 26px;
+}
+.search input::placeholder{color:var(--ink-3)}
+.search input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{
+  font-family:var(--mono);font-size:11.5px;border:1px solid var(--rule-strong);
+  background:transparent;color:var(--ink-2);padding:5px 10px;border-radius:2px;cursor:pointer;
+}
+.chip:hover{background:var(--surface-2)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+:root[data-theme="dark"] .chip[aria-pressed="true"]{color:#0D1210}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .chip[aria-pressed="true"]{color:#0D1210}
+}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hitcount{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap;margin-left:auto}
+
+.shell{max-width:1280px;margin:0 auto;padding:0 28px 90px;display:grid;grid-template-columns:214px minmax(0,1fr);gap:40px;align-items:start}
+.rail{
+  position:sticky;top:var(--bar);max-height:calc(100vh - var(--bar));
+  overflow-y:auto;overscroll-behavior:contain;padding:24px 10px 40px 0;
+  scrollbar-width:thin;scrollbar-color:var(--rule-strong) transparent;
+}
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-track{background:transparent}
+.rail::-webkit-scrollbar-thumb{background:var(--rule-strong);border-radius:3px}
+.rail h2{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin:0 0 6px;font-weight:500}
+.rail h2:not(:first-child){margin-top:20px}
+.navlist{display:flex;flex-direction:column}
+.rail a{
+  display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+  padding:3px 0 3px 10px;margin-left:-12px;color:var(--ink-2);text-decoration:none;
+  font-size:13px;line-height:1.45;border-left:2px solid transparent;
+}
+.rail a:hover{color:var(--ink)}
+.rail a[aria-current="true"]{color:var(--accent-ink);border-left-color:var(--accent);font-weight:500}
+.rail a span{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.rail a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+main{padding-top:24px;min-width:0}
+.preface{margin:0 0 30px;color:var(--ink-2);font-size:13px;max-width:76ch}
+
+.sec{margin:0 0 40px;scroll-margin-top:calc(var(--bar) + 14px)}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;border-bottom:1px solid var(--rule-strong);padding-bottom:7px}
+.sec-head h3{font-size:17px;font-weight:700;margin:0;line-height:1.4;text-wrap:balance}
+.sec-head .n{font-family:var(--mono);font-size:11px;color:var(--ink-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.sec-note{margin:9px 0 0;color:var(--ink-2);font-size:13px;max-width:70ch}
+
+.tablewrap{overflow-x:auto;margin-top:12px}
+table{border-collapse:collapse;width:100%;min-width:760px}
+thead th{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:500;text-align:left;padding:0 14px 6px 0;
+  border-bottom:1px solid var(--rule-strong);white-space:nowrap;
+}
+tbody td{padding:11px 14px 12px 0;border-bottom:1px solid var(--rule);vertical-align:top;font-size:13px;line-height:1.65}
+tbody tr:hover td{background:var(--surface-2)}
+tbody td:last-child,thead th:last-child{padding-right:0}
+.c-cmd{width:18%}
+.c-sum{width:20%}
+.c-det{width:auto}
+.c-par{width:27%}
+.cols-3 .c-cmd{width:22%}
+.cols-3 .c-sum{width:auto}
+.cols-3 .c-par{width:34%}
+.tkeys th:nth-child(1),.tkeys td:nth-child(1){width:26%}
+.tkeys th:nth-child(2),.tkeys td:nth-child(2){width:21%}
+.tkeys th:nth-child(3),.tkeys td:nth-child(3){width:21%}
+.tkeys th:nth-child(4),.tkeys td:nth-child(4){width:auto}
+
+.cmd{
+  font-family:var(--mono);font-size:12.5px;font-weight:500;background:none;border:0;
+  padding:0;margin:0;cursor:pointer;color:var(--ink);text-align:left;line-height:1.5;
+  border-bottom:1px dashed transparent;word-break:break-word;
+}
+.cmd i{color:var(--accent);font-style:normal}
+.cmd:hover{border-bottom-color:var(--rule-strong)}
+.cmd:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cmd.copied{color:var(--accent-ink)}
+.act{color:var(--ink);font-weight:500}
+.aliases{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.alias{font-family:var(--mono);font-size:10px;color:var(--ink-3);border:1px solid var(--rule);border-radius:2px;padding:1px 5px;white-space:nowrap}
+.pcell{min-width:0}
+.par{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);word-break:break-word;display:block}
+.par.none{color:var(--ink-3)}
+.sum{color:var(--ink)}
+.det{color:var(--ink-2)}
+.det code,.sum code{background:var(--surface-2);border-radius:2px;padding:1px 4px;color:var(--ink)}
+.ex{
+  display:flex;gap:7px;margin-top:7px;width:100%;
+  font-family:var(--mono);font-size:11.5px;line-height:1.6;text-align:left;
+  background:var(--surface-2);border:0;border-left:2px solid var(--accent);
+  padding:5px 8px;color:var(--ink);cursor:pointer;white-space:pre-wrap;word-break:break-word;
+}
+.ex:hover{box-shadow:inset 0 0 0 1px var(--rule-strong)}
+.ex:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.ex.copied{box-shadow:inset 0 0 0 1px var(--accent)}
+.ex b{color:var(--accent);font-weight:700;flex:0 0 auto;user-select:none;width:.9em}
+
+.keycell{
+  display:flex;flex-wrap:wrap;gap:4px;align-items:center;width:100%;
+  background:none;border:0;padding:1px 0;margin:0;cursor:pointer;text-align:left;
+}
+.keycell:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.keycell.copied kbd{border-color:var(--accent);color:var(--accent-ink)}
+kbd{
+  font-family:var(--mono);font-size:11px;line-height:1.6;
+  border:1px solid var(--rule-strong);border-bottom-width:2px;border-radius:3px;
+  padding:1px 6px;background:var(--surface);color:var(--ink);white-space:nowrap;
+}
+.keycell:hover kbd{border-color:var(--ink-3)}
+.ksep{font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+.knone{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+
+.tag{display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:2px;margin-top:6px;background:var(--warn-soft);color:var(--warn)}
+tr.flagged td:first-child{box-shadow:inset 2px 0 0 var(--warn);padding-left:10px}
+
+.priority td:first-child{font-family:var(--mono);font-size:12px;color:var(--accent-ink);white-space:nowrap}
+
+footer{max-width:1280px;margin:0 auto;padding:24px 28px 60px;border-top:1px solid var(--rule-strong);color:var(--ink-2);font-size:12.5px}
+footer ul{margin:8px 0 0;padding-left:1.1em}
+footer li{margin-bottom:5px}
+footer .siblings{margin-top:16px;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px}
+footer .siblings a{color:var(--accent-ink)}
+
+.empty{display:none;padding:40px 0;color:var(--ink-3);font-family:var(--mono);font-size:13px;text-align:center}
+.empty.on{display:block}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .rail{position:static;max-height:none;overflow:visible;padding:20px 0 16px;border-bottom:1px solid var(--rule)}
+  .navlist{flex-direction:row;flex-wrap:wrap;gap:2px 5px}
+  .rail a{border-left:0;border:1px solid var(--rule);border-radius:2px;padding:3px 8px;margin-left:0}
+  .rail a[aria-current="true"]{border-color:var(--accent)}
+  .rail h2:not(:first-child){margin-top:14px}
+}
+@media (max-width:680px){
+  .bar-in,.shell,footer{padding-left:18px;padding-right:18px}
+  .hitcount{margin-left:0}
+  table{min-width:0}
+  thead{display:none}
+  tbody tr{display:block;border-bottom:1px solid var(--rule-strong);padding:12px 0}
+  tbody tr:hover td{background:none}
+  tbody td{display:grid;grid-template-columns:5.6em minmax(0,1fr);gap:10px;border:0;padding:3px 0}
+  tbody td::before{content:attr(data-label);font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-3);padding-top:4px}
+  .tkeys th:nth-child(n),.tkeys td:nth-child(n){width:auto}
+  tr.flagged td:first-child{box-shadow:none;padding-left:0}
+  tr.flagged{box-shadow:inset 2px 0 0 var(--warn);padding-left:10px}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="bar" id="bar">
+  <div class="bar-in">
+    <div class="brand">
+      <span class="brand-name">gcloud コマンド索引</span>
+      <span class="brand-meta">Google Cloud CLI / 2026-09-04</span>
+    </div>
+    <label class="search">
+      <input id="q" type="search" placeholder="サービス名・コマンド・オプションで絞り込む" autocomplete="off" spellcheck="false" aria-label="検索">
+    </label>
+    <div class="chips" role="group" aria-label="種別で絞り込む">
+        <button class="chip" data-scope="all" aria-pressed="true">すべて</button>
+        <button class="chip" data-scope="core" aria-pressed="false">基本</button>
+        <button class="chip" data-scope="project" aria-pressed="false">プロジェクト</button>
+        <button class="chip" data-scope="compute" aria-pressed="false">Compute</button>
+        <button class="chip" data-scope="container" aria-pressed="false">GKE</button>
+        <button class="chip" data-scope="serverless" aria-pressed="false">Run / Functions</button>
+        <button class="chip" data-scope="storage" aria-pressed="false">Storage / BQ</button>
+        <button class="chip" data-scope="data" aria-pressed="false">データ</button>
+        <button class="chip" data-scope="ops" aria-pressed="false">運用</button>
+        <button class="chip" data-scope="danger" aria-pressed="false">危険</button>
+    </div>
+    <span class="hitcount" id="hits"></span>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="カテゴリ"></nav>
+  <main id="main">
+    <p class="preface">Google Cloud CLI(<code>gcloud</code> と <code>bq</code>)のうち、実務で頻度の高いものをサービス別に並べた一覧。 <b>コマンド名と実行例はクリックでコピーできる。</b> 全コマンド共通の <code>--format</code> / <code>--filter</code> を併記した実行例にしている。 取り返しのつかない操作には <b>破壊的</b> の印を付け、実行例には「先に確認するためのコマンド」を置いた。</p>
+    <p class="empty" id="empty">該当なし</p>
+  </main>
+</div>
+
+<footer>
+  <strong>注記</strong>
+  <ul>
+    <li>このページは <b>公式ドキュメントに基づく</b>。この端末に gcloud が入っていないため、AWS 版のような<b>ローカル実行での検証はしていない</b>。</li>
+    <li>コマンドの選定は実務での使用頻度によるもので、網羅ではない。全一覧は <code>gcloud &lt;group&gt; --help</code> で引くこと。</li>
+    <li><code>gsutil</code> は <code>gcloud storage</code> に置き換わっている。新規に書くなら後者を使う。</li>
+    <li><code>gcloud auth login</code>(CLI用)と <code>gcloud auth application-default login</code>(アプリ用)は別物。ライブラリが認証できないときは後者を疑う。</li>
+    <li><b>破壊的</b>の行の実行例は、削除コマンドそのものではなく<b>実行前に確認するためのコマンド</b>を載せている。</li>
+  </ul>
+  <div class="siblings"><span>同じシリーズ:</span><a href="../claude-code-commands/">Claude Code コマンド索引</a><a href="../git-commands/">Git コマンド索引</a><a href="../intellij-shortcuts/">IntelliJ IDEA ショートカット索引</a><a href="../vscode-shortcuts/">VS Code ショートカット索引</a><a href="../aws-cli-commands/">AWS CLI コマンド索引</a></div>
+</footer>
+
+<script>
+const SIGIL = "$";
+const DATA = [{"g":"core","id":"setup","t":"セットアップと認証","note":"gcloud は「ユーザー認証」と「アプリケーションのデフォルト認証情報(ADC)」が別物。両方要る場面が多い。","cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["gcloud init","対話で初期設定","アカウント・プロジェクト・既定リージョンをまとめて設定する。","[--no-launch-browser]",{"ex":"gcloud init"}],["gcloud auth login","ユーザーとして認証","gcloud コマンド自身が使う認証情報。","[--no-launch-browser]",{"ex":"gcloud auth login"}],["gcloud auth application-default login","ADC を設定","**アプリやライブラリが使う認証情報。**`auth login` とは別に必要。","[--no-launch-browser]",{"ex":"gcloud auth application-default login"}],["gcloud auth list","認証済みアカウント一覧","`*` が現在のアカウント。","[--filter=status:ACTIVE]",{"ex":"gcloud auth list --filter=status:ACTIVE --format=\"value(account)\""}],["gcloud auth print-access-token","アクセストークンを出力","curl で API を直接叩くときに。","—",{"ex":"curl -H \"Authorization: Bearer $(gcloud auth print-access-token)\" https://run.googleapis.com/v2/projects/my-proj/locations/asia-northeast1/services"}],["gcloud config set","設定値を変更","`project` `region` `zone` あたりを最初に入れておく。","set <key> <value>",{"ex":"gcloud config set project my-project"}],["gcloud config list","有効な設定を表示","**操作前の確認として最初に打つ癖をつける。**","[--all]",{"ex":"gcloud config list"}],["gcloud config configurations","設定プロファイルを切り替え","本番と検証を行き来するときに事故が減る。","create|list|activate <name>",{"ex":"gcloud config configurations activate prod"}],["gcloud components update","CLIを更新","`gcloud components install <c>` で追加コンポーネント。","update / install <component>",{"ex":"gcloud components install gke-gcloud-auth-plugin"}],["gcloud version","バージョン確認","各コンポーネントの版が出る。","—",{"ex":"gcloud version"}]]},{"g":"core","id":"output","t":"出力の絞り込みと整形","note":"`--format` と `--filter` は全コマンド共通。ここを覚えると出力が扱いやすくなる。","cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["--format","出力形式を指定","`value()` はシェル連携、`table()` は目視、`json` は加工向き。","json | yaml | value(<f>) | table(<f>,...)",{"ex":"gcloud compute instances list --format=\"table(name,zone,status,networkInterfaces[0].networkIP)\""}],["--filter","条件で絞る","サーバー側で絞られるので大量データでも速い。","--filter=\"<expr>\"",{"ex":"gcloud compute instances list --filter=\"status=RUNNING AND labels.env=prod\""}],["--limit","件数を制限","`--sort-by` と組み合わせる。","--limit <n> [--sort-by <f>]",{"ex":"gcloud logging read \"severity>=ERROR\" --limit 20"}],["--project","プロジェクトを一時指定","既定を変えずに他プロジェクトを触れる。","--project <id>",{"ex":"gcloud run services list --project other-project --region asia-northeast1"}],["--quiet","確認プロンプトを抑止","CIで使う。**削除系に付けると確認なしで消える。**","-q / --quiet",{"ex":"gcloud builds submit --tag <image> --quiet"}],["--impersonate-service-account","サービスアカウントとして実行","鍵ファイルを配らずに権限を借りる。","--impersonate-service-account=<email>",{"ex":"gcloud storage ls --impersonate-service-account=deploy@my-proj.iam.gserviceaccount.com"}],["gcloud <group> --help","ヘルプ","`gcloud help run deploy` でも同じ。","--help",{"ex":"gcloud run deploy --help"}]]},{"g":"project","id":"project","t":"プロジェクトと IAM","note":null,"cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["gcloud projects list","プロジェクト一覧","権限のあるものだけ出る。","[--filter] [--format]",{"ex":"gcloud projects list --format=\"table(projectId,name,projectNumber)\""}],["gcloud projects describe","プロジェクトの詳細","番号やラベルの確認に。","<project-id>",{"ex":"gcloud projects describe my-project"}],["gcloud services list","有効なAPIを一覧","`--available` で有効化できるものを見る。","[--enabled] [--available]",{"ex":"gcloud services list --enabled --format=\"value(config.name)\""}],["gcloud services enable","APIを有効化","使う前に有効化が要るサービスが多い。","<service>...",{"ex":"gcloud services enable run.googleapis.com artifactregistry.googleapis.com"}],["gcloud projects get-iam-policy","IAMポリシーを取得","誰にどのロールが付いているか。","<project-id> [--format]",{"ex":"gcloud projects get-iam-policy my-project --format=json"}],["gcloud projects add-iam-policy-binding","権限を付与","ロールは1つずつ付ける。","<project> --member=<m> --role=<r>",{"ex":"gcloud projects add-iam-policy-binding my-project --member=serviceAccount:api@my-project.iam.gserviceaccount.com --role=roles/run.invoker"}],["gcloud projects remove-iam-policy-binding","権限を剥奪","付与と同じ引数で外す。","<project> --member=<m> --role=<r>",{"ex":"gcloud projects remove-iam-policy-binding my-project --member=user:tmp@example.com --role=roles/editor"}],["gcloud iam service-accounts list","サービスアカウント一覧","棚卸しの起点。","[--filter]",{"ex":"gcloud iam service-accounts list --format=\"table(email,displayName,disabled)\""}],["gcloud iam service-accounts create","サービスアカウントを作成","用途ごとに分けるのが原則。","<name> --display-name=<d>",{"ex":"gcloud iam service-accounts create api-runner --display-name=\"API runner\""}],["gcloud iam service-accounts keys list","鍵の一覧","**長期鍵の棚卸しに使う。**可能なら鍵を作らない設計にする。","--iam-account=<email>",{"ex":"gcloud iam service-accounts keys list --iam-account=api@my-project.iam.gserviceaccount.com"}],["gcloud iam roles describe","ロールの権限内容","付与前に何ができるロールか確認する。","<role> [--project <p>]",{"ex":"gcloud iam roles describe roles/run.invoker"}]]},{"g":"compute","id":"compute","t":"Compute Engine","note":null,"cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["gcloud compute instances list","VM一覧","ゾーンをまたいで全部出る。","[--filter] [--format]",{"ex":"gcloud compute instances list --filter=\"status=RUNNING\" --format=\"table(name,zone,machineType.basename(),status)\""}],["gcloud compute instances create","VMを作成","マシンタイプとイメージの指定が要る。","<name> --zone=<z> --machine-type=<t> --image-family=<f>",{"ex":"gcloud compute instances create web-1 --zone=asia-northeast1-a --machine-type=e2-medium --image-family=debian-12 --image-project=debian-cloud"}],["gcloud compute instances start / stop","起動 / 停止","停止中はディスク課金のみになる。","<name> --zone=<z>",{"ex":"gcloud compute instances stop web-1 --zone=asia-northeast1-a"}],["gcloud compute ssh","SSHで接続","鍵は自動生成される。`--tunnel-through-iap` で外部IPなしでも入れる。","<name> --zone=<z> [--tunnel-through-iap]",{"ex":"gcloud compute ssh web-1 --zone=asia-northeast1-a --tunnel-through-iap"}],["gcloud compute scp","ファイル転送","`ssh` と同じ経路を使う。","<src> <name>:<dst> --zone=<z>",{"ex":"gcloud compute scp ./app.tar.gz web-1:~/ --zone=asia-northeast1-a"}],["gcloud compute instances describe","VMの詳細","内部IPやメタデータの確認に。","<name> --zone=<z> [--format]",{"ex":"gcloud compute instances describe web-1 --zone=asia-northeast1-a --format=\"value(networkInterfaces[0].networkIP)\""}],["gcloud compute disks snapshot","ディスクのスナップショット","変更作業の前に取る。","<disk> --snapshot-names=<n> --zone=<z>",{"ex":"gcloud compute disks snapshot web-1 --snapshot-names=web-1-before-upgrade --zone=asia-northeast1-a"}],["gcloud compute firewall-rules list","ファイアウォール一覧","`0.0.0.0/0` の穴を探すのに使う。","[--filter] [--format]",{"ex":"gcloud compute firewall-rules list --format=\"table(name,network,sourceRanges.list(),allowed[].map().firewall_rule().list())\""}],["gcloud compute firewall-rules create","ルールを作成","範囲を絞ってから作る。","<name> --allow=<proto:port> --source-ranges=<cidr>",{"ex":"gcloud compute firewall-rules create allow-https --allow=tcp:443 --source-ranges=10.0.0.0/8"}],["gcloud compute addresses list","静的IPの一覧","未使用のIPは課金対象になる。","[--global] [--filter]",{"ex":"gcloud compute addresses list --filter=\"status=RESERVED\""}],["gcloud compute instance-groups managed list","マネージドインスタンスグループ","オートスケール構成の確認に。","[--filter]",{"ex":"gcloud compute instance-groups managed list"}]]},{"g":"container","id":"gke","t":"GKE と Artifact Registry","note":null,"cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["gcloud container clusters list","クラスタ一覧","バージョンとノード数を見る。","[--region <r>] [--format]",{"ex":"gcloud container clusters list --format=\"table(name,location,currentMasterVersion,currentNodeCount,status)\""}],["gcloud container clusters get-credentials","kubeconfig を書き込む","**これを打ってから `kubectl` を使う。**","<cluster> --region=<r> | --zone=<z>",{"ex":"gcloud container clusters get-credentials prod-cluster --region=asia-northeast1"}],["gcloud container clusters describe","クラスタの詳細","エンドポイントやネットワーク設定。","<cluster> --region=<r>",{"ex":"gcloud container clusters describe prod-cluster --region=asia-northeast1 --format=\"value(endpoint)\""}],["gcloud container node-pools list","ノードプール一覧","マシンタイプと台数の確認。","--cluster=<c> --region=<r>",{"ex":"gcloud container node-pools list --cluster=prod-cluster --region=asia-northeast1"}],["gcloud container clusters resize","ノード数を変更","ノードプール単位で指定する。","<cluster> --node-pool=<p> --num-nodes=<n>",{"ex":"gcloud container clusters resize prod-cluster --node-pool=default-pool --num-nodes=5 --region=asia-northeast1"}],["gcloud container operations list","進行中の操作を確認","アップグレードが詰まったときに見る。","[--region <r>]",{"ex":"gcloud container operations list --region=asia-northeast1"}],["gcloud auth configure-docker","Docker の認証を設定","Artifact Registry へ push する前に一度実行する。","<host>",{"ex":"gcloud auth configure-docker asia-northeast1-docker.pkg.dev"}],["gcloud artifacts repositories list","リポジトリ一覧","形式(docker / npm など)も出る。","[--location=<l>]",{"ex":"gcloud artifacts repositories list --location=asia-northeast1"}],["gcloud artifacts repositories create","リポジトリを作成","形式とロケーションが必須。","<name> --repository-format=docker --location=<l>",{"ex":"gcloud artifacts repositories create app --repository-format=docker --location=asia-northeast1"}],["gcloud artifacts docker images list","イメージとタグの一覧","タグの棚卸しに。","<repo-path> [--include-tags]",{"ex":"gcloud artifacts docker images list asia-northeast1-docker.pkg.dev/my-project/app --include-tags"}]]},{"g":"serverless","id":"run","t":"Cloud Run と Functions","note":null,"cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["gcloud run deploy","サービスをデプロイ","`--source .` でソースから直接ビルドしてデプロイできる。","<service> --source=. | --image=<uri> --region=<r>",{"ex":"gcloud run deploy api --source=. --region=asia-northeast1 --allow-unauthenticated"}],["gcloud run services list","サービス一覧","URLと最終デプロイを見る。","--region=<r> [--format]",{"ex":"gcloud run services list --region=asia-northeast1 --format=\"table(metadata.name,status.url,status.latestReadyRevisionName)\""}],["gcloud run services describe","サービスの詳細","環境変数やリビジョンの確認。","<service> --region=<r>",{"ex":"gcloud run services describe api --region=asia-northeast1 --format=\"value(status.url)\""}],["gcloud run services update","設定を更新","環境変数・メモリ・同時実行数など。","<service> --region=<r> [--set-env-vars] [--memory] [--concurrency]",{"ex":"gcloud run services update api --region=asia-northeast1 --set-env-vars=LOG_LEVEL=debug --memory=1Gi"}],["gcloud run revisions list","リビジョン一覧","ロールバック先を探す。","--service=<s> --region=<r>",{"ex":"gcloud run revisions list --service=api --region=asia-northeast1"}],["gcloud run services update-traffic","トラフィックを振り分け","カナリアリリースとロールバックに使う。","<service> --to-revisions=<rev>=<pct>",{"ex":"gcloud run services update-traffic api --region=asia-northeast1 --to-revisions=api-00042-abc=100"}],["gcloud run services add-iam-policy-binding","呼び出し権限を付与","非公開サービスを特定のSAから呼ばせる。","<service> --member=<m> --role=roles/run.invoker",{"ex":"gcloud run services add-iam-policy-binding api --region=asia-northeast1 --member=serviceAccount:caller@my-project.iam.gserviceaccount.com --role=roles/run.invoker"}],["gcloud functions deploy","関数をデプロイ","第2世代は `--gen2` を付ける。","<name> --gen2 --runtime=<r> --trigger-http --region=<r>",{"ex":"gcloud functions deploy hello --gen2 --runtime=nodejs20 --trigger-http --region=asia-northeast1 --source=."}],["gcloud functions call","関数を実行","動作確認に。","<name> --gen2 --region=<r> [--data=<json>]",{"ex":"gcloud functions call hello --gen2 --region=asia-northeast1 --data='{\"name\":\"world\"}'"}],["gcloud builds submit","ビルドして Artifact Registry へ","Dockerfile があればそのままイメージが作れる。","--tag=<image> [--region=<r>]",{"ex":"gcloud builds submit --tag=asia-northeast1-docker.pkg.dev/my-project/app/api:v1"}],["gcloud builds log","ビルドログを見る","失敗原因の確認。","<build-id> [--stream]",{"ex":"gcloud builds list --limit=1 --format=\"value(id)\""}]]},{"g":"storage","id":"storage","t":"Cloud Storage と BigQuery","note":"`gsutil` は現在 `gcloud storage` に置き換わっている。新規は `gcloud storage` を使う。","cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["gcloud storage ls","バケットとオブジェクト一覧","`-l` でサイズと更新日時、`-r` で再帰。","[gs://<bucket>/<prefix>] [-l] [-r]",{"ex":"gcloud storage ls -l gs://my-bucket/logs/"}],["gcloud storage cp","コピー","`-r` で再帰。ローカル↔GCS の両方向。","<src> <dst> [-r]",{"ex":"gcloud storage cp -r ./dist gs://my-bucket/dist"}],["gcloud storage rsync","差分同期","`--delete-unmatched-destination-objects` で消えたものも削除。","<src> <dst> [-r] [--delete-unmatched-destination-objects]",{"ex":"gcloud storage rsync -r ./dist gs://my-bucket/dist --dry-run"}],["gcloud storage rm","削除","**`-r` は取り消せない。**まず `--dry-run`。","<gsuri> [-r] [--dry-run]",{"tag":"破壊的","ex":"gcloud storage rm -r gs://my-bucket/tmp/ --dry-run"}],["gcloud storage buckets create","バケットを作成","ロケーションとストレージクラスを指定する。","gs://<name> --location=<l>",{"ex":"gcloud storage buckets create gs://my-new-bucket --location=asia-northeast1 --uniform-bucket-level-access"}],["gcloud storage buckets describe","バケットの設定","公開設定やバージョニングの確認。","gs://<name> [--format]",{"ex":"gcloud storage buckets describe gs://my-bucket --format=\"value(iamConfiguration.uniformBucketLevelAccess.enabled)\""}],["gcloud storage sign-url","署名付きURLを発行","サービスアカウント鍵か IAM 権限が要る。","<gsuri> --duration=<d>",{"ex":"gcloud storage sign-url gs://my-bucket/report.pdf --duration=1h"}],["bq query","SQLを実行","**標準SQLには `--use_legacy_sql=false` が要る。**","--use_legacy_sql=false '<sql>'",{"ex":"bq query --use_legacy_sql=false 'SELECT COUNT(*) FROM `my-project.analytics.events` WHERE DATE(ts) = CURRENT_DATE()'"}],["bq ls","データセットやテーブルの一覧","`bq ls <dataset>` でテーブル。","[<dataset>] [--max_results=<n>]",{"ex":"bq ls --max_results=50 my-project:analytics"}],["bq show","スキーマや情報を表示","`--schema` でスキーマだけ。","[--schema] <table>",{"ex":"bq show --schema --format=prettyjson my-project:analytics.events"}],["bq load","データを取り込む","CSV / JSON / Parquet に対応。","--source_format=<f> <table> <path> [<schema>]",{"ex":"bq load --source_format=NEWLINE_DELIMITED_JSON my-project:analytics.events gs://my-bucket/events/*.json"}],["bq extract","テーブルを書き出す","GCSへエクスポートする。","<table> <gsuri>",{"ex":"bq extract --destination_format=PARQUET my-project:analytics.events gs://my-bucket/export/events-*.parquet"}]]},{"g":"data","id":"data","t":"Cloud SQL / Pub/Sub / Secret Manager","note":null,"cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["gcloud sql instances list","インスタンス一覧","状態とリージョンを見る。","[--filter]",{"ex":"gcloud sql instances list --format=\"table(name,databaseVersion,region,state)\""}],["gcloud sql connect","DBに接続","一時的に自分のIPが許可される。","<instance> --user=<u>",{"ex":"gcloud sql connect prod-db --user=postgres"}],["gcloud sql backups list","バックアップ一覧","復元元の確認。","--instance=<i>",{"ex":"gcloud sql backups list --instance=prod-db"}],["gcloud sql backups create","手動バックアップ","**変更作業の前に必ず取る。**","--instance=<i>",{"ex":"gcloud sql backups create --instance=prod-db --description=\"before migration\""}],["gcloud sql instances patch","設定を変更","フラグやメンテナンス時間の変更。","<instance> [--database-flags=<k>=<v>]",{"ex":"gcloud sql instances patch prod-db --database-flags=max_connections=200"}],["gcloud pubsub topics list","トピック一覧","","[--filter]",{"ex":"gcloud pubsub topics list --format=\"value(name)\""}],["gcloud pubsub topics publish","メッセージを送信","疎通確認に使う。","<topic> --message=<s>",{"ex":"gcloud pubsub topics publish jobs --message='{\"id\":1}'"}],["gcloud pubsub subscriptions pull","メッセージを取得","`--auto-ack` を付けないと再配信される。","<sub> [--limit=<n>] [--auto-ack]",{"ex":"gcloud pubsub subscriptions pull jobs-sub --limit=5 --auto-ack"}],["gcloud secrets list","シークレット一覧","","[--filter]",{"ex":"gcloud secrets list --format=\"value(name)\""}],["gcloud secrets versions access","シークレットの値を取得","`latest` で最新版。","<version> --secret=<name>",{"ex":"gcloud secrets versions access latest --secret=db-password"}],["gcloud secrets create / versions add","シークレットの作成と更新","値は標準入力かファイルで渡す。","create <name> --data-file=- / versions add <name> --data-file=<f>",{"ex":"printf \"s3cret\" | gcloud secrets create db-password --data-file=-"}]]},{"g":"ops","id":"ops","t":"ログと監視","note":null,"cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["gcloud logging read","ログを検索","**フィルタ構文は Logging クエリ言語。**`--freshness` で期間を絞る。","'<filter>' [--limit=<n>] [--freshness=<d>]",{"ex":"gcloud logging read 'resource.type=\"cloud_run_revision\" AND severity>=ERROR' --limit=50 --freshness=1h"}],["gcloud logging tail","ログを追う","`tail -f` 相当。要 `--project`。","'<filter>'",{"ex":"gcloud logging tail 'resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"api\"'"}],["gcloud logging logs list","ログ名の一覧","どこに何が出ているかを把握する。","[--filter]",{"ex":"gcloud logging logs list --format=\"value(.)\""}],["gcloud logging sinks list","ログのエクスポート先","GCSやBigQueryへの転送設定。","[--format]",{"ex":"gcloud logging sinks list"}],["gcloud monitoring dashboards list","ダッシュボード一覧","","[--format]",{"ex":"gcloud monitoring dashboards list --format=\"table(displayName,name)\""}],["gcloud alpha monitoring policies list","アラートポリシー一覧","通知設定の棚卸しに。","[--format]",{"ex":"gcloud alpha monitoring policies list --format=\"table(displayName,enabled)\""}],["gcloud asset search-all-resources","リソースを横断検索","プロジェクトをまたいだ棚卸しの決定版。","--scope=<scope> --query=<q>",{"ex":"gcloud asset search-all-resources --scope=projects/my-project --query=\"labels.env:prod\""}],["gcloud billing accounts list","請求先アカウント一覧","","[--format]",{"ex":"gcloud billing accounts list"}],["gcloud billing projects describe","プロジェクトの請求状況","請求が無効だとAPIが動かない。","<project> [--format]",{"ex":"gcloud billing projects describe my-project"}]]},{"g":"danger","id":"danger","t":"危険な操作","note":"GCPは削除の取り消しがきかないものが多い。実行例は「先に確認するためのコマンド」を載せている。","cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["gcloud projects delete","プロジェクトを削除","30日間は復元できるが、その間もリソースは停止する。","<project-id>",{"tag":"破壊的","ex":"gcloud asset search-all-resources --scope=projects/my-project --format=\"value(assetType)\" | sort | uniq -c"}],["gcloud storage rm -r","オブジェクトを一括削除","バージョニングが無ければ復元できない。","-r <gsuri> [--dry-run]",{"tag":"破壊的","ex":"gcloud storage rm -r gs://my-bucket/logs/ --dry-run"}],["gcloud storage rsync --delete-...","同期先の余分を削除","**転送元が空だと転送先が全消しになる。**","--delete-unmatched-destination-objects [--dry-run]",{"tag":"破壊的","ex":"gcloud storage rsync -r ./dist gs://my-bucket/dist --delete-unmatched-destination-objects --dry-run"}],["gcloud compute instances delete","VMを削除","`--keep-disks` を付けないとディスクも消える。","<name> --zone=<z> [--keep-disks=all]",{"tag":"破壊的","ex":"gcloud compute disks snapshot web-1 --snapshot-names=web-1-final --zone=asia-northeast1-a"}],["gcloud container clusters delete","GKEクラスタを削除","稼働中のワークロードが全て停止する。","<cluster> --region=<r>",{"tag":"破壊的","ex":"kubectl get deployments --all-namespaces"}],["gcloud sql instances delete","Cloud SQL を削除","**自動バックアップも一緒に消える。**","<instance>",{"tag":"破壊的","ex":"gcloud sql export sql prod-db gs://my-bucket/dump.sql.gz --database=app"}],["bq rm -r -f","データセットごと削除","テーブルがまとめて消える。","-r -f <dataset>",{"tag":"破壊的","ex":"bq ls my-project:analytics"}],["gcloud iam service-accounts delete","サービスアカウントを削除","**それを使っている全てのワークロードが即座に失敗する。**","<email>",{"tag":"破壊的","ex":"gcloud asset search-all-iam-policies --scope=projects/my-project --query=\"policy:api@my-project.iam.gserviceaccount.com\""}],["gcloud projects remove-iam-policy-binding","権限を剥奪","自分の権限を消すと復旧できなくなることがある。","<project> --member=<m> --role=<r>",{"tag":"破壊的","ex":"gcloud projects get-iam-policy my-project --format=json > iam-backup.json"}],["--quiet を付けた削除","確認なしで実行","CIでの事故が起きやすい。対象を先に出して確認する。","-q / --quiet",{"tag":"破壊的","ex":"gcloud compute instances list --filter=\"labels.env=dev\" --format=\"value(name)\""}]]}];
+const NAV_GROUPS = [{"g":"core","label":"基本・設定"},{"g":"project","label":"プロジェクト・IAM"},{"g":"compute","label":"Compute Engine"},{"g":"container","label":"GKE / Artifact Registry"},{"g":"serverless","label":"Cloud Run / Functions"},{"g":"storage","label":"Storage / BigQuery"},{"g":"data","label":"データベース・メッセージング"},{"g":"ops","label":"ログ・監視"},{"g":"danger","label":"危険な操作"}];
+const PRIORITY = {"t":"最初に覚える10個","label":"コマンド","group":"core","note":"事故を防ぐ順に並べた。上3つは操作の前に打つものである。","rows":[["★★★","gcloud config list","どのプロジェクトとアカウントで実行しているか"],["★★★","gcloud auth list","認証済みアカウントの確認。* が現在のもの"],["★★★","gcloud auth application-default login","アプリが認証できないときの第一手"],["★★★","--format / --filter","全コマンド共通。出力を扱える形にする"],["★★☆","gcloud logging read","障害対応の主力。フィルタ構文だけ覚える"],["★★☆","gcloud container clusters get-credentials","kubectl を使う前に必ず通る"],["★★☆","gcloud run deploy --source=.","ソースから直接デプロイできる"],["★★☆","gcloud storage rsync --dry-run","転送前に何が起きるかを見る"],["★☆☆","gcloud config configurations activate","本番と検証の取り違えを防ぐ"],["★☆☆","gcloud services enable","「APIが有効でない」エラーの解決策"]]};
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = s => esc(s)
+  .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+  .replace(/`([^`]+)`/g, '<code>$1</code>');
+
+function keysHtml(raw){
+  if (!raw || raw === '—') return '<span class="knone">—</span>';
+  const chords = String(raw).split(' ').filter(Boolean);
+  const parts = [];
+  chords.forEach((chord, ci) => {
+    if (ci) parts.push('<span class="ksep">›</span>');
+    chord.split('+').forEach((k, i) => {
+      if (i) parts.push('<span class="ksep">+</span>');
+      parts.push('<kbd>' + esc(k) + '</kbd>');
+    });
+  });
+  return parts.join('');
+}
+
+const main = document.getElementById('main');
+const rail = document.getElementById('rail');
+const frag = document.createDocumentFragment();
+let totalRows = 0;
+
+for (const sec of DATA){
+  const el = document.createElement('section');
+  el.className = 'sec';
+  el.id = sec.id;
+  el.dataset.group = sec.g;
+
+  const nCols = sec.cols.length;
+  const isKeys = sec.kind === 'keys';
+  const cls = nCols === 4 ? ['c-cmd','c-sum','c-det','c-par'] : ['c-cmd','c-sum','c-par'];
+  const sigil = sec.sig || SIGIL;
+
+  const head = '<div class="sec-head"><h3>' + esc(sec.t) + '</h3><span class="n">' + sec.rows.length + ' 項目</span></div>'
+    + (sec.note ? '<p class="sec-note">' + fmt(sec.note) + '</p>' : '');
+  const ths = sec.cols.map((c,i) => '<th class="' + cls[i] + '" scope="col">' + esc(c) + '</th>').join('');
+
+  const trs = sec.rows.map(r => {
+    const meta = (typeof r[r.length-1] === 'object') ? r[r.length-1] : null;
+    const vals = meta ? r.slice(0,-1) : r;
+    totalRows++;
+    const cells = [];
+
+    if (isKeys){
+      let c0 = '<span class="act">' + fmt(vals[0]) + '</span>';
+      if (meta && meta.tag) c0 += '<span class="tag">' + esc(meta.tag) + '</span>';
+      cells.push('<td data-label="' + esc(sec.cols[0]) + '">' + c0 + '</td>');
+      for (let i = 1; i < nCols; i++){
+        const v = vals[i] == null ? '—' : vals[i];
+        if (i <= 2){
+          const btn = (v && v !== '—')
+            ? '<button class="keycell" type="button" title="クリックでコピー" data-copy="' + esc(v) + '">' + keysHtml(v) + '</button>'
+            : '<span class="knone">—</span>';
+          cells.push('<td data-label="' + esc(sec.cols[i]) + '">' + btn + '</td>');
+        } else {
+          cells.push('<td data-label="' + esc(sec.cols[i]) + '"><span class="det' + (v === '—' ? ' none' : '') + '">' + fmt(v) + '</span></td>');
+        }
+      }
+    } else {
+      const name = vals[0];
+      let first = '<button class="cmd" type="button" data-copy="' + esc(name) + '" title="クリックでコピー">'
+        + (name.startsWith('/') ? '<i>/</i>' + esc(name.slice(1)) : esc(name)) + '</button>';
+      if (meta && meta.alias) first += '<div class="aliases">' + meta.alias.map(a => '<span class="alias">' + esc(a) + '</span>').join('') + '</div>';
+      if (meta && meta.tag) first += '<span class="tag">' + esc(meta.tag) + '</span>';
+      cells.push('<td class="' + cls[0] + '" data-label="' + esc(sec.cols[0]) + '">' + first + '</td>');
+      for (let i = 1; i < nCols; i++){
+        const isLast = (i === nCols - 1);
+        let v = vals[i];
+        if (v == null || v === '') v = isLast ? '' : '—';
+        let inner;
+        if (isLast){
+          const p = (v && v !== '—') ? '<span class="par">' + fmt(v) + '</span>'
+            : (v === '—' ? '<span class="par none">—</span>' : '');
+          const ex = meta && meta.ex
+            ? '<button class="ex" type="button" title="クリックでコピー" data-copy="' + esc(meta.ex) + '"><b>' + sigil + '</b>' + esc(meta.ex) + '</button>'
+            : '';
+          inner = '<div class="pcell">' + p + ex + '</div>';
+        } else {
+          inner = '<span class="' + (i === 1 ? 'sum' : 'det') + (v === '—' ? ' none' : '') + '">' + fmt(v) + '</span>';
+        }
+        cells.push('<td class="' + cls[i] + '" data-label="' + esc(sec.cols[i]) + '">' + inner + '</td>');
+      }
+    }
+
+    const search = (vals.join(' ') + ' '
+      + (meta && meta.alias ? meta.alias.join(' ') : '') + ' '
+      + (meta && meta.tag ? meta.tag : '') + ' '
+      + (meta && meta.ex ? meta.ex : '')).toLowerCase();
+    return '<tr class="row' + (meta && meta.tag ? ' flagged' : '') + '" data-s="' + esc(search) + '">' + cells.join('') + '</tr>';
+  }).join('');
+
+  el.innerHTML = head + '<div class="tablewrap"><table class="cols-' + nCols + (isKeys ? ' tkeys' : '') + '">'
+    + '<thead><tr>' + ths + '</tr></thead><tbody>' + trs + '</tbody></table></div>';
+  frag.appendChild(el);
+}
+main.insertBefore(frag, document.getElementById('empty'));
+
+if (PRIORITY && PRIORITY.rows.length){
+  const last = document.createElement('section');
+  last.className = 'sec';
+  last.id = 'priority';
+  last.dataset.group = PRIORITY.group;
+  last.innerHTML = '<div class="sec-head"><h3>' + esc(PRIORITY.t) + '</h3><span class="n">優先度順</span></div>'
+    + (PRIORITY.note ? '<p class="sec-note">' + fmt(PRIORITY.note) + '</p>' : '')
+    + '<div class="tablewrap"><table class="cols-3 priority"><thead><tr>'
+    + '<th class="c-cmd" scope="col">優先度</th><th class="c-sum" scope="col">' + esc(PRIORITY.label) + '</th>'
+    + '<th class="c-par" scope="col">理由</th></tr></thead><tbody>'
+    + PRIORITY.rows.map(([s,c,w]) =>
+        '<tr class="row" data-s="' + esc((c + ' ' + w).toLowerCase()) + '">'
+        + '<td data-label="優先度">' + s + '</td>'
+        + '<td data-label="' + esc(PRIORITY.label) + '"><span class="sum">'
+        + c.split(' / ').map(x => '<code>' + esc(x) + '</code>').join(' ') + '</span></td>'
+        + '<td data-label="理由"><span class="det">' + esc(w) + '</span></td></tr>').join('')
+    + '</tbody></table></div>';
+  main.insertBefore(last, document.getElementById('empty'));
+}
+
+let navHtml = '';
+for (const grp of NAV_GROUPS){
+  const secs = DATA.filter(s => s.g === grp.g);
+  if (!secs.length) continue;
+  navHtml += '<h2>' + esc(grp.label) + '</h2><div class="navlist">';
+  for (const s of secs){
+    navHtml += '<a href="#' + s.id + '" data-target="' + s.id + '">' + esc(s.t) + '<span>' + s.rows.length + '</span></a>';
+  }
+  navHtml += '</div>';
+}
+rail.innerHTML = navHtml;
+
+const q = document.getElementById('q');
+const hits = document.getElementById('hits');
+const emptyEl = document.getElementById('empty');
+const chips = [...document.querySelectorAll('.chip')];
+let scope = 'all';
+
+function apply(){
+  const term = q.value.trim().toLowerCase();
+  let shown = 0;
+  for (const sec of document.querySelectorAll('.sec')){
+    const inScope = scope === 'all' || sec.dataset.group === scope;
+    let n = 0;
+    for (const row of sec.querySelectorAll('tr.row')){
+      const ok = inScope && (!term || row.dataset.s.includes(term));
+      row.hidden = !ok;
+      if (ok) n++;
+    }
+    sec.hidden = n === 0;
+    if (sec.id !== 'priority') shown += n;
+  }
+  hits.textContent = (term || scope !== 'all') ? shown + ' / ' + totalRows + ' 件' : totalRows + ' 件';
+  emptyEl.classList.toggle('on', shown === 0);
+}
+q.addEventListener('input', apply);
+chips.forEach(c => c.addEventListener('click', () => {
+  scope = c.dataset.scope;
+  chips.forEach(x => x.setAttribute('aria-pressed', String(x === c)));
+  apply();
+}));
+apply();
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('.cmd, .ex, .keycell');
+  if (!b || !navigator.clipboard || !navigator.clipboard.writeText) return;
+  navigator.clipboard.writeText(b.dataset.copy).then(() => {
+    b.classList.add('copied');
+    const sig = b.querySelector('b');
+    if (sig && !sig.dataset.orig){ sig.dataset.orig = sig.textContent; sig.textContent = '✓'; }
+    setTimeout(() => {
+      b.classList.remove('copied');
+      if (sig && sig.dataset.orig){ sig.textContent = sig.dataset.orig; delete sig.dataset.orig; }
+    }, 1000);
+  }, () => {});
+});
+
+const bar = document.getElementById('bar');
+const setBar = () => document.documentElement.style.setProperty('--bar', bar.offsetHeight + 'px');
+setBar();
+if (window.ResizeObserver) new ResizeObserver(setBar).observe(bar); else window.addEventListener('resize', setBar);
+
+const links = [...rail.querySelectorAll('a')];
+const byId = new Map(links.map(a => [a.dataset.target, a]));
+const io = new IntersectionObserver(entries => {
+  for (const en of entries){
+    if (en.isIntersecting){
+      links.forEach(a => a.removeAttribute('aria-current'));
+      const a = byId.get(en.target.id);
+      if (a){
+        a.setAttribute('aria-current','true');
+        const r = a.getBoundingClientRect(), rr = rail.getBoundingClientRect();
+        if (rail.scrollHeight > rail.clientHeight && (r.top < rr.top || r.bottom > rr.bottom)){
+          rail.scrollTop += (r.top - rr.top) - rail.clientHeight / 3;
+        }
+      }
+      break;
+    }
+  }
+}, {rootMargin:'-80px 0px -70% 0px', threshold:0});
+document.querySelectorAll('.sec').forEach(s => io.observe(s));
+
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)){
+    e.preventDefault();
+    q.focus();
+  }
+});
+
+</script>
+</body>
+</html>

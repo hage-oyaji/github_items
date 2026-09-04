@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="AWS CLI v2 の実務でよく使うコマンドをサービス別に整理した索引。全項目に実行例つき、破壊的な操作には警告つき。">
+<style>
+html{color-scheme:light dark}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>AWS CLI コマンド索引</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+
+<style>
+:root{
+  --paper:#F6F7F4; --surface:#FFFFFF; --surface-2:#EDF0EA;
+  --ink:#15181A; --ink-2:#555C55; --ink-3:#848B82;
+  --rule:#DDE1D8; --rule-strong:#C2C8BB;
+  --accent:#0E6B58; --accent-ink:#0A5445;
+  --warn:#87590F; --warn-soft:#F2E7CE;
+  --mono:'JetBrains Mono','SFMono-Regular',Consolas,'Liberation Mono',monospace;
+  --sans:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic UI',system-ui,sans-serif;
+  --bar:56px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111412; --surface:#171B18; --surface-2:#1D221E;
+    --ink:#E9ECE5; --ink-2:#A0A89C; --ink-3:#7A8278;
+    --rule:#272D28; --rule-strong:#39413A;
+    --accent:#5CCFAE; --accent-ink:#7FDDC2;
+    --warn:#DFB35F; --warn-soft:#33280F;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111412; --surface:#171B18; --surface-2:#1D221E;
+  --ink:#E9ECE5; --ink-2:#A0A89C; --ink-3:#7A8278;
+  --rule:#272D28; --rule-strong:#39413A;
+  --accent:#5CCFAE; --accent-ink:#7FDDC2;
+  --warn:#DFB35F; --warn-soft:#33280F;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:15px;line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+code{font-family:var(--mono);font-size:.88em;font-weight:500}
+
+.bar{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--rule-strong)}
+.bar-in{max-width:1280px;margin:0 auto;padding:10px 28px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+.brand{display:flex;align-items:baseline;gap:10px;flex:0 0 auto}
+.brand-name{font-size:15px;font-weight:700;letter-spacing:.01em;white-space:nowrap}
+.brand-meta{font-family:var(--mono);font-size:11px;color:var(--ink-3);white-space:nowrap}
+.search{flex:1 1 240px;min-width:0;position:relative;display:flex;align-items:center}
+.search::before{content:'/';position:absolute;left:11px;font-family:var(--mono);font-weight:700;color:var(--accent);pointer-events:none}
+.search input{
+  width:100%;font-family:var(--sans);font-size:13.5px;color:var(--ink);
+  background:var(--paper);border:1px solid var(--rule-strong);border-radius:2px;padding:6px 12px 6px 26px;
+}
+.search input::placeholder{color:var(--ink-3)}
+.search input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{
+  font-family:var(--mono);font-size:11.5px;border:1px solid var(--rule-strong);
+  background:transparent;color:var(--ink-2);padding:5px 10px;border-radius:2px;cursor:pointer;
+}
+.chip:hover{background:var(--surface-2)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+:root[data-theme="dark"] .chip[aria-pressed="true"]{color:#0D1210}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .chip[aria-pressed="true"]{color:#0D1210}
+}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hitcount{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap;margin-left:auto}
+
+.shell{max-width:1280px;margin:0 auto;padding:0 28px 90px;display:grid;grid-template-columns:214px minmax(0,1fr);gap:40px;align-items:start}
+.rail{
+  position:sticky;top:var(--bar);max-height:calc(100vh - var(--bar));
+  overflow-y:auto;overscroll-behavior:contain;padding:24px 10px 40px 0;
+  scrollbar-width:thin;scrollbar-color:var(--rule-strong) transparent;
+}
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-track{background:transparent}
+.rail::-webkit-scrollbar-thumb{background:var(--rule-strong);border-radius:3px}
+.rail h2{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin:0 0 6px;font-weight:500}
+.rail h2:not(:first-child){margin-top:20px}
+.navlist{display:flex;flex-direction:column}
+.rail a{
+  display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+  padding:3px 0 3px 10px;margin-left:-12px;color:var(--ink-2);text-decoration:none;
+  font-size:13px;line-height:1.45;border-left:2px solid transparent;
+}
+.rail a:hover{color:var(--ink)}
+.rail a[aria-current="true"]{color:var(--accent-ink);border-left-color:var(--accent);font-weight:500}
+.rail a span{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.rail a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+main{padding-top:24px;min-width:0}
+.preface{margin:0 0 30px;color:var(--ink-2);font-size:13px;max-width:76ch}
+
+.sec{margin:0 0 40px;scroll-margin-top:calc(var(--bar) + 14px)}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;border-bottom:1px solid var(--rule-strong);padding-bottom:7px}
+.sec-head h3{font-size:17px;font-weight:700;margin:0;line-height:1.4;text-wrap:balance}
+.sec-head .n{font-family:var(--mono);font-size:11px;color:var(--ink-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.sec-note{margin:9px 0 0;color:var(--ink-2);font-size:13px;max-width:70ch}
+
+.tablewrap{overflow-x:auto;margin-top:12px}
+table{border-collapse:collapse;width:100%;min-width:760px}
+thead th{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:500;text-align:left;padding:0 14px 6px 0;
+  border-bottom:1px solid var(--rule-strong);white-space:nowrap;
+}
+tbody td{padding:11px 14px 12px 0;border-bottom:1px solid var(--rule);vertical-align:top;font-size:13px;line-height:1.65}
+tbody tr:hover td{background:var(--surface-2)}
+tbody td:last-child,thead th:last-child{padding-right:0}
+.c-cmd{width:18%}
+.c-sum{width:20%}
+.c-det{width:auto}
+.c-par{width:27%}
+.cols-3 .c-cmd{width:22%}
+.cols-3 .c-sum{width:auto}
+.cols-3 .c-par{width:34%}
+.tkeys th:nth-child(1),.tkeys td:nth-child(1){width:26%}
+.tkeys th:nth-child(2),.tkeys td:nth-child(2){width:21%}
+.tkeys th:nth-child(3),.tkeys td:nth-child(3){width:21%}
+.tkeys th:nth-child(4),.tkeys td:nth-child(4){width:auto}
+
+.cmd{
+  font-family:var(--mono);font-size:12.5px;font-weight:500;background:none;border:0;
+  padding:0;margin:0;cursor:pointer;color:var(--ink);text-align:left;line-height:1.5;
+  border-bottom:1px dashed transparent;word-break:break-word;
+}
+.cmd i{color:var(--accent);font-style:normal}
+.cmd:hover{border-bottom-color:var(--rule-strong)}
+.cmd:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cmd.copied{color:var(--accent-ink)}
+.act{color:var(--ink);font-weight:500}
+.aliases{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.alias{font-family:var(--mono);font-size:10px;color:var(--ink-3);border:1px solid var(--rule);border-radius:2px;padding:1px 5px;white-space:nowrap}
+.pcell{min-width:0}
+.par{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);word-break:break-word;display:block}
+.par.none{color:var(--ink-3)}
+.sum{color:var(--ink)}
+.det{color:var(--ink-2)}
+.det code,.sum code{background:var(--surface-2);border-radius:2px;padding:1px 4px;color:var(--ink)}
+.ex{
+  display:flex;gap:7px;margin-top:7px;width:100%;
+  font-family:var(--mono);font-size:11.5px;line-height:1.6;text-align:left;
+  background:var(--surface-2);border:0;border-left:2px solid var(--accent);
+  padding:5px 8px;color:var(--ink);cursor:pointer;white-space:pre-wrap;word-break:break-word;
+}
+.ex:hover{box-shadow:inset 0 0 0 1px var(--rule-strong)}
+.ex:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.ex.copied{box-shadow:inset 0 0 0 1px var(--accent)}
+.ex b{color:var(--accent);font-weight:700;flex:0 0 auto;user-select:none;width:.9em}
+
+.keycell{
+  display:flex;flex-wrap:wrap;gap:4px;align-items:center;width:100%;
+  background:none;border:0;padding:1px 0;margin:0;cursor:pointer;text-align:left;
+}
+.keycell:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.keycell.copied kbd{border-color:var(--accent);color:var(--accent-ink)}
+kbd{
+  font-family:var(--mono);font-size:11px;line-height:1.6;
+  border:1px solid var(--rule-strong);border-bottom-width:2px;border-radius:3px;
+  padding:1px 6px;background:var(--surface);color:var(--ink);white-space:nowrap;
+}
+.keycell:hover kbd{border-color:var(--ink-3)}
+.ksep{font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+.knone{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+
+.tag{display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:2px;margin-top:6px;background:var(--warn-soft);color:var(--warn)}
+tr.flagged td:first-child{box-shadow:inset 2px 0 0 var(--warn);padding-left:10px}
+
+.priority td:first-child{font-family:var(--mono);font-size:12px;color:var(--accent-ink);white-space:nowrap}
+
+footer{max-width:1280px;margin:0 auto;padding:24px 28px 60px;border-top:1px solid var(--rule-strong);color:var(--ink-2);font-size:12.5px}
+footer ul{margin:8px 0 0;padding-left:1.1em}
+footer li{margin-bottom:5px}
+footer .siblings{margin-top:16px;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px}
+footer .siblings a{color:var(--accent-ink)}
+
+.empty{display:none;padding:40px 0;color:var(--ink-3);font-family:var(--mono);font-size:13px;text-align:center}
+.empty.on{display:block}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .rail{position:static;max-height:none;overflow:visible;padding:20px 0 16px;border-bottom:1px solid var(--rule)}
+  .navlist{flex-direction:row;flex-wrap:wrap;gap:2px 5px}
+  .rail a{border-left:0;border:1px solid var(--rule);border-radius:2px;padding:3px 8px;margin-left:0}
+  .rail a[aria-current="true"]{border-color:var(--accent)}
+  .rail h2:not(:first-child){margin-top:14px}
+}
+@media (max-width:680px){
+  .bar-in,.shell,footer{padding-left:18px;padding-right:18px}
+  .hitcount{margin-left:0}
+  table{min-width:0}
+  thead{display:none}
+  tbody tr{display:block;border-bottom:1px solid var(--rule-strong);padding:12px 0}
+  tbody tr:hover td{background:none}
+  tbody td{display:grid;grid-template-columns:5.6em minmax(0,1fr);gap:10px;border:0;padding:3px 0}
+  tbody td::before{content:attr(data-label);font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-3);padding-top:4px}
+  .tkeys th:nth-child(n),.tkeys td:nth-child(n){width:auto}
+  tr.flagged td:first-child{box-shadow:none;padding-left:0}
+  tr.flagged{box-shadow:inset 2px 0 0 var(--warn);padding-left:10px}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="bar" id="bar">
+  <div class="bar-in">
+    <div class="brand">
+      <span class="brand-name">AWS CLI コマンド索引</span>
+      <span class="brand-meta">aws-cli 2.35.11 / 2026-09-04</span>
+    </div>
+    <label class="search">
+      <input id="q" type="search" placeholder="サービス名・コマンド・オプションで絞り込む" autocomplete="off" spellcheck="false" aria-label="検索">
+    </label>
+    <div class="chips" role="group" aria-label="種別で絞り込む">
+        <button class="chip" data-scope="all" aria-pressed="true">すべて</button>
+        <button class="chip" data-scope="core" aria-pressed="false">基本</button>
+        <button class="chip" data-scope="s3" aria-pressed="false">S3</button>
+        <button class="chip" data-scope="compute" aria-pressed="false">EC2</button>
+        <button class="chip" data-scope="container" aria-pressed="false">コンテナ</button>
+        <button class="chip" data-scope="serverless" aria-pressed="false">Lambda</button>
+        <button class="chip" data-scope="data" aria-pressed="false">データ</button>
+        <button class="chip" data-scope="ops" aria-pressed="false">運用</button>
+        <button class="chip" data-scope="sec" aria-pressed="false">セキュリティ</button>
+        <button class="chip" data-scope="danger" aria-pressed="false">危険</button>
+    </div>
+    <span class="hitcount" id="hits"></span>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="カテゴリ"></nav>
+  <main id="main">
+    <p class="preface">AWS CLI v2 のうち、実務で頻度の高いものをサービス別に並べた一覧。 <b>コマンド名と実行例はクリックでコピーできる。</b> 出力が巨大になりがちなので、<code>--query</code> と <code>--output</code> を併記した実行例にしている。 取り返しのつかない操作には <b>破壊的</b> の印を付け、実行例には「先に確認するためのコマンド」を置いた。</p>
+    <p class="empty" id="empty">該当なし</p>
+  </main>
+</div>
+
+<footer>
+  <strong>注記</strong>
+  <ul>
+    <li>対象は <b>AWS CLI v2(2.35.11)</b>。v1 では一部のサブコマンドやオプションが異なる。</li>
+    <li>コマンドの選定は実務での使用頻度によるもので、網羅ではない。全一覧は <code>aws &lt;service&gt; help</code> で引くこと。</li>
+    <li>実行例のアカウントID・リージョン・リソース名は代表例。自分の環境に読み替えること。</li>
+    <li><code>--query</code> は手元での絞り込み、<code>--filters</code> はサーバー側での絞り込み。大量データでは後者を優先する。</li>
+    <li><b>破壊的</b>の行の実行例は、削除コマンドそのものではなく<b>実行前に確認するためのコマンド</b>を載せている。</li>
+  </ul>
+  <div class="siblings"><span>同じシリーズ:</span><a href="../claude-code-commands/">Claude Code コマンド索引</a><a href="../git-commands/">Git コマンド索引</a><a href="../intellij-shortcuts/">IntelliJ IDEA ショートカット索引</a><a href="../vscode-shortcuts/">VS Code ショートカット索引</a><a href="../gcp-cli-commands/">gcloud コマンド索引</a></div>
+</footer>
+
+<script>
+const SIGIL = "$";
+const DATA = [{"g":"core","id":"setup","t":"セットアップと認証","note":"認証情報の入り口。IAMユーザーの長期キーより、SSO か `assume-role` を既定にするほうが安全。","cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["aws configure","対話でプロファイルを設定","アクセスキー・リージョン・出力形式を `~/.aws/credentials` と `config` に書く。","[--profile <name>]",{"ex":"aws configure --profile dev"}],["aws configure sso","IAM Identity Center のプロファイルを作る","長期キーを置かずに済む。組織利用ならこちらが既定。","[--profile <name>]",{"ex":"aws configure sso --profile prod"}],["aws sso login","SSO セッションを開始","ブラウザが開いて認証する。期限が切れたら再実行。","--profile <name>",{"ex":"aws sso login --profile prod"}],["aws configure list","有効な設定と取得元を表示","どのプロファイル・環境変数が効いているか分かる。","[--profile <name>]",{"ex":"aws configure list --profile prod"}],["aws configure list-profiles","プロファイル名を一覧","スクリプトで回すときに。","—",{"ex":"aws configure list-profiles"}],["aws configure get / set","個別の設定値を読み書き","ファイルを直接編集せずに済む。","get|set <key> [<value>]",{"ex":"aws configure set region ap-northeast-1 --profile dev"}],["aws sts get-caller-identity","いま誰として実行しているか","**操作前の確認として最初に打つ癖をつける。**","[--query <expr>]",{"ex":"aws sts get-caller-identity --query Arn --output text"}],["aws sts assume-role","別ロールの一時認証情報を取得","クロスアカウント作業の基本。","--role-arn <arn> --role-session-name <name>",{"ex":"aws sts assume-role --role-arn arn:aws:iam::123456789012:role/Deploy --role-session-name deploy"}],["AWS_PROFILE / AWS_REGION","環境変数で切り替える","`--profile` を毎回打たずに済む。","環境変数",{"ex":"AWS_PROFILE=prod AWS_REGION=ap-northeast-1 aws s3 ls"}]]},{"g":"core","id":"output","t":"出力の絞り込みと整形","note":"AWS CLI は返る JSON が巨大になりがち。`--query` を覚えると別物になる。","cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["--output","出力形式","`table` は目視、`text` はシェル連携、`json` は加工向き。","json | text | table | yaml",{"ex":"aws ec2 describe-regions --output table"}],["--query","JMESPath で結果を絞る","サーバー側ではなく手元で絞る。配列は `[]` で展開する。","--query \"<JMESPath>\"",{"ex":"aws ec2 describe-instances --query \"Reservations[].Instances[].[InstanceId,State.Name]\" --output text"}],["--filter / --filters","サーバー側で絞る","転送量が減るので大量データではこちらを優先する。","--filters \"Name=<key>,Values=<v>\"",{"ex":"aws ec2 describe-instances --filters \"Name=tag:Env,Values=prod\""}],["--max-items / --page-size","ページングを制御","`--max-items` は返す件数、`--page-size` は1回のAPI呼び出し単位。","--max-items <n> --page-size <n>",{"ex":"aws s3api list-objects-v2 --bucket my-bucket --max-items 100"}],["--no-cli-pager","ページャを無効化","スクリプトやCIで止まらなくなる。`AWS_PAGER=\"\"` でも同じ。","--no-cli-pager",{"ex":"aws ec2 describe-instances --no-cli-pager"}],["--dry-run","実行せず権限だけ確認","EC2系で使える。権限があれば `DryRunOperation` が返る。","--dry-run",{"ex":"aws ec2 stop-instances --instance-ids i-0abc --dry-run"}],["--cli-input-json / --generate-cli-skeleton","入力をJSONで渡す","引数が多いAPIは雛形を出してから埋めるほうが速い。","--generate-cli-skeleton",{"ex":"aws ec2 run-instances --generate-cli-skeleton > params.json"}],["aws <service> help","サービスのコマンド一覧","`aws ec2 describe-instances help` でオプションまで出る。","help",{"ex":"aws s3api help"}]]},{"g":"s3","id":"s3","t":"S3","note":null,"cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["aws s3 ls","バケットとオブジェクトの一覧","引数なしでバケット一覧。`--recursive` で再帰。","[s3://<bucket>/<prefix>] [--recursive] [--human-readable]",{"ex":"aws s3 ls s3://my-bucket/logs/ --recursive --human-readable"}],["aws s3 cp","コピー","ローカル↔S3、S3↔S3。`-` で標準入出力も使える。","<src> <dst> [--recursive] [--sse]",{"ex":"aws s3 cp ./dist s3://my-bucket/dist --recursive"}],["aws s3 sync","差分同期","変更されたものだけ転送する。`--delete` で消えたものも削除。","<src> <dst> [--delete] [--exclude] [--include]",{"ex":"aws s3 sync ./dist s3://my-bucket/dist --delete --exclude \"*.map\""}],["aws s3 mv","移動","コピーして元を消す。","<src> <dst> [--recursive]",{"ex":"aws s3 mv s3://my-bucket/tmp/ s3://my-bucket/archive/ --recursive"}],["aws s3 rm","削除","**`--recursive` は取り消せない。**先に `--dryrun` で確認する。","<s3uri> [--recursive] [--dryrun]",{"tag":"破壊的","ex":"aws s3 rm s3://my-bucket/tmp/ --recursive --dryrun"}],["aws s3 presign","署名付きURLを発行","認証なしで一時的にダウンロードさせる。","<s3uri> --expires-in <sec>",{"ex":"aws s3 presign s3://my-bucket/report.pdf --expires-in 3600"}],["aws s3api head-object","オブジェクトのメタ情報","サイズ・更新日時・ストレージクラスを見る。","--bucket <b> --key <k>",{"ex":"aws s3api head-object --bucket my-bucket --key dist/app.js"}],["aws s3api list-objects-v2","オブジェクトを条件付きで一覧","`--query` と組み合わせてサイズ順に並べられる。","--bucket <b> [--prefix <p>] [--query]",{"ex":"aws s3api list-objects-v2 --bucket my-bucket --query \"sort_by(Contents,&Size)[-5:].[Key,Size]\" --output table"}],["aws s3api put-bucket-policy","バケットポリシーを設定","公開範囲の事故が起きやすい。適用前にポリシーを読み直す。","--bucket <b> --policy file://<path>",{"ex":"aws s3api put-bucket-policy --bucket my-bucket --policy file://policy.json"}],["aws s3api get-bucket-versioning","バージョニングの状態","有効なら削除しても復元できる。","--bucket <b>",{"ex":"aws s3api get-bucket-versioning --bucket my-bucket"}],["aws s3 mb / rb","バケットの作成 / 削除","`rb --force` は中身ごと消える。","mb <s3uri> / rb <s3uri> [--force]",{"tag":"破壊的","ex":"aws s3 mb s3://my-new-bucket --region ap-northeast-1"}]]},{"g":"compute","id":"ec2","t":"EC2","note":null,"cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["aws ec2 describe-instances","インスタンス一覧","素の出力は巨大。`--query` で必要な列だけ抜く。","[--instance-ids] [--filters] [--query]",{"ex":"aws ec2 describe-instances --filters \"Name=instance-state-name,Values=running\" --query \"Reservations[].Instances[].[InstanceId,InstanceType,PrivateIpAddress]\" --output table"}],["aws ec2 start-instances","起動","複数まとめて指定できる。","--instance-ids <id>...",{"ex":"aws ec2 start-instances --instance-ids i-0abc i-0def"}],["aws ec2 stop-instances","停止","`--hibernate` で休止。","--instance-ids <id>... [--hibernate]",{"ex":"aws ec2 stop-instances --instance-ids i-0abc"}],["aws ec2 reboot-instances","再起動","OSレベルの再起動。","--instance-ids <id>...",{"ex":"aws ec2 reboot-instances --instance-ids i-0abc"}],["aws ec2 terminate-instances","削除","**元に戻せない。**EBSの削除設定も確認する。","--instance-ids <id>...",{"tag":"破壊的","ex":"aws ec2 describe-instances --instance-ids i-0abc --query \"Reservations[].Instances[].Tags\""}],["aws ec2 describe-images","AMIを検索","自分のアカウント所有に絞ると速い。","--owners <id|self|amazon> --filters",{"ex":"aws ec2 describe-images --owners amazon --filters \"Name=name,Values=al2023-ami-*-x86_64\" --query \"sort_by(Images,&CreationDate)[-1].[ImageId,Name]\" --output text"}],["aws ec2 describe-security-groups","セキュリティグループ一覧","どのポートがどこに開いているかを確認する。","[--group-ids] [--filters]",{"ex":"aws ec2 describe-security-groups --filters \"Name=group-name,Values=web-*\" --query \"SecurityGroups[].[GroupId,GroupName]\" --output table"}],["aws ec2 authorize-security-group-ingress","受信ルールを追加","`0.0.0.0/0` を足す前に本当に必要か確認する。","--group-id <id> --protocol tcp --port <p> --cidr <cidr>",{"ex":"aws ec2 authorize-security-group-ingress --group-id sg-0abc --protocol tcp --port 443 --cidr 10.0.0.0/8"}],["aws ec2 revoke-security-group-ingress","受信ルールを削除","追加と同じ引数で消す。","--group-id <id> --protocol tcp --port <p> --cidr <cidr>",{"ex":"aws ec2 revoke-security-group-ingress --group-id sg-0abc --protocol tcp --port 22 --cidr 0.0.0.0/0"}],["aws ec2 describe-vpcs / subnets","VPCとサブネット","ネットワーク構成の把握に。","[--filters] [--query]",{"ex":"aws ec2 describe-subnets --filters \"Name=vpc-id,Values=vpc-0abc\" --query \"Subnets[].[SubnetId,AvailabilityZone,CidrBlock]\" --output table"}],["aws ec2 describe-instance-types","インスタンスタイプの仕様","vCPUとメモリで絞れる。","--filters \"Name=<k>,Values=<v>\"",{"ex":"aws ec2 describe-instance-types --filters \"Name=vcpu-info.default-vcpus,Values=4\" --query \"InstanceTypes[].InstanceType\" --output text"}],["aws ec2 create-tags","タグを付ける","コスト配賦や検索の起点になる。","--resources <id>... --tags Key=<k>,Value=<v>",{"ex":"aws ec2 create-tags --resources i-0abc --tags Key=Env,Value=prod"}]]},{"g":"ops","id":"ssm","t":"Systems Manager","note":"SSH鍵や踏み台を置かずにEC2へ入るための仕組み。運用の負担が大きく減る。","cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["aws ssm start-session","セッションでインスタンスに入る","SSH不要・ポート開放不要。Session Manager プラグインが要る。","--target <instance-id>",{"ex":"aws ssm start-session --target i-0abc"}],["aws ssm start-session(ポート転送)","ローカルへポートを転送","RDSなどプライベートなリソースへ繋ぐ。","--document-name AWS-StartPortForwardingSessionToRemoteHost",{"ex":"aws ssm start-session --target i-0abc --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters \"host=db.internal,portNumber=5432,localPortNumber=15432\""}],["aws ssm get-parameter","パラメータを取得","`--with-decryption` で SecureString を復号する。","--name <name> [--with-decryption]",{"ex":"aws ssm get-parameter --name /prod/db/password --with-decryption --query Parameter.Value --output text"}],["aws ssm get-parameters-by-path","階層でまとめて取得","環境変数の一括読み込みに。","--path <path> --recursive [--with-decryption]",{"ex":"aws ssm get-parameters-by-path --path /prod/ --recursive --query \"Parameters[].[Name,Value]\" --output text"}],["aws ssm put-parameter","パラメータを保存","`--overwrite` を付けないと既存は更新されない。","--name <n> --value <v> --type SecureString [--overwrite]",{"ex":"aws ssm put-parameter --name /prod/api/key --value \"xxx\" --type SecureString --overwrite"}],["aws ssm send-command","複数台へコマンドを実行","結果は非同期。`list-command-invocations` で確認する。","--document-name AWS-RunShellScript --targets",{"ex":"aws ssm send-command --document-name AWS-RunShellScript --targets \"Key=tag:Env,Values=prod\" --parameters commands=\"uptime\""}]]},{"g":"container","id":"ecr","t":"ECR","note":null,"cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["aws ecr get-login-password","Docker のログインパスワードを取得","`docker login` にパイプするのが定型。","--region <region>",{"ex":"aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 123456789012.dkr.ecr.ap-northeast-1.amazonaws.com"}],["aws ecr describe-repositories","リポジトリ一覧","URIの確認に。","[--repository-names <n>...]",{"ex":"aws ecr describe-repositories --query \"repositories[].repositoryUri\" --output text"}],["aws ecr describe-images","イメージとタグの一覧","プッシュ日時順に並べると使いやすい。","--repository-name <n>",{"ex":"aws ecr describe-images --repository-name api --query \"sort_by(imageDetails,&imagePushedAt)[-5:].[imageTags[0],imagePushedAt]\" --output table"}],["aws ecr create-repository","リポジトリを作成","`--image-scanning-configuration` で脆弱性スキャンを有効化。","--repository-name <n>",{"ex":"aws ecr create-repository --repository-name api --image-scanning-configuration scanOnPush=true"}],["aws ecr batch-delete-image","イメージを削除","**タグを消すと参照中のタスクが起動できなくなる。**","--repository-name <n> --image-ids imageTag=<t>",{"tag":"破壊的","ex":"aws ecr batch-delete-image --repository-name api --image-ids imageTag=old-build"}]]},{"g":"container","id":"ecs","t":"ECS","note":null,"cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["aws ecs list-clusters","クラスタ一覧","ARNが返る。","—",{"ex":"aws ecs list-clusters --query \"clusterArns\" --output text"}],["aws ecs list-services","サービス一覧","クラスタ指定が要る。","--cluster <c>",{"ex":"aws ecs list-services --cluster prod --output text"}],["aws ecs describe-services","サービスの状態","希望数と実行数のずれを見る。","--cluster <c> --services <s>...",{"ex":"aws ecs describe-services --cluster prod --services api --query \"services[].[serviceName,desiredCount,runningCount]\" --output table"}],["aws ecs update-service","サービスを更新","`--force-new-deployment` で同じタグのまま再デプロイできる。","--cluster <c> --service <s> [--force-new-deployment] [--desired-count <n>]",{"ex":"aws ecs update-service --cluster prod --service api --force-new-deployment"}],["aws ecs execute-command","実行中コンテナにシェルで入る","ECS Exec の有効化と権限が要る。","--cluster --task --container --interactive --command",{"ex":"aws ecs execute-command --cluster prod --task 1a2b3c --container app --interactive --command \"/bin/sh\""}],["aws ecs describe-tasks","タスクの詳細","停止理由(`stoppedReason`)の確認に使う。","--cluster <c> --tasks <t>...",{"ex":"aws ecs describe-tasks --cluster prod --tasks 1a2b3c --query \"tasks[].[lastStatus,stoppedReason]\" --output text"}],["aws ecs register-task-definition","タスク定義を登録","JSONファイルから読ませるのが実用的。","--cli-input-json file://<path>",{"ex":"aws ecs register-task-definition --cli-input-json file://taskdef.json"}],["aws ecs run-task","単発でタスクを実行","バッチ処理やマイグレーションに。","--cluster --task-definition --launch-type FARGATE",{"ex":"aws ecs run-task --cluster prod --task-definition migrate:12 --launch-type FARGATE --network-configuration \"awsvpcConfiguration={subnets=[subnet-0abc],securityGroups=[sg-0abc]}\""}],["aws eks update-kubeconfig","EKSの認証情報を kubeconfig に書く","これを打ってから `kubectl` を使う。","--name <cluster> --region <region>",{"ex":"aws eks update-kubeconfig --name prod-cluster --region ap-northeast-1"}]]},{"g":"serverless","id":"lambda","t":"Lambda","note":null,"cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["aws lambda list-functions","関数一覧","ランタイムの棚卸しに。","[--query]",{"ex":"aws lambda list-functions --query \"Functions[].[FunctionName,Runtime,LastModified]\" --output table"}],["aws lambda invoke","関数を実行","出力ファイル名が必須。`--payload` は `fileb://` が確実。","--function-name <n> [--payload fileb://<f>] <outfile>",{"ex":"aws lambda invoke --function-name my-fn --payload fileb://event.json out.json"}],["aws lambda update-function-code","コードを更新","ZIPかECRイメージを渡す。","--function-name <n> --zip-file fileb://<f> | --image-uri <uri>",{"ex":"aws lambda update-function-code --function-name my-fn --zip-file fileb://dist.zip"}],["aws lambda update-function-configuration","設定を更新","メモリ・タイムアウト・環境変数。","--function-name <n> [--memory-size] [--timeout] [--environment]",{"ex":"aws lambda update-function-configuration --function-name my-fn --timeout 30 --memory-size 512"}],["aws lambda get-function","関数の詳細とコードURL","デプロイ済みの中身を落として確認できる。","--function-name <n>",{"ex":"aws lambda get-function --function-name my-fn --query \"Code.Location\" --output text"}],["aws lambda add-permission","呼び出し許可を付与","API Gateway や EventBridge から呼ぶときに要る。","--function-name --statement-id --action --principal",{"ex":"aws lambda add-permission --function-name my-fn --statement-id events --action lambda:InvokeFunction --principal events.amazonaws.com"}]]},{"g":"ops","id":"logs","t":"CloudWatch Logs と監視","note":null,"cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["aws logs tail","ログを追う","**`--follow` で `tail -f` 相当。**トラブル対応の主力。","<group> [--follow] [--since <t>] [--filter-pattern]",{"ex":"aws logs tail /aws/lambda/my-fn --follow --since 10m"}],["aws logs describe-log-groups","ロググループ一覧","保持期間の棚卸しに。","[--log-group-name-prefix <p>]",{"ex":"aws logs describe-log-groups --query \"logGroups[].[logGroupName,retentionInDays]\" --output table"}],["aws logs filter-log-events","条件でログを検索","時刻範囲はエポックミリ秒。","--log-group-name <g> --filter-pattern <p> --start-time <ms>",{"ex":"aws logs filter-log-events --log-group-name /aws/lambda/my-fn --filter-pattern \"ERROR\" --max-items 20"}],["aws logs put-retention-policy","保持期間を設定","無期限のまま放置するとコストが効いてくる。","--log-group-name <g> --retention-in-days <n>",{"ex":"aws logs put-retention-policy --log-group-name /aws/lambda/my-fn --retention-in-days 30"}],["aws logs start-query","Logs Insights のクエリ","結果は `get-query-results` で取る。","--log-group-names --start-time --end-time --query-string",{"ex":"aws logs start-query --log-group-names /aws/lambda/my-fn --start-time 1756000000 --end-time 1756003600 --query-string \"fields @timestamp, @message | filter @message like /ERROR/ | limit 20\""}],["aws cloudwatch get-metric-statistics","メトリクスを取得","グラフにする前の値確認に。","--namespace --metric-name --start-time --end-time --period --statistics",{"ex":"aws cloudwatch get-metric-statistics --namespace AWS/ECS --metric-name CPUUtilization --start-time 2026-09-04T00:00:00Z --end-time 2026-09-04T06:00:00Z --period 3600 --statistics Average"}]]},{"g":"ops","id":"cfn","t":"CloudFormation","note":null,"cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["aws cloudformation deploy","スタックを作成 / 更新","変更セットの作成と実行をまとめてやる。IAMを作るなら `--capabilities` が要る。","--template-file <f> --stack-name <n> [--capabilities CAPABILITY_IAM] [--parameter-overrides]",{"ex":"aws cloudformation deploy --template-file template.yaml --stack-name api --capabilities CAPABILITY_IAM --parameter-overrides Env=prod"}],["aws cloudformation describe-stacks","スタックの状態と出力値","`Outputs` から他システムへ値を渡せる。","--stack-name <n>",{"ex":"aws cloudformation describe-stacks --stack-name api --query \"Stacks[0].Outputs\" --output table"}],["aws cloudformation describe-stack-events","イベント履歴","**失敗原因はここの一番古いエラーを見る。**","--stack-name <n>",{"ex":"aws cloudformation describe-stack-events --stack-name api --max-items 20 --query \"StackEvents[].[Timestamp,ResourceStatus,ResourceStatusReason]\" --output table"}],["aws cloudformation validate-template","テンプレートを検証","構文レベルの確認。","--template-body file://<f>",{"ex":"aws cloudformation validate-template --template-body file://template.yaml"}],["aws cloudformation detect-stack-drift","手動変更の検出","コンソールで直された箇所を洗い出す。","--stack-name <n>",{"ex":"aws cloudformation detect-stack-drift --stack-name api"}],["aws cloudformation delete-stack","スタックを削除","**配下のリソースがまとめて消える。**","--stack-name <n>",{"tag":"破壊的","ex":"aws cloudformation describe-stack-resources --stack-name api --query \"StackResources[].[LogicalResourceId,ResourceType]\" --output table"}]]},{"g":"data","id":"data","t":"RDS と DynamoDB","note":null,"cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["aws rds describe-db-instances","DBインスタンス一覧","エンドポイントとステータスを見る。","[--db-instance-identifier <id>]",{"ex":"aws rds describe-db-instances --query \"DBInstances[].[DBInstanceIdentifier,DBInstanceStatus,Endpoint.Address]\" --output table"}],["aws rds create-db-snapshot","手動スナップショットを取る","変更作業の前に必ず取る。","--db-instance-identifier <id> --db-snapshot-identifier <snap>",{"ex":"aws rds create-db-snapshot --db-instance-identifier prod-db --db-snapshot-identifier prod-db-before-migration"}],["aws rds describe-db-snapshots","スナップショット一覧","復元元の確認に。","[--db-instance-identifier <id>]",{"ex":"aws rds describe-db-snapshots --db-instance-identifier prod-db --query \"sort_by(DBSnapshots,&SnapshotCreateTime)[-3:].[DBSnapshotIdentifier,SnapshotCreateTime]\" --output table"}],["aws rds modify-db-instance","設定を変更","`--apply-immediately` を付けないと次のメンテナンス時間まで待つ。","--db-instance-identifier <id> [--apply-immediately]",{"ex":"aws rds modify-db-instance --db-instance-identifier prod-db --backup-retention-period 14 --apply-immediately"}],["aws dynamodb scan","テーブル全走査","**大きなテーブルでは費用と時間がかかる。**基本は `query` を使う。","--table-name <t> [--max-items <n>]",{"ex":"aws dynamodb scan --table-name users --max-items 10"}],["aws dynamodb query","キー条件で取得","パーティションキー指定が必須。","--table-name <t> --key-condition-expression <e> --expression-attribute-values <json>",{"ex":"aws dynamodb query --table-name users --key-condition-expression \"pk = :p\" --expression-attribute-values '{\":p\":{\"S\":\"user#1\"}}'"}],["aws dynamodb put-item / get-item","1件の書き込み / 読み込み","JSON はアトリビュート型付きで書く。","--table-name <t> --item|--key <json>",{"ex":"aws dynamodb get-item --table-name users --key '{\"pk\":{\"S\":\"user#1\"}}'"}],["aws dynamodb describe-table","テーブル定義","インデックスとキャパシティを確認する。","--table-name <t>",{"ex":"aws dynamodb describe-table --table-name users --query \"Table.[TableStatus,ItemCount,BillingModeSummary]\""}]]},{"g":"sec","id":"sec","t":"IAM とシークレット","note":null,"cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["aws iam list-users / list-roles","ユーザーとロールの一覧","棚卸しの起点。","[--query]",{"ex":"aws iam list-roles --query \"Roles[].[RoleName,CreateDate]\" --output table"}],["aws iam get-role","ロールの信頼ポリシーを確認","誰がこのロールを引き受けられるか。","--role-name <n>",{"ex":"aws iam get-role --role-name Deploy --query \"Role.AssumeRolePolicyDocument\""}],["aws iam list-attached-role-policies","ロールに付いた管理ポリシー","権限過多の検出に。","--role-name <n>",{"ex":"aws iam list-attached-role-policies --role-name Deploy --output table"}],["aws iam simulate-principal-policy","権限をシミュレートする","実際に叩かずに許可されるか確かめられる。","--policy-source-arn <arn> --action-names <a>...",{"ex":"aws iam simulate-principal-policy --policy-source-arn arn:aws:iam::123456789012:role/Deploy --action-names s3:PutObject"}],["aws iam list-access-keys","アクセスキーの一覧","古い長期キーの検出に。","[--user-name <n>]",{"ex":"aws iam list-access-keys --user-name deploy-bot --output table"}],["aws secretsmanager get-secret-value","シークレットを取得","`--query SecretString --output text` で素の値が取れる。","--secret-id <id>",{"ex":"aws secretsmanager get-secret-value --secret-id prod/db --query SecretString --output text"}],["aws secretsmanager put-secret-value","シークレットを更新","新しいバージョンが作られる。","--secret-id <id> --secret-string <s>",{"ex":"aws secretsmanager put-secret-value --secret-id prod/db --secret-string file://secret.json"}],["aws kms encrypt / decrypt","KMSで暗号化・復号","出力はBase64。`--output text` と組み合わせる。","--key-id <id> --plaintext fileb://<f>",{"ex":"aws kms decrypt --ciphertext-blob fileb://enc.bin --query Plaintext --output text | base64 -d"}]]},{"g":"ops","id":"msg","t":"SQS / SNS / EventBridge","note":null,"cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["aws sqs list-queues","キュー一覧","URLが返る。以降の操作で使う。","[--queue-name-prefix <p>]",{"ex":"aws sqs list-queues --queue-name-prefix prod- --output text"}],["aws sqs get-queue-attributes","滞留数を確認","`ApproximateNumberOfMessages` で詰まりを検知する。","--queue-url <u> --attribute-names All",{"ex":"aws sqs get-queue-attributes --queue-url https://sqs.ap-northeast-1.amazonaws.com/123456789012/prod-jobs --attribute-names ApproximateNumberOfMessages"}],["aws sqs send-message / receive-message","メッセージの送受信","動作確認に使う。","--queue-url <u> --message-body <s>",{"ex":"aws sqs send-message --queue-url <url> --message-body '{\"id\":1}'"}],["aws sqs purge-queue","キューを空にする","**メッセージが全部消える。**","--queue-url <u>",{"tag":"破壊的","ex":"aws sqs get-queue-attributes --queue-url <url> --attribute-names ApproximateNumberOfMessages"}],["aws sns publish","通知を送る","アラート経路の疎通確認に。","--topic-arn <arn> --message <s>",{"ex":"aws sns publish --topic-arn arn:aws:sns:ap-northeast-1:123456789012:alerts --message \"test\""}],["aws events put-rule / put-targets","EventBridge のルール","スケジュール実行の設定。","--name <n> --schedule-expression <expr>",{"ex":"aws events put-rule --name nightly --schedule-expression \"cron(0 18 * * ? *)\""}]]},{"g":"ops","id":"cost","t":"コストと診断","note":null,"cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["aws ce get-cost-and-usage","コストを取得","Cost Explorer API。日次・月次で集計できる。","--time-period Start=<d>,End=<d> --granularity <g> --metrics <m>",{"ex":"aws ce get-cost-and-usage --time-period Start=2026-08-01,End=2026-09-01 --granularity MONTHLY --metrics UnblendedCost --group-by Type=DIMENSION,Key=SERVICE"}],["aws budgets describe-budgets","予算の状況","超過アラートの設定確認。","--account-id <id>",{"ex":"aws budgets describe-budgets --account-id 123456789012"}],["aws support describe-trusted-advisor-checks","Trusted Advisor の項目","Business以上のサポートプランが要る。","--language ja",{"ex":"aws support describe-trusted-advisor-checks --language ja"}],["aws resourcegroupstaggingapi get-resources","タグでリソースを横断検索","棚卸しの決定版。","--tag-filters Key=<k>,Values=<v>",{"ex":"aws resourcegroupstaggingapi get-resources --tag-filters Key=Env,Values=prod --query \"ResourceTagMappingList[].ResourceARN\" --output text"}],["aws cloudtrail lookup-events","操作履歴を検索","「誰がいつ消したか」を追う。","--lookup-attributes AttributeKey=<k>,AttributeValue=<v>",{"ex":"aws cloudtrail lookup-events --lookup-attributes AttributeKey=EventName,AttributeValue=TerminateInstances --max-items 10"}]]},{"g":"danger","id":"danger","t":"危険な操作","note":"いずれも本番で実行すると復旧に時間がかかる。実行例は「先に確認するためのコマンド」を載せている。","cols":["コマンド","概要","詳細","パラメータ / 実行例"],"rows":[["aws s3 rm --recursive","オブジェクトを一括削除","バージョニングが無ければ復元できない。まず `--dryrun`。","--recursive [--dryrun]",{"tag":"破壊的","ex":"aws s3 rm s3://my-bucket/logs/ --recursive --dryrun"}],["aws s3 rb --force","バケットごと削除","中身を全部消してからバケットを消す。","--force",{"tag":"破壊的","ex":"aws s3 ls s3://my-bucket --recursive --summarize | tail -3"}],["aws s3 sync --delete","同期先の余分を削除","**転送元が空だと転送先が全消しになる。**","--delete [--dryrun]",{"tag":"破壊的","ex":"aws s3 sync ./dist s3://my-bucket/dist --delete --dryrun"}],["aws ec2 terminate-instances","EC2を削除","EBSの `DeleteOnTermination` 次第でデータも消える。","--instance-ids <id>...",{"tag":"破壊的","ex":"aws ec2 describe-instances --instance-ids i-0abc --query \"Reservations[].Instances[].BlockDeviceMappings[].Ebs.DeleteOnTermination\""}],["aws rds delete-db-instance","DBを削除","`--skip-final-snapshot` を付けると**バックアップなしで消える。**","--db-instance-identifier <id> [--final-db-snapshot-identifier <s>]",{"tag":"破壊的","ex":"aws rds create-db-snapshot --db-instance-identifier prod-db --db-snapshot-identifier prod-db-final"}],["aws dynamodb delete-table","テーブルを削除","PITR が無ければ復元できない。","--table-name <t>",{"tag":"破壊的","ex":"aws dynamodb describe-continuous-backups --table-name users"}],["aws cloudformation delete-stack","スタックを削除","配下のリソースが連鎖的に消える。","--stack-name <n>",{"tag":"破壊的","ex":"aws cloudformation describe-stack-resources --stack-name api --output table"}],["aws iam delete-role / detach-role-policy","ロールや権限を削除","**実行中のワークロードが即座に失敗する。**","--role-name <n>",{"tag":"破壊的","ex":"aws iam list-entities-for-policy --policy-arn <arn>"}],["aws ecr batch-delete-image","イメージを削除","参照中のタグを消すとスケールアウトで失敗する。","--repository-name <n> --image-ids imageTag=<t>",{"tag":"破壊的","ex":"aws ecs describe-task-definition --task-definition api --query \"taskDefinition.containerDefinitions[].image\""}],["aws sqs purge-queue","キューを空にする","処理前のメッセージも消える。","--queue-url <u>",{"tag":"破壊的","ex":"aws sqs receive-message --queue-url <url> --max-number-of-messages 1"}]]}];
+const NAV_GROUPS = [{"g":"core","label":"基本・設定"},{"g":"s3","label":"ストレージ"},{"g":"compute","label":"EC2 / ネットワーク"},{"g":"container","label":"コンテナ"},{"g":"serverless","label":"サーバレス"},{"g":"data","label":"データベース"},{"g":"sec","label":"セキュリティ"},{"g":"ops","label":"運用・監視"},{"g":"danger","label":"危険な操作"}];
+const PRIORITY = {"t":"最初に覚える10個","label":"コマンド","group":"core","note":"事故を防ぐ順に並べた。上4つは操作の前に打つものである。","rows":[["★★★","aws sts get-caller-identity","いま誰として実行しているか。本番事故の大半はここの確認漏れ"],["★★★","aws configure list","どのプロファイルとリージョンが効いているか"],["★★★","--query / --output table","巨大なJSONを読める形に落とす"],["★★★","aws logs tail --follow","障害対応の主力。ログを追えないと何も分からない"],["★★☆","aws s3 sync --dryrun","転送前に何が起きるかを見る。--delete は特に"],["★★☆","aws ssm start-session","SSH鍵も踏み台もなしでEC2に入る"],["★★☆","aws ecr get-login-password","コンテナを扱うなら必ず通る道"],["★★☆","aws cloudformation describe-stack-events","デプロイ失敗の原因はここの最初のエラー"],["★☆☆","aws ecs update-service --force-new-deployment","同じタグのまま再デプロイする"],["★☆☆","aws cloudtrail lookup-events","誰がいつ消したかを追う"]]};
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = s => esc(s)
+  .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+  .replace(/`([^`]+)`/g, '<code>$1</code>');
+
+function keysHtml(raw){
+  if (!raw || raw === '—') return '<span class="knone">—</span>';
+  const chords = String(raw).split(' ').filter(Boolean);
+  const parts = [];
+  chords.forEach((chord, ci) => {
+    if (ci) parts.push('<span class="ksep">›</span>');
+    chord.split('+').forEach((k, i) => {
+      if (i) parts.push('<span class="ksep">+</span>');
+      parts.push('<kbd>' + esc(k) + '</kbd>');
+    });
+  });
+  return parts.join('');
+}
+
+const main = document.getElementById('main');
+const rail = document.getElementById('rail');
+const frag = document.createDocumentFragment();
+let totalRows = 0;
+
+for (const sec of DATA){
+  const el = document.createElement('section');
+  el.className = 'sec';
+  el.id = sec.id;
+  el.dataset.group = sec.g;
+
+  const nCols = sec.cols.length;
+  const isKeys = sec.kind === 'keys';
+  const cls = nCols === 4 ? ['c-cmd','c-sum','c-det','c-par'] : ['c-cmd','c-sum','c-par'];
+  const sigil = sec.sig || SIGIL;
+
+  const head = '<div class="sec-head"><h3>' + esc(sec.t) + '</h3><span class="n">' + sec.rows.length + ' 項目</span></div>'
+    + (sec.note ? '<p class="sec-note">' + fmt(sec.note) + '</p>' : '');
+  const ths = sec.cols.map((c,i) => '<th class="' + cls[i] + '" scope="col">' + esc(c) + '</th>').join('');
+
+  const trs = sec.rows.map(r => {
+    const meta = (typeof r[r.length-1] === 'object') ? r[r.length-1] : null;
+    const vals = meta ? r.slice(0,-1) : r;
+    totalRows++;
+    const cells = [];
+
+    if (isKeys){
+      let c0 = '<span class="act">' + fmt(vals[0]) + '</span>';
+      if (meta && meta.tag) c0 += '<span class="tag">' + esc(meta.tag) + '</span>';
+      cells.push('<td data-label="' + esc(sec.cols[0]) + '">' + c0 + '</td>');
+      for (let i = 1; i < nCols; i++){
+        const v = vals[i] == null ? '—' : vals[i];
+        if (i <= 2){
+          const btn = (v && v !== '—')
+            ? '<button class="keycell" type="button" title="クリックでコピー" data-copy="' + esc(v) + '">' + keysHtml(v) + '</button>'
+            : '<span class="knone">—</span>';
+          cells.push('<td data-label="' + esc(sec.cols[i]) + '">' + btn + '</td>');
+        } else {
+          cells.push('<td data-label="' + esc(sec.cols[i]) + '"><span class="det' + (v === '—' ? ' none' : '') + '">' + fmt(v) + '</span></td>');
+        }
+      }
+    } else {
+      const name = vals[0];
+      let first = '<button class="cmd" type="button" data-copy="' + esc(name) + '" title="クリックでコピー">'
+        + (name.startsWith('/') ? '<i>/</i>' + esc(name.slice(1)) : esc(name)) + '</button>';
+      if (meta && meta.alias) first += '<div class="aliases">' + meta.alias.map(a => '<span class="alias">' + esc(a) + '</span>').join('') + '</div>';
+      if (meta && meta.tag) first += '<span class="tag">' + esc(meta.tag) + '</span>';
+      cells.push('<td class="' + cls[0] + '" data-label="' + esc(sec.cols[0]) + '">' + first + '</td>');
+      for (let i = 1; i < nCols; i++){
+        const isLast = (i === nCols - 1);
+        let v = vals[i];
+        if (v == null || v === '') v = isLast ? '' : '—';
+        let inner;
+        if (isLast){
+          const p = (v && v !== '—') ? '<span class="par">' + fmt(v) + '</span>'
+            : (v === '—' ? '<span class="par none">—</span>' : '');
+          const ex = meta && meta.ex
+            ? '<button class="ex" type="button" title="クリックでコピー" data-copy="' + esc(meta.ex) + '"><b>' + sigil + '</b>' + esc(meta.ex) + '</button>'
+            : '';
+          inner = '<div class="pcell">' + p + ex + '</div>';
+        } else {
+          inner = '<span class="' + (i === 1 ? 'sum' : 'det') + (v === '—' ? ' none' : '') + '">' + fmt(v) + '</span>';
+        }
+        cells.push('<td class="' + cls[i] + '" data-label="' + esc(sec.cols[i]) + '">' + inner + '</td>');
+      }
+    }
+
+    const search = (vals.join(' ') + ' '
+      + (meta && meta.alias ? meta.alias.join(' ') : '') + ' '
+      + (meta && meta.tag ? meta.tag : '') + ' '
+      + (meta && meta.ex ? meta.ex : '')).toLowerCase();
+    return '<tr class="row' + (meta && meta.tag ? ' flagged' : '') + '" data-s="' + esc(search) + '">' + cells.join('') + '</tr>';
+  }).join('');
+
+  el.innerHTML = head + '<div class="tablewrap"><table class="cols-' + nCols + (isKeys ? ' tkeys' : '') + '">'
+    + '<thead><tr>' + ths + '</tr></thead><tbody>' + trs + '</tbody></table></div>';
+  frag.appendChild(el);
+}
+main.insertBefore(frag, document.getElementById('empty'));
+
+if (PRIORITY && PRIORITY.rows.length){
+  const last = document.createElement('section');
+  last.className = 'sec';
+  last.id = 'priority';
+  last.dataset.group = PRIORITY.group;
+  last.innerHTML = '<div class="sec-head"><h3>' + esc(PRIORITY.t) + '</h3><span class="n">優先度順</span></div>'
+    + (PRIORITY.note ? '<p class="sec-note">' + fmt(PRIORITY.note) + '</p>' : '')
+    + '<div class="tablewrap"><table class="cols-3 priority"><thead><tr>'
+    + '<th class="c-cmd" scope="col">優先度</th><th class="c-sum" scope="col">' + esc(PRIORITY.label) + '</th>'
+    + '<th class="c-par" scope="col">理由</th></tr></thead><tbody>'
+    + PRIORITY.rows.map(([s,c,w]) =>
+        '<tr class="row" data-s="' + esc((c + ' ' + w).toLowerCase()) + '">'
+        + '<td data-label="優先度">' + s + '</td>'
+        + '<td data-label="' + esc(PRIORITY.label) + '"><span class="sum">'
+        + c.split(' / ').map(x => '<code>' + esc(x) + '</code>').join(' ') + '</span></td>'
+        + '<td data-label="理由"><span class="det">' + esc(w) + '</span></td></tr>').join('')
+    + '</tbody></table></div>';
+  main.insertBefore(last, document.getElementById('empty'));
+}
+
+let navHtml = '';
+for (const grp of NAV_GROUPS){
+  const secs = DATA.filter(s => s.g === grp.g);
+  if (!secs.length) continue;
+  navHtml += '<h2>' + esc(grp.label) + '</h2><div class="navlist">';
+  for (const s of secs){
+    navHtml += '<a href="#' + s.id + '" data-target="' + s.id + '">' + esc(s.t) + '<span>' + s.rows.length + '</span></a>';
+  }
+  navHtml += '</div>';
+}
+rail.innerHTML = navHtml;
+
+const q = document.getElementById('q');
+const hits = document.getElementById('hits');
+const emptyEl = document.getElementById('empty');
+const chips = [...document.querySelectorAll('.chip')];
+let scope = 'all';
+
+function apply(){
+  const term = q.value.trim().toLowerCase();
+  let shown = 0;
+  for (const sec of document.querySelectorAll('.sec')){
+    const inScope = scope === 'all' || sec.dataset.group === scope;
+    let n = 0;
+    for (const row of sec.querySelectorAll('tr.row')){
+      const ok = inScope && (!term || row.dataset.s.includes(term));
+      row.hidden = !ok;
+      if (ok) n++;
+    }
+    sec.hidden = n === 0;
+    if (sec.id !== 'priority') shown += n;
+  }
+  hits.textContent = (term || scope !== 'all') ? shown + ' / ' + totalRows + ' 件' : totalRows + ' 件';
+  emptyEl.classList.toggle('on', shown === 0);
+}
+q.addEventListener('input', apply);
+chips.forEach(c => c.addEventListener('click', () => {
+  scope = c.dataset.scope;
+  chips.forEach(x => x.setAttribute('aria-pressed', String(x === c)));
+  apply();
+}));
+apply();
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('.cmd, .ex, .keycell');
+  if (!b || !navigator.clipboard || !navigator.clipboard.writeText) return;
+  navigator.clipboard.writeText(b.dataset.copy).then(() => {
+    b.classList.add('copied');
+    const sig = b.querySelector('b');
+    if (sig && !sig.dataset.orig){ sig.dataset.orig = sig.textContent; sig.textContent = '✓'; }
+    setTimeout(() => {
+      b.classList.remove('copied');
+      if (sig && sig.dataset.orig){ sig.textContent = sig.dataset.orig; delete sig.dataset.orig; }
+    }, 1000);
+  }, () => {});
+});
+
+const bar = document.getElementById('bar');
+const setBar = () => document.documentElement.style.setProperty('--bar', bar.offsetHeight + 'px');
+setBar();
+if (window.ResizeObserver) new ResizeObserver(setBar).observe(bar); else window.addEventListener('resize', setBar);
+
+const links = [...rail.querySelectorAll('a')];
+const byId = new Map(links.map(a => [a.dataset.target, a]));
+const io = new IntersectionObserver(entries => {
+  for (const en of entries){
+    if (en.isIntersecting){
+      links.forEach(a => a.removeAttribute('aria-current'));
+      const a = byId.get(en.target.id);
+      if (a){
+        a.setAttribute('aria-current','true');
+        const r = a.getBoundingClientRect(), rr = rail.getBoundingClientRect();
+        if (rail.scrollHeight > rail.clientHeight && (r.top < rr.top || r.bottom > rr.bottom)){
+          rail.scrollTop += (r.top - rr.top) - rail.clientHeight / 3;
+        }
+      }
+      break;
+    }
+  }
+}, {rootMargin:'-80px 0px -70% 0px', threshold:0});
+document.querySelectorAll('.sec').forEach(s => io.observe(s));
+
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)){
+    e.preventDefault();
+    q.focus();
+  }
+});
+
+</script>
+</body>
+</html>
