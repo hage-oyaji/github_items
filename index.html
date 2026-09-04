@@ -42,50 +42,43 @@ h1{font-size:clamp(24px,3.2vw,32px);font-weight:700;margin:0 0 12px;letter-spaci
 }
 .totals b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
 
-.band{margin-bottom:40px}
-.band h2{
-  font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--ink-3);font-weight:500;margin:0 0 14px;
-}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:44px}
 
 .tile{
-  display:flex;flex-direction:column;
+  display:flex;flex-direction:column;align-items:flex-start;
   text-decoration:none;color:inherit;background:var(--surface);
-  border:1px solid var(--rule);border-top:3px solid var(--accent);
-  padding:18px 20px 16px;
+  border:1px solid var(--rule);border-top:2px solid var(--accent);
+  padding:13px 13px 11px;min-width:0;
   transition:border-color .12s,transform .12s;
 }
 .tile:hover{border-color:var(--rule-strong);transform:translateY(-2px)}
 .tile:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.tile-top{display:flex;align-items:center;gap:9px;margin-bottom:12px}
 .mark{
-  font-family:var(--mono);font-size:15px;line-height:1;color:var(--accent);
+  font-family:var(--mono);font-size:13px;line-height:1;color:var(--accent);
   border:1px solid var(--rule-strong);border-radius:2px;
-  width:28px;height:28px;display:grid;place-items:center;flex:0 0 auto;
+  width:24px;height:24px;display:grid;place-items:center;margin-bottom:10px;
 }
-.kind{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
-.tile h3{font-size:16px;font-weight:700;margin:0 0 4px;line-height:1.4;text-wrap:balance}
-.ver{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin:0 0 10px;font-variant-numeric:tabular-nums}
-.desc{margin:0 0 14px;font-size:13px;color:var(--ink-2);flex:1 1 auto}
-.topics{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 14px;padding:0;list-style:none}
-.topics li{
-  font-size:10.5px;color:var(--ink-2);background:var(--surface-2);
-  border-radius:2px;padding:2px 7px;white-space:nowrap;
+.name{font-size:13.5px;font-weight:700;line-height:1.35;word-break:break-word}
+.kind{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;
+  color:var(--ink-3);margin-top:1px;
 }
+.tagline{font-size:11.5px;color:var(--ink-2);line-height:1.5;margin-top:7px;flex:1 1 auto}
 .stat{
-  display:flex;align-items:baseline;gap:4px;
-  border-top:1px solid var(--rule);padding-top:11px;margin-top:auto;
-  font-family:var(--mono);color:var(--ink-3);font-size:11px;
+  width:100%;border-top:1px solid var(--rule);padding-top:8px;margin-top:10px;
+  font-family:var(--mono);font-size:10px;color:var(--ink-3);
 }
-.stat .num{font-size:16px;font-weight:700;color:var(--accent-ink);font-variant-numeric:tabular-nums}
-.stat .sep{color:var(--rule-strong);margin:0 5px}
+.stat b{
+  font-size:14px;font-weight:700;color:var(--accent-ink);
+  font-variant-numeric:tabular-nums;margin-right:3px;
+}
 
 footer{border-top:1px solid var(--rule-strong);padding-top:18px;color:var(--ink-3);font-size:12.5px}
 footer p{margin:0 0 6px}
+@media (max-width:1040px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:680px){
   .wrap{padding:36px 18px 70px}
-  .grid{grid-template-columns:1fr}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style>
@@ -103,111 +96,50 @@ footer p{margin:0 0 6px}
     </ul>
   </header>
 
-    <section class="band">
-      <h2>開発ツール</h2>
-      <div class="grid">
-      <a class="tile" href="articles/claude-code-commands/">
-        <div class="tile-top">
-          <span class="mark" aria-hidden="true">◈</span>
-          <span class="kind">AIコーディング</span>
-        </div>
-        <h3>Claude Code コマンド索引</h3>
-        <p class="ver">v2.1.259 / 2026-09-04</p>
-        <p class="desc">Claude Code v2.1.259 の実行バイナリとヘルプ出力から抽出した、スラッシュコマンド・CLIコマンド・起動フラグの索引。全項目に実行例つき。</p>
-        <ul class="topics"><li>セッション操作・会話管理</li><li>コンテキスト管理</li><li>モデル・実行制御</li><li>権限・セキュリティ</li><li>設定・カスタマイズ</li></ul>
-        <div class="stat">
-          <span class="num">225</span><span class="unit">項目</span>
-          <span class="sep">/</span>
-          <span class="num">24</span><span class="unit">区分</span>
-        </div>
+    <div class="grid">
+      <a class="tile" href="articles/claude-code-commands/" title="Claude Code コマンド索引">
+        <span class="mark" aria-hidden="true">◈</span>
+        <span class="name">Claude Code</span>
+        <span class="kind">コマンド</span>
+        <span class="tagline">スラッシュ・CLI・フラグ</span>
+        <span class="stat"><b>225</b>項目</span>
       </a>
-      <a class="tile" href="articles/git-commands/">
-        <div class="tile-top">
-          <span class="mark" aria-hidden="true">⑂</span>
-          <span class="kind">バージョン管理</span>
-        </div>
-        <h3>Git コマンド索引</h3>
-        <p class="ver">git 2.54.0 / 2026-09-04</p>
-        <p class="desc">Git 2.54 の porcelain コマンドを用途別に整理した索引。全項目に実行例つき、破壊的な操作には警告つき。</p>
-        <ul class="topics"><li>セットアップとリポジトリの取得</li><li>変更を記録する</li><li>履歴を読む</li><li>探す・特定する</li><li>ブランチと統合</li></ul>
-        <div class="stat">
-          <span class="num">152</span><span class="unit">項目</span>
-          <span class="sep">/</span>
-          <span class="num">14</span><span class="unit">区分</span>
-        </div>
+      <a class="tile" href="articles/git-commands/" title="Git コマンド索引">
+        <span class="mark" aria-hidden="true">⑂</span>
+        <span class="name">Git</span>
+        <span class="kind">コマンド</span>
+        <span class="tagline">日常操作から復旧まで</span>
+        <span class="stat"><b>152</b>項目</span>
       </a>
-      </div>
-    </section>
-    <section class="band">
-      <h2>クラウド</h2>
-      <div class="grid">
-      <a class="tile" href="articles/aws-cli-commands/">
-        <div class="tile-top">
-          <span class="mark" aria-hidden="true">▲</span>
-          <span class="kind">クラウド</span>
-        </div>
-        <h3>AWS CLI コマンド索引</h3>
-        <p class="ver">aws-cli 2.35.11 / 2026-09-04</p>
-        <p class="desc">AWS CLI v2 の実務でよく使うコマンドをサービス別に整理した索引。全項目に実行例つき、破壊的な操作には警告つき。</p>
-        <ul class="topics"><li>セットアップと認証</li><li>出力の絞り込みと整形</li><li>S3</li><li>EC2</li><li>Systems Manager</li></ul>
-        <div class="stat">
-          <span class="num">612</span><span class="unit">項目</span>
-          <span class="sep">/</span>
-          <span class="num">21</span><span class="unit">区分</span>
-        </div>
+      <a class="tile" href="articles/aws-cli-commands/" title="AWS CLI コマンド索引">
+        <span class="mark" aria-hidden="true">▲</span>
+        <span class="name">AWS CLI</span>
+        <span class="kind">コマンド</span>
+        <span class="tagline">428サービスの全索引</span>
+        <span class="stat"><b>612</b>項目</span>
       </a>
-      <a class="tile" href="articles/gcp-cli-commands/">
-        <div class="tile-top">
-          <span class="mark" aria-hidden="true">◇</span>
-          <span class="kind">クラウド</span>
-        </div>
-        <h3>gcloud コマンド索引</h3>
-        <p class="ver">Google Cloud CLI / 2026-09-04</p>
-        <p class="desc">Google Cloud CLI(gcloud / bq)の実務でよく使うコマンドをサービス別に整理した索引。全項目に実行例つき。</p>
-        <ul class="topics"><li>セットアップと認証</li><li>出力の絞り込みと整形</li><li>プロジェクトと IAM</li><li>Compute Engine</li><li>GKE と Artifact Registry</li></ul>
-        <div class="stat">
-          <span class="num">309</span><span class="unit">項目</span>
-          <span class="sep">/</span>
-          <span class="num">16</span><span class="unit">区分</span>
-        </div>
+      <a class="tile" href="articles/gcp-cli-commands/" title="gcloud コマンド索引">
+        <span class="mark" aria-hidden="true">◇</span>
+        <span class="name">gcloud</span>
+        <span class="kind">コマンド</span>
+        <span class="tagline">130グループの全索引</span>
+        <span class="stat"><b>309</b>項目</span>
       </a>
-      </div>
-    </section>
-    <section class="band">
-      <h2>エディタ</h2>
-      <div class="grid">
-      <a class="tile" href="articles/intellij-shortcuts/">
-        <div class="tile-top">
-          <span class="mark" aria-hidden="true">⌘</span>
-          <span class="kind">エディタ</span>
-        </div>
-        <h3>IntelliJ IDEA ショートカット索引</h3>
-        <p class="ver">Default / macOS キーマップ</p>
-        <p class="desc">IntelliJ IDEA の既定キーマップを用途別に整理した索引。Windows / Linux と macOS を並べて比較できる。</p>
-        <ul class="topics"><li>まずこの4つ</li><li>検索と移動</li><li>コードを読む</li><li>編集</li><li>選択とマルチキャレット</li></ul>
-        <div class="stat">
-          <span class="num">113</span><span class="unit">項目</span>
-          <span class="sep">/</span>
-          <span class="num">10</span><span class="unit">区分</span>
-        </div>
+      <a class="tile" href="articles/intellij-shortcuts/" title="IntelliJ IDEA ショートカット索引">
+        <span class="mark" aria-hidden="true">⌘</span>
+        <span class="name">IntelliJ IDEA</span>
+        <span class="kind">ショートカット</span>
+        <span class="tagline">Win / macOS 併記</span>
+        <span class="stat"><b>113</b>項目</span>
       </a>
-      <a class="tile" href="articles/vscode-shortcuts/">
-        <div class="tile-top">
-          <span class="mark" aria-hidden="true">⌥</span>
-          <span class="kind">エディタ</span>
-        </div>
-        <h3>VS Code ショートカット索引</h3>
-        <p class="ver">v1.127 既定キーバインド</p>
-        <p class="desc">Visual Studio Code の既定キーバインドを用途別に整理した索引。Windows / Linux と macOS を並べて比較できる。</p>
-        <ul class="topics"><li>起点になる3つ</li><li>ファイルとシンボルの移動</li><li>検索と置換</li><li>編集</li><li>選択とマルチカーソル</li></ul>
-        <div class="stat">
-          <span class="num">97</span><span class="unit">項目</span>
-          <span class="sep">/</span>
-          <span class="num">10</span><span class="unit">区分</span>
-        </div>
+      <a class="tile" href="articles/vscode-shortcuts/" title="VS Code ショートカット索引">
+        <span class="mark" aria-hidden="true">⌥</span>
+        <span class="name">VS Code</span>
+        <span class="kind">ショートカット</span>
+        <span class="tagline">Win / macOS 併記</span>
+        <span class="stat"><b>97</b>項目</span>
       </a>
-      </div>
-    </section>
+    </div>
 
   <footer>
     <p>コマンド系は可能な限り実行環境から機械抽出し、それ以外は公式ドキュメントに基づく。各ページの注記に根拠を明記している。</p>
