@@ -73,18 +73,43 @@ code{font-family:var(--mono);font-size:.88em;font-weight:500}
 }
 .search input::placeholder{color:var(--ink-3)}
 .search input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-.chips{display:flex;flex-wrap:wrap;gap:5px}
-.chip{
-  font-family:var(--mono);font-size:11.5px;border:1px solid var(--rule-strong);
-  background:transparent;color:var(--ink-2);padding:5px 10px;border-radius:2px;cursor:pointer;
+.veil{
+  position:fixed;inset:0;z-index:100;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  background:var(--paper);transition:opacity .22s ease;
 }
-.chip:hover{background:var(--surface-2)}
-.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
-:root[data-theme="dark"] .chip[aria-pressed="true"]{color:#0D1210}
+.veil.off{opacity:0;pointer-events:none}
+.veil-ring{
+  width:34px;height:34px;border-radius:50%;
+  border:2.5px solid var(--rule-strong);border-top-color:var(--accent);
+  animation:veilspin .7s linear infinite;
+}
+.veil-text{margin:0;font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--ink-3)}
+@keyframes veilspin{to{transform:rotate(360deg)}}
+
+.editor{flex:1 0 100%;display:flex;align-items:center;gap:8px;padding-top:9px;border-top:1px solid var(--rule)}
+.editor-sig{flex:0 0 auto;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent)}
+.editor input{
+  flex:1 1 auto;min-width:0;
+  font-family:var(--mono);font-size:13px;color:var(--ink);
+  background:var(--surface-2);border:1px solid var(--rule-strong);border-radius:2px;padding:7px 10px;
+}
+.editor input::placeholder{font-family:var(--sans);font-size:12.5px;color:var(--ink-3)}
+.editor input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.editor-btn{
+  flex:0 0 auto;min-width:64px;cursor:pointer;
+  font-family:var(--sans);font-size:12.5px;line-height:1;
+  background:var(--accent);border:1px solid var(--accent);color:#FFFFFF;
+  padding:8px 12px;border-radius:2px;
+}
+:root[data-theme="dark"] .editor-btn:not(.ghost){color:#0D1210}
 @media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]) .chip[aria-pressed="true"]{color:#0D1210}
+  :root:not([data-theme="light"]) .editor-btn:not(.ghost){color:#0D1210}
 }
-.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.editor-btn.ghost{background:transparent;border-color:var(--rule-strong);color:var(--ink-2)}
+.editor-btn:hover{opacity:.86}
+.editor-btn.ghost:hover{opacity:1;color:var(--accent);border-color:var(--accent)}
+.editor-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .hitcount{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap;margin-left:auto}
 .barmin{
   flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
@@ -98,10 +123,8 @@ code{font-family:var(--mono);font-size:.88em;font-weight:500}
 .bar-in{transition:padding .16s}
 .bar.min .barmin{transform:rotate(180deg)}
 .bar.min .bar-in{padding-top:5px;padding-bottom:5px}
-.bar.min .brand-meta,.bar.min .chips{display:none}
+.bar.min .brand-meta{display:none}
 .bar.min .brand-name{font-size:13.5px}
-.bar.min.filtered .chips{display:flex}
-.bar.min.filtered .chip[aria-pressed="false"]{display:none}
 
 .shell{max-width:1280px;margin:0 auto;padding:0 28px 90px;display:grid;grid-template-columns:214px minmax(0,1fr);gap:40px;align-items:start}
 .rail{
@@ -240,9 +263,18 @@ footer .siblings a{color:var(--accent-ink)}
   tr.flagged{box-shadow:inset 2px 0 0 var(--warn);padding-left:10px}
 }
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+@media (prefers-reduced-motion: reduce){.veil-ring{animation:veilspin 2.4s linear infinite!important}}
 </style>
 </head>
 <body>
+<div class="veil" id="veil" role="status" aria-live="polite">
+  <div class="veil-ring"></div>
+  <p class="veil-text">読み込み中</p>
+</div>
+<script>
+// 組み立て前にスクリプトが落ちても覆いを残さない
+addEventListener('error', () => { const v = document.getElementById('veil'); if (v) v.remove(); });
+</script>
 <header class="bar" id="bar">
   <div class="bar-in">
     <a class="home" href="../../" title="リファレンス索引に戻る"><i>‹</i>リファレンス</a>
@@ -253,18 +285,14 @@ footer .siblings a{color:var(--accent-ink)}
     <label class="search">
       <input id="q" type="search" placeholder="メソッド名・用途・コードで絞り込む" autocomplete="off" spellcheck="false" aria-label="検索">
     </label>
-    <div class="chips" role="group" aria-label="種別で絞り込む">
-        <button class="chip" data-scope="all" aria-pressed="true">すべて</button>
-        <button class="chip" data-scope="create" aria-pressed="false">生成</button>
-        <button class="chip" data-scope="inter" aria-pressed="false">中間操作</button>
-        <button class="chip" data-scope="term" aria-pressed="false">終端操作</button>
-        <button class="chip" data-scope="collect" aria-pressed="false">Collectors</button>
-        <button class="chip" data-scope="prim" aria-pressed="false">プリミティブ</button>
-        <button class="chip" data-scope="gather" aria-pressed="false">Gatherers</button>
-        <button class="chip" data-scope="practice" aria-pressed="false">実践</button>
-    </div>
     <span class="hitcount" id="hits"></span>
     <button class="barmin" id="barmin" type="button" aria-expanded="true" aria-label="ヘッダーを最小化" title="ヘッダーを最小化">⌃</button>
+    <div class="editor">
+      <span class="editor-sig">▸</span>
+      <input id="edit" type="text" spellcheck="false" autocomplete="off" placeholder="クリックした行がここに入る。書き換えてコピーできる" aria-label="コマンド編集">
+      <button class="editor-btn" id="editcopy" type="button" title="編集した内容をコピー">コピー</button>
+      <button class="editor-btn ghost" id="editclear" type="button" title="編集欄を空にする">クリア</button>
+    </div>
   </div>
 </header>
 
@@ -287,7 +315,7 @@ footer .siblings a{color:var(--accent-ink)}
   <div class="siblings"><span>同じシリーズ:</span><a href="../claude-code-commands/">Claude Code コマンド索引</a><a href="../git-commands/">Git コマンド索引</a><a href="../aws-cli-commands/">AWS CLI コマンド索引</a><a href="../gcp-cli-commands/">gcloud コマンド索引</a><a href="../intellij-shortcuts/">IntelliJ IDEA ショートカット索引</a><a href="../vscode-shortcuts/">VS Code ショートカット索引</a><a href="../spring-annotations/">Spring アノテーション一覧</a></div>
 </footer>
 
-<script>
+<script type="module">
 const SIGIL = "›";
 const DATA = [{"g":"create","id":"create","t":"ストリームを作る","note":"ほとんどは `collection.stream()` で足りる。整数の連番と無限列だけは専用のファクトリを覚えておく。","cols":["メソッド","説明","シグネチャ / 実行例"],"rows":[["Collection.stream()","コレクションからストリームを得る","default Stream<E> stream()",{"ex":"list.stream().filter(s -> !s.isBlank()).toList();"}],["Collection.parallelStream()","並列ストリームを得る","default Stream<E> parallelStream()",{"ex":"list.parallelStream().map(this::heavy).toList();"}],["Stream.of(...)","値を並べてストリームにする","static <T> Stream<T> of(T... values)",{"ex":"Stream.of(\"a\", \"b\", \"c\").toList();"}],["Stream.empty()","空のストリーム","static <T> Stream<T> empty()",{"ex":"Stream<String> s = Stream.empty();"}],["Stream.ofNullable(t)","null なら空、非 null なら1要素","static <T> Stream<T> ofNullable(T t)",{"ex":"Stream.ofNullable(map.get(key)).forEach(this::use);"}],["Arrays.stream(array)","配列からストリームを得る","static <T> Stream<T> stream(T[] array)",{"ex":"Arrays.stream(args).map(String::trim).toList();"}],["Stream.iterate(seed, f)","無限に反復する。`limit` が必須","static <T> Stream<T> iterate(T seed, UnaryOperator<T> f)",{"ex":"Stream.iterate(1, n -> n * 2).limit(10).toList();"}],["Stream.iterate(seed, hasNext, next)","終了条件つきの反復。for 文に相当","static <T> Stream<T> iterate(T seed, Predicate<? super T> hasNext, UnaryOperator<T> next)",{"ex":"Stream.iterate(1, n -> n <= 100, n -> n * 2).toList();"}],["Stream.generate(supplier)","Supplier で無限生成する。順序なし","static <T> Stream<T> generate(Supplier<? extends T> s)",{"ex":"Stream.generate(UUID::randomUUID).limit(3).toList();"}],["Stream.concat(a, b)","2本のストリームを連結する","static <T> Stream<T> concat(Stream<? extends T> a, Stream<? extends T> b)",{"ex":"Stream.concat(head.stream(), tail.stream()).toList();"}],["Stream.builder()","要素を足しながら組み立てる","static <T> Stream.Builder<T> builder()",{"ex":"Stream.<String>builder().add(\"a\").add(\"b\").build().toList();"}],["IntStream.range(a, b)","a 以上 b 未満の整数列","static IntStream range(int startInclusive, int endExclusive)",{"ex":"IntStream.range(0, list.size()).forEach(i -> use(i, list.get(i)));"}],["IntStream.rangeClosed(a, b)","b を含む整数列","static IntStream rangeClosed(int startInclusive, int endInclusive)",{"ex":"IntStream.rangeClosed(1, 100).sum();"}],["Files.lines(path)","ファイルを1行ずつ流す","static Stream<String> lines(Path path)",{"ex":"try (var lines = Files.lines(path)) { return lines.filter(l -> l.startsWith(\"#\")).toList(); }"}],["String.chars()","文字コードの IntStream","default IntStream chars()",{"ex":"\"hello\".chars().mapToObj(c -> (char) c).toList();"}],["Pattern.splitAsStream(s)","正規表現で分割してストリームに","Stream<String> splitAsStream(CharSequence input)",{"ex":"Pattern.compile(\"\\\\s*,\\\\s*\").splitAsStream(csv).toList();"}],["Random.ints(n, a, b)","乱数の IntStream","IntStream ints(long streamSize, int randomNumberOrigin, int randomNumberBound)",{"ex":"new Random().ints(5, 1, 7).boxed().toList();"}],["map.entrySet().stream()","Map を key/value ごと走査する","Set<Map.Entry<K,V>> entrySet()",{"ex":"map.entrySet().stream().filter(e -> e.getValue() > 0).map(Map.Entry::getKey).toList();"}]]},{"g":"inter","id":"inter-nature","t":"中間操作の性質(先に押さえる)","note":"中間操作は「登録されるだけ」で、終端操作を呼ぶまで1要素も流れない。しかも全件 map してから全件 filter するのではなく、<b>1要素が map → filter → 終端まで通り抜けてから、次の要素に進む</b>。この2点を押さえておくと、「なぜ <code>limit</code> を後ろに書いても上流の評価が減るのか」「なぜ <code>peek</code> が呼ばれないことがあるのか」が説明できる。","cols":["性質","意味","該当する中間操作","効いてくる場面"],"rows":[["遅延評価","中間操作はパイプラインに積まれるだけで、終端操作が呼ばれるまで一切実行されない","すべての中間操作","中間操作だけ書いて終端を書き忘れると、何も起こらないまま素通りする",{}],["1要素ずつ縦に流れる","段ごとに全件処理するのではなく、1要素がパイプラインの端から端まで通ってから次の要素に移る","すべての中間操作","`filter` を前に置くほど後段の重い処理の回数が減る",{}],["ステートレス","1要素の処理に他の要素の情報を必要としない。バッファを持たず、メモリは一定","filter / map / mapToInt / flatMap / mapMulti / peek / boxed","並列化しやすく、無限ストリームにも使える",{}],["ステートフル","判断のために他の要素を覚える必要があり、途中でバッファを持つ","distinct / sorted / limit / skip / dropWhile","`sorted` は全件を溜めるので、無限ストリームには使えずメモリも要素数分必要",{}],["短絡(short-circuit)","上流を最後まで読まずに打ち切れる","limit / takeWhile","無限ストリームを有限にできるのはこの2つだけ",{}],["順序の保証","出現順(encounter order)を保つかどうか。`unordered()` で保証を外せる","distinct / limit / skip / sorted が影響を受ける","並列時、順序の維持にコストがかかる。不要なら外すと速くなる",{}]]},{"g":"inter","id":"inter-basic","t":"中間操作:変換","note":"要素を別の値に置き換える系統。要素数は変わらない(`map`)か、増減する(`flatMap` / `mapMulti`)。","cols":["メソッド","説明","シグネチャ / 実行例"],"rows":[["filter","条件を満たす要素だけを下流に流す。要素は減るが型は変わらない。1要素ずつ遅延評価されるので、`limit` などの短絡操作と組めば必要な分しか判定されない。重い変換の手前に置くほど無駄が減る","Stream<T> filter(Predicate<? super T> predicate)",{"ex":"users.stream().filter(u -> u.age() >= 20).toList();"}],["map","各要素に関数を適用して1対1で別の値に置き換える。要素数は変わらない。関数が null を返しうる場合、そのまま後段に流れて NPE の原因になるので `filter(Objects::nonNull)` を続けるか `mapMulti` を使う","<R> Stream<R> map(Function<? super T,? extends R> mapper)",{"ex":"users.stream().map(User::name).toList();"}],["mapToInt","各要素を int に変換して `IntStream` に切り替える。`Integer` のボクシングが消えるため、合計・平均・最大などの数値集計はここに寄せるほうが速い。オブジェクトに戻すには `boxed()` か `mapToObj`","IntStream mapToInt(ToIntFunction<? super T> mapper)",{"ex":"users.stream().mapToInt(User::age).sum();"}],["mapToLong","各要素を long に変換して `LongStream` に切り替える。件数やバイト数など、int では溢れる可能性がある集計に使う","LongStream mapToLong(ToLongFunction<? super T> mapper)",{"ex":"files.stream().mapToLong(File::length).sum();"}],["mapToDouble","各要素を double に変換して `DoubleStream` に切り替える。平均や金額の集計に使うが、通貨計算のように誤差が許されない場面では `BigDecimal` を `reduce` で畳み込むほうが安全","DoubleStream mapToDouble(ToDoubleFunction<? super T> mapper)",{"ex":"items.stream().mapToDouble(Item::price).average().orElse(0);"}],["flatMap","各要素をストリームに変換し、それらを1本に繋ぎ直す。`List<List<T>>` を `List<T>` に均すときの定番。返したストリームは消費後に自動で閉じられるので、`Files.lines` を返す場合も個別の close は不要。1要素につき1本ストリームを作るため、出したい個数が 0〜1 個程度なら `mapMulti` のほうが軽い","<R> Stream<R> flatMap(Function<? super T,? extends Stream<? extends R>> mapper)",{"ex":"orders.stream().flatMap(o -> o.lines().stream()).toList();"}],["flatMapToInt","平坦化と `IntStream` 化を同時に行う。文字コードの走査など、1要素から複数のプリミティブ値が出る場合に使う","IntStream flatMapToInt(Function<? super T,? extends IntStream> mapper)",{"ex":"words.stream().flatMapToInt(String::chars).distinct().count();"}],["flatMapToLong","平坦化と `LongStream` 化を同時に行う","LongStream flatMapToLong(Function<? super T,? extends LongStream> mapper)",{"ex":"dirs.stream().flatMapToLong(d -> d.files().stream().mapToLong(File::length)).sum();"}],["flatMapToDouble","平坦化と `DoubleStream` 化を同時に行う","DoubleStream flatMapToDouble(Function<? super T,? extends DoubleStream> mapper)",{"ex":"orders.stream().flatMapToDouble(o -> o.lines().stream().mapToDouble(Line::amount)).sum();"}],["mapMulti","1要素から0個以上の要素を、渡された `Consumer`(sink)に直接 emit する。`flatMap` と違い中間ストリームを作らないので、出る個数が 0 か 1 に偏るケースでは明確に軽い。戻り値の型を推論できないため `stream.<R>mapMulti(...)` と型を明示する","default <R> Stream<R> mapMulti(BiConsumer<? super T,? super Consumer<R>> mapper)",{"ex":"stream.<String>mapMulti((o, sink) -> {\n    if (o instanceof String s) sink.accept(s);   // 型で絞りつつ変換\n}).toList();"}],["mapMultiToInt","`mapMulti` の `IntStream` 版。中間ストリームもボクシングも作らずにプリミティブを出せる","default IntStream mapMultiToInt(BiConsumer<? super T,? super IntConsumer> mapper)",{"ex":"stream.mapMultiToInt((s, sink) -> s.chars().forEach(sink)).max();"}],["mapMultiToLong","`mapMulti` の `LongStream` 版","default LongStream mapMultiToLong(BiConsumer<? super T,? super LongConsumer> mapper)",{"ex":"stream.mapMultiToLong((o, sink) -> o.ids().forEach(sink)).sum();"}],["mapMultiToDouble","`mapMulti` の `DoubleStream` 版","default DoubleStream mapMultiToDouble(BiConsumer<? super T,? super DoubleConsumer> mapper)",{"ex":"stream.mapMultiToDouble((o, sink) -> o.amounts().forEach(sink)).average();"}],["peek","流れていく要素を覗いて副作用(ログ出力など)を実行し、要素はそのまま下流へ渡す。<b>デバッグ専用</b>。終端操作が要素の中身を必要としないと判断した場合は呼ばれないことがあり、Java 9 以降は `count()` などでパイプラインごと省略され得る。処理の本体を書く場所ではない","Stream<T> peek(Consumer<? super T> action)",{"ex":"list.stream().peek(System.out::println).filter(x -> x > 0).toList();"}]]},{"g":"inter","id":"inter-select","t":"中間操作:抽出・整列","note":"要素を選ぶ・捨てる・並べ替える系統。ステートフルなものが多く、メモリと並列性能に影響する。","cols":["メソッド","説明","シグネチャ / 実行例"],"rows":[["distinct","`equals` / `hashCode` で重複を除く。既に見た要素を覚える必要があるためステートフル。順序ありのストリームでは最初に現れたものが残る。並列時は順序維持の分だけ重いので、順序が不要なら `unordered()` を挟む。特定の項目だけで重複を判定したいなら `Collectors.toMap` を使う","Stream<T> distinct()",{"ex":"names.stream().distinct().toList();"}],["sorted()","自然順序(`Comparable`)で並べ替える。全要素をいったんバッファに溜めてから流すため、<b>無限ストリームには使えず、メモリも要素数分必要</b>。要素が `Comparable` でないと実行時に `ClassCastException` になる","Stream<T> sorted()",{"ex":"names.stream().sorted().toList();"}],["sorted(comparator)","`Comparator` を指定して並べ替える。`comparing().thenComparing().reversed()` で組み立てるのが定石。安定ソートなので、比較結果が等しい要素は元の順序を保つ","Stream<T> sorted(Comparator<? super T> comparator)",{"ex":"users.stream()\n     .sorted(Comparator.comparing(User::dept)\n                       .thenComparing(User::age, Comparator.reverseOrder()))\n     .toList();"}],["limit","先頭 n 件を流した時点で打ち切る。短絡操作なので、無限ストリームを有限にできる。ただし順序ありの並列ストリームでは「先頭 n 件」を確定させる同期が必要になり、逐次より遅くなることがある","Stream<T> limit(long maxSize)",{"ex":"users.stream().sorted(byScore).limit(10).toList();"}],["skip","先頭 n 件を捨て、n+1 件目から流す。`limit` と組み合わせてページングに使える。捨てる分も上流では評価されるので、処理コストの削減にはならない","Stream<T> skip(long n)",{"ex":"lines.stream().skip(1).toList();   // ヘッダ行を飛ばす"}],["takeWhile","先頭から条件を満たす間だけ流し、最初に満たさない要素が現れた時点で終了する。<b>その後にまた条件を満たす要素が来ても再開しない</b>のが `filter` との違い。ソート済みデータの打ち切りに効く","default Stream<T> takeWhile(Predicate<? super T> predicate)",{"ex":"sorted.stream().takeWhile(n -> n < 100).toList();"}],["dropWhile","先頭から条件を満たす間は捨て、最初に満たさない要素が現れたら<b>それ以降は条件に関係なくすべて流す</b>。ヘッダや前置きの空行を読み飛ばす用途に向く","default Stream<T> dropWhile(Predicate<? super T> predicate)",{"ex":"lines.stream().dropWhile(String::isBlank).toList();"}],["boxed","プリミティブストリームをラッパー型のストリームに戻す。`List<Integer>` が欲しいときに必要。ボクシングのコストがかかるので、集計するだけならプリミティブのまま終端まで持っていくほうが速い","Stream<Integer> boxed()",{"ex":"IntStream.range(0, 5).boxed().toList();   // List<Integer>"}],["parallel","以降を並列実行に切り替える。<b>パイプライン全体に効くフラグ</b>なので、途中のどこに書いても結果は同じ。既定では共通の ForkJoinPool を使うため、ブロッキング IO を含む処理を流すとアプリ全体に影響する。要素数が数万以上かつ CPU バウンドのときだけ検討する","S parallel()",{"ex":"list.stream().parallel().map(this::heavy).toList();"}],["sequential","並列を解除して逐次実行に戻す。`parallel` と同じくパイプライン全体に効くため、両方書いた場合は<b>最後に書いたほうが勝つ</b>","S sequential()",{"ex":"stream.parallel().filter(p).sequential().forEach(this::write);"}],["unordered","出現順の保証を外し、`distinct` / `limit` / `skip` が順序維持のために払っているコストを省けるようにする。要素を捨てるわけではなく、順序に関する制約を緩めるだけ","S unordered()",{"ex":"stream.unordered().parallel().distinct().toList();"}],["onClose","ストリームを閉じたときに実行する処理を登録する。`Files.lines` のようにリソースを持つストリームで使う。登録しただけでは動かず、`close()` されたときにだけ呼ばれる","S onClose(Runnable closeHandler)",{"ex":"try (var s = Files.lines(path).onClose(() -> log.info(\"closed\"))) {\n    return s.count();\n}"}]]},{"g":"term","id":"terminal","t":"終端操作","note":"終端操作を呼んだ時点で初めてパイプラインが動く。呼べるのは1回だけ。","cols":["メソッド","説明","シグネチャ / 実行例"],"rows":[["toList","不変の List に集める。いちばんよく使う","default List<T> toList()",{"ex":"users.stream().map(User::name).toList();"}],["collect(collector)","Collector で任意の形に集める","<R,A> R collect(Collector<? super T,A,R> collector)",{"ex":"users.stream().collect(Collectors.groupingBy(User::dept));"}],["collect(supplier, acc, comb)","器・追加・結合を自分で書く","<R> R collect(Supplier<R> supplier, BiConsumer<R,? super T> accumulator, BiConsumer<R,R> combiner)",{"ex":"stream.collect(StringBuilder::new, StringBuilder::append, StringBuilder::append).toString();"}],["forEach","各要素に処理を適用する。並列では順序が保証されない","void forEach(Consumer<? super T> action)",{"ex":"errors.stream().forEach(log::warn);"}],["forEachOrdered","出現順を保ったまま処理する","void forEachOrdered(Consumer<? super T> action)",{"ex":"stream.parallel().forEachOrdered(System.out::println);"}],["toArray()","Object[] に集める","Object[] toArray()",{"ex":"Object[] arr = stream.toArray();"}],["toArray(generator)","型付き配列に集める","<A> A[] toArray(IntFunction<A[]> generator)",{"ex":"String[] arr = names.stream().toArray(String[]::new);"}],["reduce(identity, acc)","初期値つきで畳み込む。必ず値が返る","T reduce(T identity, BinaryOperator<T> accumulator)",{"ex":"nums.stream().reduce(0, Integer::sum);"}],["reduce(acc)","初期値なしで畳み込む。空なら empty","Optional<T> reduce(BinaryOperator<T> accumulator)",{"ex":"nums.stream().reduce(Integer::max).orElseThrow();"}],["reduce(identity, acc, comb)","型が変わる畳み込み。並列時は combiner が要る","<U> U reduce(U identity, BiFunction<U,? super T,U> accumulator, BinaryOperator<U> combiner)",{"ex":"words.stream().reduce(0, (n, w) -> n + w.length(), Integer::sum);"}],["count","要素数を数える","long count()",{"ex":"users.stream().filter(User::active).count();"}],["min","最小要素を返す","Optional<T> min(Comparator<? super T> comparator)",{"ex":"users.stream().min(Comparator.comparing(User::age));"}],["max","最大要素を返す","Optional<T> max(Comparator<? super T> comparator)",{"ex":"users.stream().max(Comparator.comparing(User::score)).orElseThrow();"}],["anyMatch","1つでも条件を満たすか","boolean anyMatch(Predicate<? super T> predicate)",{"ex":"users.stream().anyMatch(u -> u.age() < 18);"}],["allMatch","すべて条件を満たすか。空なら true","boolean allMatch(Predicate<? super T> predicate)",{"ex":"items.stream().allMatch(i -> i.price() > 0);"}],["noneMatch","1つも条件を満たさないか。空なら true","boolean noneMatch(Predicate<? super T> predicate)",{"ex":"users.stream().noneMatch(User::banned);"}],["findFirst","最初の要素。順序ありのとき決定的","Optional<T> findFirst()",{"ex":"users.stream().filter(byId).findFirst().orElseThrow();"}],["findAny","どれか1つ。並列で速い","Optional<T> findAny()",{"ex":"users.parallelStream().filter(byId).findAny();"}],["iterator","Iterator として取り出す","Iterator<T> iterator()",{"ex":"for (var it = stream.iterator(); it.hasNext(); ) { use(it.next()); }"}]]},{"g":"term","id":"optional","t":"Optional との連携","note":"`findFirst` / `min` / `max` / `reduce` は Optional を返す。取り出し方を決めておくと迷わない。","cols":["メソッド","説明","シグネチャ / 実行例"],"rows":[["orElse","空なら既定値を返す","T orElse(T other)",{"ex":"stream.findFirst().orElse(User.GUEST);"}],["orElseGet","空なら Supplier で作る。生成が重いとき","T orElseGet(Supplier<? extends T> supplier)",{"ex":"stream.findFirst().orElseGet(this::loadDefault);"}],["orElseThrow()","空なら NoSuchElementException","T orElseThrow()",{"ex":"stream.findFirst().orElseThrow();"}],["orElseThrow(supplier)","空なら任意の例外を投げる","<X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier)",{"ex":"stream.findFirst().orElseThrow(() -> new NotFoundException(id));"}],["ifPresent","値があるときだけ処理する","void ifPresent(Consumer<? super T> action)",{"ex":"stream.findFirst().ifPresent(log::info);"}],["ifPresentOrElse","ある/ない両方を書く","void ifPresentOrElse(Consumer<? super T> action, Runnable emptyAction)",{"ex":"found.ifPresentOrElse(this::use, () -> log.warn(\"なし\"));"}],["Optional.map","中身を変換する","<U> Optional<U> map(Function<? super T,? extends U> mapper)",{"ex":"stream.findFirst().map(User::name).orElse(\"(不明)\");"}],["Optional.filter","条件に合わなければ空にする","Optional<T> filter(Predicate<? super T> predicate)",{"ex":"found.filter(User::active).orElseThrow();"}],["Optional.stream","Optional をストリームに開く。`flatMap` と相性が良い","Stream<T> stream()",{"ex":"ids.stream().map(this::find).flatMap(Optional::stream).toList();"}],["isPresent / isEmpty","有無を真偽で判定する","boolean isPresent() / boolean isEmpty()",{"ex":"if (stream.findAny().isEmpty()) { log.warn(\"該当なし\"); }"}]]},{"g":"collect","id":"collect-basic","t":"Collectors:基本","note":null,"cols":["メソッド","説明","シグネチャ / 実行例"],"rows":[["toList()","List に集める。変更可否は未規定","static <T> Collector<T,?,List<T>> toList()",{"ex":"stream.collect(Collectors.toList());"}],["toUnmodifiableList()","不変 List に集める","static <T> Collector<T,?,List<T>> toUnmodifiableList()",{"ex":"stream.collect(Collectors.toUnmodifiableList());"}],["toSet()","Set に集める。順序は保証されない","static <T> Collector<T,?,Set<T>> toSet()",{"ex":"tags.stream().collect(Collectors.toSet());"}],["toCollection(factory)","器を指定して集める","static <T,C extends Collection<T>> Collector<T,?,C> toCollection(Supplier<C> collectionFactory)",{"ex":"stream.collect(Collectors.toCollection(TreeSet::new));"}],["toMap(key, value)","Map に集める。キー重複で例外","static <T,K,U> Collector<T,?,Map<K,U>> toMap(Function<? super T,? extends K> keyMapper, Function<? super T,? extends U> valueMapper)",{"ex":"users.stream().collect(Collectors.toMap(User::id, Function.identity()));"}],["toMap(key, value, merge)","キー重複の解決を指定する","static <T,K,U> Collector<T,?,Map<K,U>> toMap(..., BinaryOperator<U> mergeFunction)",{"ex":"stream.collect(Collectors.toMap(User::dept, User::name, (a, b) -> a + \", \" + b));"}],["toMap(key, value, merge, factory)","Map の実装も指定する","static <T,K,U,M extends Map<K,U>> Collector<T,?,M> toMap(..., Supplier<M> mapFactory)",{"ex":"stream.collect(Collectors.toMap(User::id, u -> u, (a, b) -> a, LinkedHashMap::new));"}],["joining()","文字列を連結する","static Collector<CharSequence,?,String> joining()",{"ex":"names.stream().collect(Collectors.joining());"}],["joining(delimiter)","区切り文字を挟んで連結する","static Collector<CharSequence,?,String> joining(CharSequence delimiter)",{"ex":"names.stream().collect(Collectors.joining(\", \"));"}],["joining(delim, prefix, suffix)","前後も付けて連結する","static Collector<CharSequence,?,String> joining(CharSequence delimiter, CharSequence prefix, CharSequence suffix)",{"ex":"names.stream().collect(Collectors.joining(\", \", \"[\", \"]\"));"}],["counting()","件数を数える。downstream で使う","static <T> Collector<T,?,Long> counting()",{"ex":"stream.collect(Collectors.groupingBy(User::dept, Collectors.counting()));"}],["groupingBy(classifier)","キーごとに List へ振り分ける","static <T,K> Collector<T,?,Map<K,List<T>>> groupingBy(Function<? super T,? extends K> classifier)",{"ex":"users.stream().collect(Collectors.groupingBy(User::dept));"}],["groupingBy(classifier, downstream)","振り分けた後さらに集計する","static <T,K,A,D> Collector<T,?,Map<K,D>> groupingBy(Function<? super T,? extends K> classifier, Collector<? super T,A,D> downstream)",{"ex":"users.stream().collect(Collectors.groupingBy(User::dept, Collectors.counting()));"}],["groupingBy(classifier, factory, downstream)","Map の実装も指定する","static <T,K,D,A,M extends Map<K,D>> Collector<T,?,M> groupingBy(..., Supplier<M> mapFactory, ...)",{"ex":"stream.collect(Collectors.groupingBy(User::dept, TreeMap::new, Collectors.toList()));"}],["partitioningBy(predicate)","true / false の2つに分ける","static <T> Collector<T,?,Map<Boolean,List<T>>> partitioningBy(Predicate<? super T> predicate)",{"ex":"users.stream().collect(Collectors.partitioningBy(u -> u.age() >= 20));"}],["partitioningBy(predicate, downstream)","2分割した後さらに集計する","static <T,D,A> Collector<T,?,Map<Boolean,D>> partitioningBy(Predicate<? super T> predicate, Collector<? super T,A,D> downstream)",{"ex":"stream.collect(Collectors.partitioningBy(User::active, Collectors.counting()));"}]]},{"g":"collect","id":"collect-adv","t":"Collectors:加工・集計","note":"`groupingBy` の第2引数(downstream)に差し込んで使うものが多い。","cols":["メソッド","説明","シグネチャ / 実行例"],"rows":[["mapping(mapper, downstream)","集める前に変換する","static <T,U,A,R> Collector<T,?,R> mapping(Function<? super T,? extends U> mapper, Collector<? super U,A,R> downstream)",{"ex":"stream.collect(Collectors.groupingBy(User::dept, Collectors.mapping(User::name, Collectors.toList())));"}],["flatMapping(mapper, downstream)","集める前に平坦化する","static <T,U,A,R> Collector<T,?,R> flatMapping(Function<? super T,? extends Stream<? extends U>> mapper, Collector<? super U,A,R> downstream)",{"ex":"stream.collect(Collectors.groupingBy(Order::dept, Collectors.flatMapping(o -> o.lines().stream(), Collectors.toList())));"}],["filtering(predicate, downstream)","集める前に絞る。空グループも残る","static <T,A,R> Collector<T,?,R> filtering(Predicate<? super T> predicate, Collector<? super T,A,R> downstream)",{"ex":"stream.collect(Collectors.groupingBy(User::dept, Collectors.filtering(User::active, Collectors.toList())));"}],["collectingAndThen(downstream, finisher)","集めた後に仕上げの変換を挟む","static <T,A,R,RR> Collector<T,A,RR> collectingAndThen(Collector<T,A,R> downstream, Function<R,RR> finisher)",{"ex":"stream.collect(Collectors.collectingAndThen(Collectors.toList(), List::copyOf));"}],["teeing(c1, c2, merger)","2つの Collector に流して結果を合成する","static <T,R1,R2,R> Collector<T,?,R> teeing(Collector<? super T,?,R1> downstream1, Collector<? super T,?,R2> downstream2, BiFunction<? super R1,? super R2,R> merger)",{"ex":"stream.collect(Collectors.teeing(Collectors.counting(), Collectors.summingInt(User::age), (n, sum) -> sum / (double) n));"}],["reducing(op)","畳み込む。結果は Optional","static <T> Collector<T,?,Optional<T>> reducing(BinaryOperator<T> op)",{"ex":"stream.collect(Collectors.groupingBy(User::dept, Collectors.reducing(BinaryOperator.maxBy(byAge))));"}],["reducing(identity, op)","初期値つきで畳み込む","static <T> Collector<T,?,T> reducing(T identity, BinaryOperator<T> op)",{"ex":"stream.collect(Collectors.reducing(0, Integer::sum));"}],["reducing(identity, mapper, op)","変換しながら畳み込む","static <T,U> Collector<T,?,U> reducing(U identity, Function<? super T,? extends U> mapper, BinaryOperator<U> op)",{"ex":"stream.collect(Collectors.reducing(0, User::age, Integer::sum));"}],["minBy / maxBy","最小 / 最大を Optional で返す","static <T> Collector<T,?,Optional<T>> minBy(Comparator<? super T> comparator)",{"ex":"stream.collect(Collectors.groupingBy(User::dept, Collectors.maxBy(byScore)));"}],["summingInt / summingLong / summingDouble","合計を出す","static <T> Collector<T,?,Integer> summingInt(ToIntFunction<? super T> mapper)",{"ex":"stream.collect(Collectors.groupingBy(Order::dept, Collectors.summingInt(Order::total)));"}],["averagingInt / averagingLong / averagingDouble","平均を Double で出す","static <T> Collector<T,?,Double> averagingInt(ToIntFunction<? super T> mapper)",{"ex":"stream.collect(Collectors.averagingInt(User::age));"}],["summarizingInt / Long / Double","件数・合計・最小・最大・平均をまとめて","static <T> Collector<T,?,IntSummaryStatistics> summarizingInt(ToIntFunction<? super T> mapper)",{"ex":"IntSummaryStatistics st = users.stream().collect(Collectors.summarizingInt(User::age));"}],["toUnmodifiableMap(key, value)","不変 Map に集める","static <T,K,U> Collector<T,?,Map<K,U>> toUnmodifiableMap(Function<? super T,? extends K> keyMapper, Function<? super T,? extends U> valueMapper)",{"ex":"stream.collect(Collectors.toUnmodifiableMap(User::id, User::name));"}],["groupingByConcurrent(classifier)","並列ストリーム向けのグルーピング","static <T,K> Collector<T,?,ConcurrentMap<K,List<T>>> groupingByConcurrent(Function<? super T,? extends K> classifier)",{"ex":"users.parallelStream().collect(Collectors.groupingByConcurrent(User::dept));"}],["toConcurrentMap(key, value)","並列ストリーム向けの toMap","static <T,K,U> Collector<T,?,ConcurrentMap<K,U>> toConcurrentMap(Function<? super T,? extends K> keyMapper, Function<? super T,? extends U> valueMapper)",{"ex":"stream.parallel().collect(Collectors.toConcurrentMap(User::id, u -> u));"}]]},{"g":"prim","id":"primitive","t":"プリミティブストリーム","note":"`IntStream` / `LongStream` / `DoubleStream` にしかない操作。ボクシングを避けたいときに使う。","cols":["メソッド","説明","シグネチャ / 実行例"],"rows":[["sum","合計を返す。空なら 0","int sum()",{"ex":"users.stream().mapToInt(User::age).sum();"}],["average","平均を返す。空なら empty","OptionalDouble average()",{"ex":"users.stream().mapToInt(User::age).average().orElse(0);"}],["max / min","最大 / 最小。引数なしで呼べる","OptionalInt max() / OptionalInt min()",{"ex":"IntStream.of(3, 1, 4).max().orElseThrow();"}],["summaryStatistics","件数・合計・最小・最大・平均を一度に得る","IntSummaryStatistics summaryStatistics()",{"ex":"var st = users.stream().mapToInt(User::age).summaryStatistics();"}],["boxed","ラッパー型のストリームに戻す","Stream<Integer> boxed()",{"ex":"IntStream.rangeClosed(1, 5).boxed().toList();"}],["mapToObj","オブジェクトのストリームへ変換する","<U> Stream<U> mapToObj(IntFunction<? extends U> mapper)",{"ex":"IntStream.range(0, 3).mapToObj(i -> \"行\" + i).toList();"}],["asLongStream / asDoubleStream","より広い数値型に変換する","LongStream asLongStream() / DoubleStream asDoubleStream()",{"ex":"IntStream.range(0, 5).asDoubleStream().average();"}],["IntStream.of(...)","値を並べて IntStream にする","static IntStream of(int... values)",{"ex":"IntStream.of(1, 2, 3).sum();"}],["Arrays.stream(int[])","int 配列から IntStream を作る","static IntStream stream(int[] array)",{"ex":"Arrays.stream(new int[]{1, 2, 3}).max().orElseThrow();"}]]},{"g":"gather","id":"gatherers","t":"Gatherers(カスタム中間操作)","note":"`Stream.gather` は自作の中間操作を差し込む仕組み。Java 24 で正式化された(22・23 はプレビュー)。","cols":["メソッド","説明","シグネチャ / 実行例"],"rows":[["stream.gather(gatherer)","任意の中間操作を差し込む","<R> Stream<R> gather(Gatherer<? super T,?,R> gatherer)",{"ex":"stream.gather(Gatherers.windowFixed(3)).toList();"}],["Gatherers.windowFixed(n)","n 件ずつの固定長ウィンドウに区切る","static <T> Gatherer<T,?,List<T>> windowFixed(int windowSize)",{"ex":"Stream.of(1,2,3,4,5).gather(Gatherers.windowFixed(2)).toList();  // [[1,2],[3,4],[5]]"}],["Gatherers.windowSliding(n)","1件ずつずらしたスライディングウィンドウ","static <T> Gatherer<T,?,List<T>> windowSliding(int windowSize)",{"ex":"Stream.of(1,2,3,4).gather(Gatherers.windowSliding(2)).toList();  // [[1,2],[2,3],[3,4]]"}],["Gatherers.fold(initial, folder)","順序を保って1要素に畳み込む","static <T,R> Gatherer<T,?,R> fold(Supplier<R> initial, BiFunction<? super R,? super T,? extends R> folder)",{"ex":"stream.gather(Gatherers.fold(() -> \"\", (acc, s) -> acc + s)).findFirst();"}],["Gatherers.scan(initial, scanner)","途中経過を順に出す(累積和など)","static <T,R> Gatherer<T,?,R> scan(Supplier<R> initial, BiFunction<? super R,? super T,? extends R> scanner)",{"ex":"Stream.of(1,2,3).gather(Gatherers.scan(() -> 0, Integer::sum)).toList();  // [1,3,6]"}],["Gatherers.mapConcurrent(n, mapper)","仮想スレッドで並行に変換する","static <T,R> Gatherer<T,?,R> mapConcurrent(int maxConcurrency, Function<? super T,? extends R> mapper)",{"ex":"urls.stream().gather(Gatherers.mapConcurrent(8, this::fetch)).toList();"}]]},{"g":"practice","id":"pitfalls","t":"落とし穴","note":null,"cols":["メソッド","説明","シグネチャ / 実行例"],"rows":[["ストリームは使い捨て","終端操作を呼んだストリームは再利用できない。2回目は `IllegalStateException`","—",{"tag":"注意","ex":"var s = list.stream();\ns.count();\ns.toList();  // IllegalStateException"}],["peek は実行が保証されない","終端操作が要素を必要としなければ、`peek` は呼ばれないことがある。デバッグ以外で使わない","—",{"tag":"注意","ex":"list.stream().peek(log::info).count();  // Java 9+ では peek が省略され得る"}],["Collectors.toList() は不変ではない","変更可否が未規定。不変が欲しいなら `Stream.toList()` か `toUnmodifiableList()`","—",{"tag":"注意","ex":"stream.toList();                              // 不変(Java 16+)\nstream.collect(Collectors.toUnmodifiableList());  // 不変"}],["toMap はキー重複で落ちる","重複キーがあると `IllegalStateException`。3引数版で解決関数を渡す","—",{"tag":"注意","ex":"stream.collect(Collectors.toMap(User::dept, User::name, (a, b) -> a));"}],["average は OptionalDouble","空ストリームで 0 が返ると思わない。`orElse` を必ず書く","—",{"tag":"注意","ex":"users.stream().mapToInt(User::age).average().orElse(0);"}],["無限ストリームに limit を忘れる","`iterate` / `generate` は `limit` か `takeWhile` が無いと終わらない","—",{"tag":"注意","ex":"Stream.iterate(1, n -> n + 1).limit(10).toList();"}],["sorted は全件をためる","ソートは全要素をバッファする。無限ストリームには使えない","—",{"tag":"注意","ex":"stream.filter(p).limit(1000).sorted().toList();  // 先に絞る"}],["parallel は万能ではない","要素数が少ない・処理が軽い・IO 待ちが主、のいずれかなら逐次のほうが速いことが多い","—",{"tag":"注意","ex":"// 目安: 数万件以上かつ CPU バウンドのときだけ parallel を検討する"}],["parallel で共有状態を触らない","`forEach` の中で外の変数を書き換えると壊れる。`collect` を使う","—",{"tag":"注意","ex":"// NG: list.parallelStream().forEach(results::add);\nvar results = list.parallelStream().map(f).toList();  // OK"}],["Files.lines は閉じる","ファイル由来のストリームはリソースを持つ。try-with-resources で囲む","—",{"tag":"注意","ex":"try (var lines = Files.lines(path)) { return lines.count(); }"}],["null 要素で NPE","`map` の結果に null が混じると後段で落ちる。`filter(Objects::nonNull)` か `mapMulti` で除く","—",{"tag":"注意","ex":"stream.map(this::findOrNull).filter(Objects::nonNull).toList();"}],["findFirst と findAny の違い","逐次なら同じだが、並列では `findAny` が速い。決定的な結果が要るなら `findFirst`","—",{"tag":"注意","ex":"stream.parallel().filter(p).findAny();   // 速いがどれが返るか不定"}]]},{"g":"practice","id":"recipes","t":"よく使うレシピ","note":null,"cols":["メソッド","説明","シグネチャ / 実行例"],"rows":[["キーごとにまとめる","部署ごとの社員一覧","Map<K,List<T>>",{"ex":"Map<String, List<User>> byDept =\n    users.stream().collect(Collectors.groupingBy(User::dept));"}],["出現回数を数える","単語の頻度表","Map<K,Long>",{"ex":"Map<String, Long> freq =\n    words.stream().collect(Collectors.groupingBy(w -> w, Collectors.counting()));"}],["キーごとの合計","部署ごとの売上合計","Map<K,Integer>",{"ex":"orders.stream().collect(\n    Collectors.groupingBy(Order::dept, Collectors.summingInt(Order::total)));"}],["上位 N 件","スコア上位10人","List<T>",{"ex":"users.stream()\n     .sorted(Comparator.comparingInt(User::score).reversed())\n     .limit(10).toList();"}],["ネストを平らにする","注文の明細を全部集める","List<R>",{"ex":"orders.stream().flatMap(o -> o.lines().stream()).toList();"}],["条件で2分割","成人と未成年","Map<Boolean,List<T>>",{"ex":"var p = users.stream().collect(Collectors.partitioningBy(u -> u.age() >= 20));\nvar adults = p.get(true);"}],["カンマ区切りにする","名前を並べた文字列","String",{"ex":"users.stream().map(User::name).collect(Collectors.joining(\", \"));"}],["ID をキーにした Map","リストを引きやすくする","Map<K,T>",{"ex":"users.stream().collect(Collectors.toMap(User::id, Function.identity()));"}],["Map のキーと値を入れ替える","逆引き表を作る","Map<V,K>",{"ex":"map.entrySet().stream()\n   .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));"}],["特定の項目で重複排除","同じメールの人を1人にする","List<T>",{"ex":"new ArrayList<>(users.stream()\n    .collect(Collectors.toMap(User::email, u -> u, (a, b) -> a, LinkedHashMap::new))\n    .values());"}],["null を取り除く","安全に変換する","List<R>",{"ex":"ids.stream().map(this::find).filter(Objects::nonNull).toList();"}],["Optional をまとめて開く","見つかったものだけ集める","List<T>",{"ex":"ids.stream().map(this::findOptional).flatMap(Optional::stream).toList();"}],["インデックス付きで回す","位置が必要なとき","IntStream",{"ex":"IntStream.range(0, list.size())\n         .mapToObj(i -> i + \": \" + list.get(i))\n         .forEach(System.out::println);"}],["2つのリストを突き合わせる","同じ位置どうしを組にする","List<R>",{"ex":"IntStream.range(0, Math.min(a.size(), b.size()))\n         .mapToObj(i -> new Pair<>(a.get(i), b.get(i)))\n         .toList();"}],["統計をまとめて出す","件数・平均・最大を一度に","IntSummaryStatistics",{"ex":"var st = users.stream().collect(Collectors.summarizingInt(User::age));\nst.getCount(); st.getAverage(); st.getMax();"}],["グループごとの最大要素","部署ごとの最高スコア","Map<K,Optional<T>>",{"ex":"users.stream().collect(Collectors.groupingBy(User::dept,\n    Collectors.maxBy(Comparator.comparingInt(User::score))));"}]]}];
 const NAV_GROUPS = [{"g":"create","label":"ストリームを作る"},{"g":"inter","label":"中間操作"},{"g":"term","label":"終端操作"},{"g":"collect","label":"Collectors"},{"g":"prim","label":"プリミティブ"},{"g":"gather","label":"Gatherers"},{"g":"practice","label":"落とし穴とレシピ"}];
@@ -430,40 +458,30 @@ rail.innerHTML = navHtml;
 const q = document.getElementById('q');
 const hits = document.getElementById('hits');
 const emptyEl = document.getElementById('empty');
-const chips = [...document.querySelectorAll('.chip')];
-let scope = 'all';
-
 function apply(){
   const term = q.value.trim().toLowerCase();
   let shown = 0;
   for (const sec of document.querySelectorAll('.sec')){
-    // 末尾が * のスコープは前方一致(例: f-* はサービス別の全コマンド)
-    const inScope = scope === 'all'
-      || (scope.endsWith('*') ? sec.dataset.group.startsWith(scope.slice(0, -1)) : sec.dataset.group === scope);
     let n = 0;
     for (const row of sec.querySelectorAll('tr.row')){
-      const ok = inScope && (!term || row.dataset.s.includes(term));
+      const ok = !term || row.dataset.s.includes(term);
       row.hidden = !ok;
       if (ok) n++;
     }
     sec.hidden = n === 0;
     if (sec.id !== 'priority') shown += n;
   }
-  hits.textContent = (term || scope !== 'all') ? shown + ' / ' + totalRows + ' 件' : totalRows + ' 件';
+  hits.textContent = term ? shown + ' / ' + totalRows + ' 件' : totalRows + ' 件';
   emptyEl.classList.toggle('on', shown === 0);
 }
 q.addEventListener('input', apply);
-chips.forEach(c => c.addEventListener('click', () => {
-  scope = c.dataset.scope;
-  chips.forEach(x => x.setAttribute('aria-pressed', String(x === c)));
-  document.getElementById('bar').classList.toggle('filtered', scope !== 'all');
-  apply();
-}));
 apply();
 
 document.addEventListener('click', e => {
   const b = e.target.closest('.cmd, .ex, .keycell');
-  if (!b || !navigator.clipboard || !navigator.clipboard.writeText) return;
+  if (!b) return;
+  loadIntoEditor(b.dataset.copy);
+  if (!navigator.clipboard || !navigator.clipboard.writeText) return;
   navigator.clipboard.writeText(b.dataset.copy).then(() => {
     b.classList.add('copied');
     const sig = b.querySelector('b');
@@ -527,6 +545,37 @@ document.addEventListener('keydown', e => {
     q.focus();
   }
 });
+
+// ヘッダのコマンド編集欄: 表の項目をクリックすると流し込まれ、書き換えてからコピーできる
+const edit = document.getElementById('edit');
+const editCopy = document.getElementById('editcopy');
+const editClear = document.getElementById('editclear');
+
+function loadIntoEditor(text){
+  edit.value = text;
+  if (matchMedia('(pointer:fine)').matches){
+    edit.focus();
+    edit.setSelectionRange(text.length, text.length);
+  }
+}
+function flash(btn, label){
+  if (btn.dataset.orig) return;
+  btn.dataset.orig = btn.textContent;
+  btn.textContent = label;
+  setTimeout(() => { btn.textContent = btn.dataset.orig; delete btn.dataset.orig; }, 1000);
+}
+editCopy.addEventListener('click', () => {
+  if (!edit.value || !navigator.clipboard || !navigator.clipboard.writeText) return;
+  navigator.clipboard.writeText(edit.value).then(() => flash(editCopy, '✓ コピー'), () => {});
+});
+editClear.addEventListener('click', () => { edit.value = ''; edit.focus(); });
+edit.addEventListener('keydown', e => {
+  if (e.key === 'Enter'){ e.preventDefault(); editCopy.click(); }
+});
+
+// 表の組み立てが終わったので覆いを外す
+const veil = document.getElementById('veil');
+if (veil){ veil.classList.add('off'); setTimeout(() => veil.remove(), 240); }
 
 </script>
 </body>

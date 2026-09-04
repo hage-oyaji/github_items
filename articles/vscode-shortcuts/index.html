@@ -73,18 +73,43 @@ code{font-family:var(--mono);font-size:.88em;font-weight:500}
 }
 .search input::placeholder{color:var(--ink-3)}
 .search input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-.chips{display:flex;flex-wrap:wrap;gap:5px}
-.chip{
-  font-family:var(--mono);font-size:11.5px;border:1px solid var(--rule-strong);
-  background:transparent;color:var(--ink-2);padding:5px 10px;border-radius:2px;cursor:pointer;
+.veil{
+  position:fixed;inset:0;z-index:100;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  background:var(--paper);transition:opacity .22s ease;
 }
-.chip:hover{background:var(--surface-2)}
-.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
-:root[data-theme="dark"] .chip[aria-pressed="true"]{color:#0D1210}
+.veil.off{opacity:0;pointer-events:none}
+.veil-ring{
+  width:34px;height:34px;border-radius:50%;
+  border:2.5px solid var(--rule-strong);border-top-color:var(--accent);
+  animation:veilspin .7s linear infinite;
+}
+.veil-text{margin:0;font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--ink-3)}
+@keyframes veilspin{to{transform:rotate(360deg)}}
+
+.editor{flex:1 0 100%;display:flex;align-items:center;gap:8px;padding-top:9px;border-top:1px solid var(--rule)}
+.editor-sig{flex:0 0 auto;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent)}
+.editor input{
+  flex:1 1 auto;min-width:0;
+  font-family:var(--mono);font-size:13px;color:var(--ink);
+  background:var(--surface-2);border:1px solid var(--rule-strong);border-radius:2px;padding:7px 10px;
+}
+.editor input::placeholder{font-family:var(--sans);font-size:12.5px;color:var(--ink-3)}
+.editor input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.editor-btn{
+  flex:0 0 auto;min-width:64px;cursor:pointer;
+  font-family:var(--sans);font-size:12.5px;line-height:1;
+  background:var(--accent);border:1px solid var(--accent);color:#FFFFFF;
+  padding:8px 12px;border-radius:2px;
+}
+:root[data-theme="dark"] .editor-btn:not(.ghost){color:#0D1210}
 @media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]) .chip[aria-pressed="true"]{color:#0D1210}
+  :root:not([data-theme="light"]) .editor-btn:not(.ghost){color:#0D1210}
 }
-.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.editor-btn.ghost{background:transparent;border-color:var(--rule-strong);color:var(--ink-2)}
+.editor-btn:hover{opacity:.86}
+.editor-btn.ghost:hover{opacity:1;color:var(--accent);border-color:var(--accent)}
+.editor-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .hitcount{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap;margin-left:auto}
 .barmin{
   flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
@@ -98,10 +123,8 @@ code{font-family:var(--mono);font-size:.88em;font-weight:500}
 .bar-in{transition:padding .16s}
 .bar.min .barmin{transform:rotate(180deg)}
 .bar.min .bar-in{padding-top:5px;padding-bottom:5px}
-.bar.min .brand-meta,.bar.min .chips{display:none}
+.bar.min .brand-meta{display:none}
 .bar.min .brand-name{font-size:13.5px}
-.bar.min.filtered .chips{display:flex}
-.bar.min.filtered .chip[aria-pressed="false"]{display:none}
 
 .shell{max-width:1280px;margin:0 auto;padding:0 28px 90px;display:grid;grid-template-columns:214px minmax(0,1fr);gap:40px;align-items:start}
 .rail{
@@ -240,9 +263,18 @@ footer .siblings a{color:var(--accent-ink)}
   tr.flagged{box-shadow:inset 2px 0 0 var(--warn);padding-left:10px}
 }
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+@media (prefers-reduced-motion: reduce){.veil-ring{animation:veilspin 2.4s linear infinite!important}}
 </style>
 </head>
 <body>
+<div class="veil" id="veil" role="status" aria-live="polite">
+  <div class="veil-ring"></div>
+  <p class="veil-text">読み込み中</p>
+</div>
+<script>
+// 組み立て前にスクリプトが落ちても覆いを残さない
+addEventListener('error', () => { const v = document.getElementById('veil'); if (v) v.remove(); });
+</script>
 <header class="bar" id="bar">
   <div class="bar-in">
     <a class="home" href="../../" title="リファレンス索引に戻る"><i>‹</i>リファレンス</a>
@@ -253,19 +285,14 @@ footer .siblings a{color:var(--accent-ink)}
     <label class="search">
       <input id="q" type="search" placeholder="操作名・キー(例: Ctrl+Shift+P)で絞り込む" autocomplete="off" spellcheck="false" aria-label="検索">
     </label>
-    <div class="chips" role="group" aria-label="種別で絞り込む">
-        <button class="chip" data-scope="all" aria-pressed="true">すべて</button>
-        <button class="chip" data-scope="nav" aria-pressed="false">移動・検索</button>
-        <button class="chip" data-scope="edit" aria-pressed="false">編集</button>
-        <button class="chip" data-scope="multi" aria-pressed="false">マルチカーソル</button>
-        <button class="chip" data-scope="view" aria-pressed="false">表示</button>
-        <button class="chip" data-scope="term" aria-pressed="false">ターミナル</button>
-        <button class="chip" data-scope="run" aria-pressed="false">デバッグ</button>
-        <button class="chip" data-scope="git" aria-pressed="false">ソース管理</button>
-        <button class="chip" data-scope="tips" aria-pressed="false">Tips</button>
-    </div>
     <span class="hitcount" id="hits"></span>
     <button class="barmin" id="barmin" type="button" aria-expanded="true" aria-label="ヘッダーを最小化" title="ヘッダーを最小化">⌃</button>
+    <div class="editor">
+      <span class="editor-sig">▸</span>
+      <input id="edit" type="text" spellcheck="false" autocomplete="off" placeholder="クリックした行がここに入る。書き換えてコピーできる" aria-label="コマンド編集">
+      <button class="editor-btn" id="editcopy" type="button" title="編集した内容をコピー">コピー</button>
+      <button class="editor-btn ghost" id="editclear" type="button" title="編集欄を空にする">クリア</button>
+    </div>
   </div>
 </header>
 
@@ -289,7 +316,7 @@ footer .siblings a{color:var(--accent-ink)}
   <div class="siblings"><span>同じシリーズ:</span><a href="../claude-code-commands/">Claude Code コマンド索引</a><a href="../git-commands/">Git コマンド索引</a><a href="../aws-cli-commands/">AWS CLI コマンド索引</a><a href="../gcp-cli-commands/">gcloud コマンド索引</a><a href="../intellij-shortcuts/">IntelliJ IDEA ショートカット索引</a><a href="../java-stream/">Java Stream 早見表</a><a href="../spring-annotations/">Spring アノテーション一覧</a></div>
 </footer>
 
-<script>
+<script type="module">
 const SIGIL = "$";
 const DATA = [{"g":"nav","id":"core","t":"起点になる3つ","note":"VS Code はコマンドパレットが本体。キーを覚えるより、機能名で引くほうが速い。","kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["コマンドパレット","Ctrl+Shift+P","Cmd+Shift+P","`F1` でも開く。全機能をここから呼べる"],["クイックオープン(ファイル)","Ctrl+P","Cmd+P","`>` を付けるとコマンド、`@` でシンボル、`:` で行番号"],["キーボードショートカット設定","Ctrl+K Ctrl+S","Cmd+K Cmd+S","割当の確認と変更。検索欄にキーを打っても引ける"]]},{"g":"nav","id":"nav-open","t":"ファイルとシンボルの移動","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["シンボルへ移動(ファイル内)","Ctrl+Shift+O","Cmd+Shift+O","`@:` を付けると種類別にグループ化される"],["シンボルへ移動(ワークスペース)","Ctrl+T","Cmd+T","プロジェクト全体から探す"],["行へ移動","Ctrl+G","Ctrl+G","クイックオープンで `:12` でも同じ"],["定義へ移動","F12","F12","Ctrl / Cmd + クリックでも同じ"],["定義をその場に表示(Peek)","Alt+F12","Opt+F12","移動せずに覗く"],["実装へ移動","Ctrl+F12","Cmd+F12",""],["参照を検索","Shift+F12","Shift+F12","呼び出し元を一覧する"],["戻る / 進む","Alt+←","Ctrl+-","進むは `Alt+→` / `Ctrl+Shift+-`"],["最後の編集位置へ","Ctrl+K Ctrl+Q","Cmd+K Cmd+Q","「さっき書いていた場所」に戻る"],["次 / 前の問題へ","F8","F8","前は `Shift+F8`。エラーを順に潰す"],["パンくずにフォーカス","Ctrl+Shift+.","Cmd+Shift+.","階層をたどって移動できる"],["最近開いたフォルダ / ファイル","Ctrl+R","Ctrl+R","プロジェクトの切り替えに"]]},{"g":"nav","id":"nav-find","t":"検索と置換","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["ファイル内検索","Ctrl+F","Cmd+F","次は `Enter`、前は `Shift+Enter`"],["ファイル内置換","Ctrl+H","Cmd+Opt+F","`Ctrl+Alt+Enter` で全置換"],["フォルダ内検索","Ctrl+Shift+F","Cmd+Shift+F","include / exclude でパスを絞れる"],["フォルダ内置換","Ctrl+Shift+H","Cmd+Shift+H","適用前に差分を確認できる"],["正規表現の切替","Alt+R","Cmd+Opt+R","検索ボックスにフォーカスがある状態で"],["大文字小文字を区別","Alt+C","Cmd+Opt+C",""],["単語単位で一致","Alt+W","Cmd+Opt+W",""],["一致をすべて選択","Alt+Enter","Opt+Enter","検索ボックスから直接マルチカーソルへ"]]},{"g":"edit","id":"edit","t":"編集","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["行を削除","Ctrl+Shift+K","Cmd+Shift+K","選択があればその行すべて"],["行を上下に移動","Alt+↑","Opt+↑","下へは `↓`"],["行を上下に複製","Shift+Alt+↓","Shift+Opt+↓","上へは `↑`"],["下に空行を挿入","Ctrl+Enter","Cmd+Enter","カーソル位置に関係なく次行へ"],["上に空行を挿入","Ctrl+Shift+Enter","Cmd+Shift+Enter",""],["行コメント","Ctrl+/","Cmd+/","選択範囲をまとめて切替"],["ブロックコメント","Shift+Alt+A","Shift+Opt+A","`/* */` で囲む"],["インデント / 逆インデント","Ctrl+]","Cmd+]","戻すのは `[`"],["ドキュメント全体を整形","Shift+Alt+F","Shift+Opt+F","フォーマッタ未設定なら拡張を促される"],["選択範囲を整形","Ctrl+K Ctrl+F","Cmd+K Cmd+F",""],["名前の変更(リネーム)","F2","F2","参照も追随する"],["クイックフィックス","Ctrl+.","Cmd+.","import 追加や自動修正"],["リファクタリング","Ctrl+Shift+R","Ctrl+Shift+R","抽出などの候補が出る"],["候補を表示(サジェスト)","Ctrl+Space","Ctrl+Space","日本語IMEと衝突する場合は再割当"],["パラメータヒント","Ctrl+Shift+Space","Cmd+Shift+Space","引数の型と順番"],["ホバー情報を表示","Ctrl+K Ctrl+I","Cmd+K Cmd+I","マウスなしで型を見る"],["折りたたむ / 展開","Ctrl+Shift+[","Cmd+Opt+[","展開は `]`"],["すべて折りたたむ","Ctrl+K Ctrl+0","Cmd+K Cmd+0","展開は `Ctrl+K Ctrl+J`"],["クリップボードの履歴から貼付","—","—","既定なし。拡張機能で補う"]]},{"g":"multi","id":"multi","t":"選択とマルチカーソル","note":"VS Code の強みはここ。`Ctrl+D` を覚えるだけで置換の大半が要らなくなる。","kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["次の一致を選択に追加","Ctrl+D","Cmd+D","押すたびに次の同じ語を掴む"],["一致をすべて選択","Ctrl+Shift+L","Cmd+Shift+L","一括で書き換える"],["同じ単語をすべて選択","Ctrl+F2","Cmd+F2","単語単位で厳密に一致"],["カーソルを上下に追加","Ctrl+Alt+↑","Cmd+Opt+↑","縦に並んだ行をまとめて編集"],["選択行の末尾にカーソル追加","Shift+Alt+I","Shift+Opt+I","行末揃えの編集に"],["現在行を選択","Ctrl+L","Cmd+L","押すたびに次の行も足される"],["選択範囲を広げる / 狭める","Shift+Alt+→","Ctrl+Shift+Cmd+→","狭めるのは `←`"],["矩形選択","Shift+Alt+ドラッグ","Shift+Opt+ドラッグ","`Ctrl+Shift+Alt+↓` でも伸ばせる"],["対応する括弧へ移動","Ctrl+Shift+\\","Cmd+Shift+\\","ネストした括弧の対応先へ飛ぶ"],["マルチカーソルの解除","Esc","Esc","1つに戻す"]]},{"g":"view","id":"view","t":"表示とレイアウト","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["サイドバーの表示切替","Ctrl+B","Cmd+B","画面を広く使う"],["エクスプローラー","Ctrl+Shift+E","Cmd+Shift+E",""],["検索ビュー","Ctrl+Shift+F","Cmd+Shift+F",""],["ソース管理ビュー","Ctrl+Shift+G","Ctrl+Shift+G","macOS も Ctrl。Cmd ではない"],["実行とデバッグ","Ctrl+Shift+D","Cmd+Shift+D",""],["拡張機能","Ctrl+Shift+X","Cmd+Shift+X",""],["パネルの表示切替","Ctrl+J","Cmd+J","ターミナルや問題を出し入れする"],["エディタを分割","Ctrl+\\","Cmd+\\","`Ctrl+1` `Ctrl+2` でグループ間を移動"],["タブを閉じる","Ctrl+W","Cmd+W","ウィンドウごと閉じないよう注意"],["閉じたタブを戻す","Ctrl+Shift+T","Cmd+Shift+T","誤って閉じたとき"],["すべてのタブを閉じる","Ctrl+K Ctrl+W","Cmd+K Cmd+W",""],["全画面表示","F11","Ctrl+Cmd+F",""],["Zen モード","Ctrl+K Z","Cmd+K Z","解除は `Esc` を2回"],["折り返しの切替","Alt+Z","Opt+Z","長い行を読むとき"],["拡大 / 縮小","Ctrl+=","Cmd+=","縮小は `-`、リセットは `Ctrl+NumPad0`"]]},{"g":"term","id":"term","t":"ターミナルとパネル","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["ターミナルの表示切替","Ctrl+`","Ctrl+`","macOS も Ctrl"],["新しいターミナル","Ctrl+Shift+`","Ctrl+Shift+`","複数セッションを持てる"],["ターミナルを分割","Ctrl+Shift+5","Cmd+\\","左右に並べる"],["問題パネル","Ctrl+Shift+M","Cmd+Shift+M","エラーと警告の一覧"],["出力パネル","Ctrl+Shift+U","Cmd+Shift+U","拡張機能のログを見る"],["デバッグコンソール","Ctrl+Shift+Y","Cmd+Shift+Y","停止中に式を評価できる"],["ターミナルを閉じる","—","—","パネル右上のゴミ箱、または `exit`"]]},{"g":"run","id":"debug","t":"実行とデバッグ","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["開始 / 続行","F5","F5","構成が無ければ選択を促される"],["デバッグなしで実行","Ctrl+F5","Ctrl+F5","ブレークポイントを無視する"],["停止","Shift+F5","Shift+F5",""],["再起動","Ctrl+Shift+F5","Cmd+Shift+F5","設定を変えた後に"],["ステップオーバー","F10","F10","現在行を実行して次へ"],["ステップイン","F11","F11","呼び出し先へ入る"],["ステップアウト","Shift+F11","Shift+F11","呼び出し元へ戻る"],["ブレークポイントの切替","F9","F9","右クリックで条件を付けられる"],["ログポイントを追加","—","—","ブレークポイント欄を右クリック → Add Logpoint"]]},{"g":"git","id":"git","t":"ソース管理","note":"Git 操作の多くは既定キーが無い。ソース管理ビューかコマンドパレットから呼ぶ。","kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["ソース管理ビューを開く","Ctrl+Shift+G","Ctrl+Shift+G","変更・ステージ・コミットの起点"],["ステージした変更をコミット","—","—","ビュー内で `Ctrl+Enter` / `Cmd+Enter`"],["変更をステージ / 取り消し","—","—","ファイル行の `+` / `-`。ハンク単位も可"],["差分を開く","—","—","変更ファイルをクリックすると差分ビューになる"],["ブランチの切替","—","—","ステータスバー左下のブランチ名をクリック"],["行ごとの変更履歴","—","—","GitLens などの拡張機能で補う"],["マージ競合の解決","—","—","競合ファイルを開くと解決ボタンが出る"]]},{"g":"tips","id":"tips","t":"知っておくと効くもの","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["設定を開く(UI)","Ctrl+,","Cmd+,","検索欄に設定名を打ち込む"],["設定を開く(JSON)","—","—","パレットで `Preferences: Open User Settings (JSON)`"],["配色テーマを切替","Ctrl+K Ctrl+T","Cmd+K Cmd+T","一覧を上下キーでプレビューできる"],["キーマップを IntelliJ 風にする","—","—","拡張機能 `IntelliJ IDEA Keybindings` を入れる"],["ショートカット一覧(PDF)","Ctrl+K Ctrl+R","Cmd+K Cmd+R","公式のキーボードチートシートが開く"],["すべてのキー割当を書き出す","—","—","`keybindings.json` に自分の変更だけが残る"],["マークダウンのプレビュー","Ctrl+K V","Cmd+K V","横に並べて表示する"]]}];
 const NAV_GROUPS = [{"g":"nav","label":"移動・検索"},{"g":"edit","label":"編集"},{"g":"multi","label":"マルチカーソル"},{"g":"view","label":"表示"},{"g":"term","label":"ターミナル"},{"g":"run","label":"実行・デバッグ"},{"g":"git","label":"ソース管理"},{"g":"tips","label":"Tips"}];
@@ -432,40 +459,30 @@ rail.innerHTML = navHtml;
 const q = document.getElementById('q');
 const hits = document.getElementById('hits');
 const emptyEl = document.getElementById('empty');
-const chips = [...document.querySelectorAll('.chip')];
-let scope = 'all';
-
 function apply(){
   const term = q.value.trim().toLowerCase();
   let shown = 0;
   for (const sec of document.querySelectorAll('.sec')){
-    // 末尾が * のスコープは前方一致(例: f-* はサービス別の全コマンド)
-    const inScope = scope === 'all'
-      || (scope.endsWith('*') ? sec.dataset.group.startsWith(scope.slice(0, -1)) : sec.dataset.group === scope);
     let n = 0;
     for (const row of sec.querySelectorAll('tr.row')){
-      const ok = inScope && (!term || row.dataset.s.includes(term));
+      const ok = !term || row.dataset.s.includes(term);
       row.hidden = !ok;
       if (ok) n++;
     }
     sec.hidden = n === 0;
     if (sec.id !== 'priority') shown += n;
   }
-  hits.textContent = (term || scope !== 'all') ? shown + ' / ' + totalRows + ' 件' : totalRows + ' 件';
+  hits.textContent = term ? shown + ' / ' + totalRows + ' 件' : totalRows + ' 件';
   emptyEl.classList.toggle('on', shown === 0);
 }
 q.addEventListener('input', apply);
-chips.forEach(c => c.addEventListener('click', () => {
-  scope = c.dataset.scope;
-  chips.forEach(x => x.setAttribute('aria-pressed', String(x === c)));
-  document.getElementById('bar').classList.toggle('filtered', scope !== 'all');
-  apply();
-}));
 apply();
 
 document.addEventListener('click', e => {
   const b = e.target.closest('.cmd, .ex, .keycell');
-  if (!b || !navigator.clipboard || !navigator.clipboard.writeText) return;
+  if (!b) return;
+  loadIntoEditor(b.dataset.copy);
+  if (!navigator.clipboard || !navigator.clipboard.writeText) return;
   navigator.clipboard.writeText(b.dataset.copy).then(() => {
     b.classList.add('copied');
     const sig = b.querySelector('b');
@@ -529,6 +546,37 @@ document.addEventListener('keydown', e => {
     q.focus();
   }
 });
+
+// ヘッダのコマンド編集欄: 表の項目をクリックすると流し込まれ、書き換えてからコピーできる
+const edit = document.getElementById('edit');
+const editCopy = document.getElementById('editcopy');
+const editClear = document.getElementById('editclear');
+
+function loadIntoEditor(text){
+  edit.value = text;
+  if (matchMedia('(pointer:fine)').matches){
+    edit.focus();
+    edit.setSelectionRange(text.length, text.length);
+  }
+}
+function flash(btn, label){
+  if (btn.dataset.orig) return;
+  btn.dataset.orig = btn.textContent;
+  btn.textContent = label;
+  setTimeout(() => { btn.textContent = btn.dataset.orig; delete btn.dataset.orig; }, 1000);
+}
+editCopy.addEventListener('click', () => {
+  if (!edit.value || !navigator.clipboard || !navigator.clipboard.writeText) return;
+  navigator.clipboard.writeText(edit.value).then(() => flash(editCopy, '✓ コピー'), () => {});
+});
+editClear.addEventListener('click', () => { edit.value = ''; edit.focus(); });
+edit.addEventListener('keydown', e => {
+  if (e.key === 'Enter'){ e.preventDefault(); editCopy.click(); }
+});
+
+// 表の組み立てが終わったので覆いを外す
+const veil = document.getElementById('veil');
+if (veil){ veil.classList.add('off'); setTimeout(() => veil.remove(), 240); }
 
 </script>
 </body>
