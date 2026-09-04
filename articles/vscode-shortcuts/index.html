@@ -405,7 +405,9 @@ function apply(){
   const term = q.value.trim().toLowerCase();
   let shown = 0;
   for (const sec of document.querySelectorAll('.sec')){
-    const inScope = scope === 'all' || sec.dataset.group === scope;
+    // 末尾が * のスコープは前方一致(例: f-* はサービス別の全コマンド)
+    const inScope = scope === 'all'
+      || (scope.endsWith('*') ? sec.dataset.group.startsWith(scope.slice(0, -1)) : sec.dataset.group === scope);
     let n = 0;
     for (const row of sec.querySelectorAll('tr.row')){
       const ok = inScope && (!term || row.dataset.s.includes(term));
