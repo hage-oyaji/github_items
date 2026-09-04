@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="IntelliJ IDEA の既定キーマップを用途別に整理した索引。Windows / Linux と macOS を並べて比較できる。">
+<style>
+html{color-scheme:light dark}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>IntelliJ IDEA ショートカット索引</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+
+<style>
+:root{
+  --paper:#F6F7F4; --surface:#FFFFFF; --surface-2:#EDF0EA;
+  --ink:#15181A; --ink-2:#555C55; --ink-3:#848B82;
+  --rule:#DDE1D8; --rule-strong:#C2C8BB;
+  --accent:#0E6B58; --accent-ink:#0A5445;
+  --warn:#87590F; --warn-soft:#F2E7CE;
+  --mono:'JetBrains Mono','SFMono-Regular',Consolas,'Liberation Mono',monospace;
+  --sans:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic UI',system-ui,sans-serif;
+  --bar:56px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111412; --surface:#171B18; --surface-2:#1D221E;
+    --ink:#E9ECE5; --ink-2:#A0A89C; --ink-3:#7A8278;
+    --rule:#272D28; --rule-strong:#39413A;
+    --accent:#5CCFAE; --accent-ink:#7FDDC2;
+    --warn:#DFB35F; --warn-soft:#33280F;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111412; --surface:#171B18; --surface-2:#1D221E;
+  --ink:#E9ECE5; --ink-2:#A0A89C; --ink-3:#7A8278;
+  --rule:#272D28; --rule-strong:#39413A;
+  --accent:#5CCFAE; --accent-ink:#7FDDC2;
+  --warn:#DFB35F; --warn-soft:#33280F;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:15px;line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+code{font-family:var(--mono);font-size:.88em;font-weight:500}
+
+.bar{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--rule-strong)}
+.bar-in{max-width:1280px;margin:0 auto;padding:10px 28px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+.brand{display:flex;align-items:baseline;gap:10px;flex:0 0 auto}
+.brand-name{font-size:15px;font-weight:700;letter-spacing:.01em;white-space:nowrap}
+.brand-meta{font-family:var(--mono);font-size:11px;color:var(--ink-3);white-space:nowrap}
+.search{flex:1 1 240px;min-width:0;position:relative;display:flex;align-items:center}
+.search::before{content:'/';position:absolute;left:11px;font-family:var(--mono);font-weight:700;color:var(--accent);pointer-events:none}
+.search input{
+  width:100%;font-family:var(--sans);font-size:13.5px;color:var(--ink);
+  background:var(--paper);border:1px solid var(--rule-strong);border-radius:2px;padding:6px 12px 6px 26px;
+}
+.search input::placeholder{color:var(--ink-3)}
+.search input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{
+  font-family:var(--mono);font-size:11.5px;border:1px solid var(--rule-strong);
+  background:transparent;color:var(--ink-2);padding:5px 10px;border-radius:2px;cursor:pointer;
+}
+.chip:hover{background:var(--surface-2)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+:root[data-theme="dark"] .chip[aria-pressed="true"]{color:#0D1210}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .chip[aria-pressed="true"]{color:#0D1210}
+}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hitcount{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap;margin-left:auto}
+
+.shell{max-width:1280px;margin:0 auto;padding:0 28px 90px;display:grid;grid-template-columns:214px minmax(0,1fr);gap:40px;align-items:start}
+.rail{
+  position:sticky;top:var(--bar);max-height:calc(100vh - var(--bar));
+  overflow-y:auto;overscroll-behavior:contain;padding:24px 10px 40px 0;
+  scrollbar-width:thin;scrollbar-color:var(--rule-strong) transparent;
+}
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-track{background:transparent}
+.rail::-webkit-scrollbar-thumb{background:var(--rule-strong);border-radius:3px}
+.rail h2{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin:0 0 6px;font-weight:500}
+.rail h2:not(:first-child){margin-top:20px}
+.navlist{display:flex;flex-direction:column}
+.rail a{
+  display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+  padding:3px 0 3px 10px;margin-left:-12px;color:var(--ink-2);text-decoration:none;
+  font-size:13px;line-height:1.45;border-left:2px solid transparent;
+}
+.rail a:hover{color:var(--ink)}
+.rail a[aria-current="true"]{color:var(--accent-ink);border-left-color:var(--accent);font-weight:500}
+.rail a span{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.rail a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+main{padding-top:24px;min-width:0}
+.preface{margin:0 0 30px;color:var(--ink-2);font-size:13px;max-width:76ch}
+
+.sec{margin:0 0 40px;scroll-margin-top:calc(var(--bar) + 14px)}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;border-bottom:1px solid var(--rule-strong);padding-bottom:7px}
+.sec-head h3{font-size:17px;font-weight:700;margin:0;line-height:1.4;text-wrap:balance}
+.sec-head .n{font-family:var(--mono);font-size:11px;color:var(--ink-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.sec-note{margin:9px 0 0;color:var(--ink-2);font-size:13px;max-width:70ch}
+
+.tablewrap{overflow-x:auto;margin-top:12px}
+table{border-collapse:collapse;width:100%;min-width:760px}
+thead th{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:500;text-align:left;padding:0 14px 6px 0;
+  border-bottom:1px solid var(--rule-strong);white-space:nowrap;
+}
+tbody td{padding:11px 14px 12px 0;border-bottom:1px solid var(--rule);vertical-align:top;font-size:13px;line-height:1.65}
+tbody tr:hover td{background:var(--surface-2)}
+tbody td:last-child,thead th:last-child{padding-right:0}
+.c-cmd{width:18%}
+.c-sum{width:20%}
+.c-det{width:auto}
+.c-par{width:27%}
+.cols-3 .c-cmd{width:22%}
+.cols-3 .c-sum{width:auto}
+.cols-3 .c-par{width:34%}
+.tkeys th:nth-child(1),.tkeys td:nth-child(1){width:26%}
+.tkeys th:nth-child(2),.tkeys td:nth-child(2){width:21%}
+.tkeys th:nth-child(3),.tkeys td:nth-child(3){width:21%}
+.tkeys th:nth-child(4),.tkeys td:nth-child(4){width:auto}
+
+.cmd{
+  font-family:var(--mono);font-size:12.5px;font-weight:500;background:none;border:0;
+  padding:0;margin:0;cursor:pointer;color:var(--ink);text-align:left;line-height:1.5;
+  border-bottom:1px dashed transparent;word-break:break-word;
+}
+.cmd i{color:var(--accent);font-style:normal}
+.cmd:hover{border-bottom-color:var(--rule-strong)}
+.cmd:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cmd.copied{color:var(--accent-ink)}
+.act{color:var(--ink);font-weight:500}
+.aliases{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.alias{font-family:var(--mono);font-size:10px;color:var(--ink-3);border:1px solid var(--rule);border-radius:2px;padding:1px 5px;white-space:nowrap}
+.pcell{min-width:0}
+.par{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);word-break:break-word;display:block}
+.par.none{color:var(--ink-3)}
+.sum{color:var(--ink)}
+.det{color:var(--ink-2)}
+.det code,.sum code{background:var(--surface-2);border-radius:2px;padding:1px 4px;color:var(--ink)}
+.ex{
+  display:flex;gap:7px;margin-top:7px;width:100%;
+  font-family:var(--mono);font-size:11.5px;line-height:1.6;text-align:left;
+  background:var(--surface-2);border:0;border-left:2px solid var(--accent);
+  padding:5px 8px;color:var(--ink);cursor:pointer;white-space:pre-wrap;word-break:break-word;
+}
+.ex:hover{box-shadow:inset 0 0 0 1px var(--rule-strong)}
+.ex:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.ex.copied{box-shadow:inset 0 0 0 1px var(--accent)}
+.ex b{color:var(--accent);font-weight:700;flex:0 0 auto;user-select:none;width:.9em}
+
+.keycell{
+  display:flex;flex-wrap:wrap;gap:4px;align-items:center;width:100%;
+  background:none;border:0;padding:1px 0;margin:0;cursor:pointer;text-align:left;
+}
+.keycell:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.keycell.copied kbd{border-color:var(--accent);color:var(--accent-ink)}
+kbd{
+  font-family:var(--mono);font-size:11px;line-height:1.6;
+  border:1px solid var(--rule-strong);border-bottom-width:2px;border-radius:3px;
+  padding:1px 6px;background:var(--surface);color:var(--ink);white-space:nowrap;
+}
+.keycell:hover kbd{border-color:var(--ink-3)}
+.ksep{font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+.knone{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+
+.tag{display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:2px;margin-top:6px;background:var(--warn-soft);color:var(--warn)}
+tr.flagged td:first-child{box-shadow:inset 2px 0 0 var(--warn);padding-left:10px}
+
+.priority td:first-child{font-family:var(--mono);font-size:12px;color:var(--accent-ink);white-space:nowrap}
+
+footer{max-width:1280px;margin:0 auto;padding:24px 28px 60px;border-top:1px solid var(--rule-strong);color:var(--ink-2);font-size:12.5px}
+footer ul{margin:8px 0 0;padding-left:1.1em}
+footer li{margin-bottom:5px}
+footer .siblings{margin-top:16px;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px}
+footer .siblings a{color:var(--accent-ink)}
+
+.empty{display:none;padding:40px 0;color:var(--ink-3);font-family:var(--mono);font-size:13px;text-align:center}
+.empty.on{display:block}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .rail{position:static;max-height:none;overflow:visible;padding:20px 0 16px;border-bottom:1px solid var(--rule)}
+  .navlist{flex-direction:row;flex-wrap:wrap;gap:2px 5px}
+  .rail a{border-left:0;border:1px solid var(--rule);border-radius:2px;padding:3px 8px;margin-left:0}
+  .rail a[aria-current="true"]{border-color:var(--accent)}
+  .rail h2:not(:first-child){margin-top:14px}
+}
+@media (max-width:680px){
+  .bar-in,.shell,footer{padding-left:18px;padding-right:18px}
+  .hitcount{margin-left:0}
+  table{min-width:0}
+  thead{display:none}
+  tbody tr{display:block;border-bottom:1px solid var(--rule-strong);padding:12px 0}
+  tbody tr:hover td{background:none}
+  tbody td{display:grid;grid-template-columns:5.6em minmax(0,1fr);gap:10px;border:0;padding:3px 0}
+  tbody td::before{content:attr(data-label);font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-3);padding-top:4px}
+  .tkeys th:nth-child(n),.tkeys td:nth-child(n){width:auto}
+  tr.flagged td:first-child{box-shadow:none;padding-left:0}
+  tr.flagged{box-shadow:inset 2px 0 0 var(--warn);padding-left:10px}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="bar" id="bar">
+  <div class="bar-in">
+    <div class="brand">
+      <span class="brand-name">IntelliJ IDEA ショートカット索引</span>
+      <span class="brand-meta">Default / macOS キーマップ</span>
+    </div>
+    <label class="search">
+      <input id="q" type="search" placeholder="操作名・キー(例: Alt+Enter)で絞り込む" autocomplete="off" spellcheck="false" aria-label="検索">
+    </label>
+    <div class="chips" role="group" aria-label="種別で絞り込む">
+        <button class="chip" data-scope="all" aria-pressed="true">すべて</button>
+        <button class="chip" data-scope="nav" aria-pressed="false">移動・検索</button>
+        <button class="chip" data-scope="edit" aria-pressed="false">編集</button>
+        <button class="chip" data-scope="refactor" aria-pressed="false">リファクタ</button>
+        <button class="chip" data-scope="run" aria-pressed="false">実行</button>
+        <button class="chip" data-scope="vcs" aria-pressed="false">VCS</button>
+        <button class="chip" data-scope="view" aria-pressed="false">表示</button>
+        <button class="chip" data-scope="tips" aria-pressed="false">Tips</button>
+    </div>
+    <span class="hitcount" id="hits"></span>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="カテゴリ"></nav>
+  <main id="main">
+    <p class="preface">IntelliJ IDEA の <b>Default キーマップ(Windows / Linux)</b> と <b>macOS キーマップ</b>を並記した一覧。 <b>キーはクリックでコピーできる。</b> 記号は <code>Cmd</code> = ⌘、<code>Opt</code> = ⌥。「Shift Shift」は Shift を素早く2回押す操作を指す。</p>
+    <p class="empty" id="empty">該当なし</p>
+  </main>
+</div>
+
+<footer>
+  <strong>注記</strong>
+  <ul>
+    <li>このページは <b>公式の既定キーマップに基づく</b>。ローカル環境からの抽出ではないため、自分の割当は <code>Settings → Keymap</code> で確認すること。</li>
+    <li>IDE や製品(IDEA / PyCharm / WebStorm / Rider など)、バージョン、導入プラグインによって割当が変わることがある。</li>
+    <li><code>—</code> は既定のショートカットが割り当てられていない操作。メニューまたは <code>Find Action</code> から実行する。</li>
+    <li>macOS 列は「macOS」キーマップ。「macOS System Shortcuts」キーマップを選んでいる場合は一部異なる。</li>
+    <li>キーマップ全体の一覧は <code>Help → Keymap Reference</code> から PDF で出せる。</li>
+  </ul>
+  <div class="siblings"><span>同じシリーズ:</span><a href="../claude-code-commands/">Claude Code コマンド索引</a><a href="../git-commands/">Git コマンド索引</a><a href="../vscode-shortcuts/">VS Code ショートカット索引</a></div>
+</footer>
+
+<script>
+const SIGIL = "$";
+const DATA = [{"g":"nav","id":"everywhere","t":"まずこの4つ","note":"キーマップを全部覚える必要はない。この4つを起点にすれば、他は名前で引ける。","kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["どこでも検索(Search Everywhere)","Shift Shift","Shift Shift","Shift を素早く2回。クラス・ファイル・アクション・設定を横断して探す"],["アクションを検索(Find Action)","Ctrl+Shift+A","Cmd+Shift+A","機能名で引く。ショートカット未設定の機能もここから実行できる"],["意図的アクション(Show Intention Actions)","Alt+Enter","Opt+Enter","赤や黄色の波線の上で押す。IntelliJ で最も使うキー"],["何でも実行(Run Anything)","Ctrl Ctrl","Ctrl Ctrl","Ctrl を素早く2回。実行構成やコマンドを名前で起動する"]]},{"g":"nav","id":"nav-find","t":"検索と移動","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["クラスへ移動","Ctrl+N","Cmd+O","キャメルケースの頭文字だけでも当たる"],["ファイルへ移動","Ctrl+Shift+N","Cmd+Shift+O","`/` を含めるとパスでも絞れる"],["シンボルへ移動","Ctrl+Alt+Shift+N","Cmd+Opt+O","メソッド名・フィールド名から引く"],["行へ移動","Ctrl+G","Cmd+L","`12:5` で列も指定できる"],["最近のファイル","Ctrl+E","Cmd+E","そのまま打鍵して絞り込める"],["最近の編集位置","Ctrl+Shift+E","Cmd+Shift+E","「さっき触っていた場所」に戻る"],["タブ切り替え(Switcher)","Ctrl+Tab","Ctrl+Tab","押しっぱなしでツールウィンドウも選べる"],["戻る / 進む","Ctrl+Alt+←","Cmd+[","進むは `Ctrl+Alt+→` / `Cmd+]`"],["最後の編集位置へ","Ctrl+Shift+Backspace","Cmd+Shift+Backspace","「どこを編集していたか」を辿る"],["ファイル内検索","Ctrl+F","Cmd+F","次は `F3` / `Cmd+G`"],["ファイル内置換","Ctrl+R","Cmd+R","正規表現は Regex にチェック"],["パス内検索","Ctrl+Shift+F","Cmd+Shift+F","スコープ指定で対象を絞れる"],["パス内置換","Ctrl+Shift+R","Cmd+Shift+R","プレビューで確認してから適用する"],["ブックマーク切替","F11","F3","`Shift+F11` / `Cmd+F3` で一覧"]]},{"g":"nav","id":"nav-code","t":"コードを読む","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["宣言へ移動","Ctrl+B","Cmd+B","Ctrl / Cmd + クリックでも同じ"],["実装へ移動","Ctrl+Alt+B","Cmd+Opt+B","インターフェースから実装クラスへ"],["型宣言へ移動","Ctrl+Shift+B","Cmd+Shift+B","変数の型定義へ飛ぶ"],["スーパーメソッドへ移動","Ctrl+U","Cmd+U","オーバーライド元を見る"],["使用箇所を検索","Alt+F7","Opt+F7","結果はツールウィンドウに出る"],["使用箇所をポップアップ表示","Ctrl+Alt+F7","Cmd+Opt+F7","ウィンドウを開かず確認する"],["定義をその場で表示","Ctrl+Shift+I","Opt+Space","移動せずに中身だけ覗く"],["クイックドキュメント","Ctrl+Q","F1","古いキーマップでは `Ctrl+J`"],["ファイル構造ポップアップ","Ctrl+F12","Cmd+F12","そのファイルのメンバー一覧から飛ぶ"],["次 / 前のメソッドへ","Alt+↓","Ctrl+↓","前は `Alt+↑` / `Ctrl+↑`"],["ファイル内の使用箇所をハイライト","Ctrl+Shift+F7","Cmd+Shift+F7","解除は `Esc`"],["型階層","Ctrl+H","Ctrl+H","継承関係をツリーで見る"],["呼び出し階層","Ctrl+Alt+H","Ctrl+Opt+H","誰がこのメソッドを呼ぶか"],["テストへ移動 / 生成","Ctrl+Shift+T","Cmd+Shift+T","無ければその場で作れる"]]},{"g":"edit","id":"edit","t":"編集","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["コード補完","Ctrl+Space","Ctrl+Space","2回押すと候補が広がる"],["スマート補完","Ctrl+Shift+Space","Ctrl+Shift+Space","型に合う候補だけ出る"],["ステートメント補完","Ctrl+Shift+Enter","Cmd+Shift+Enter","括弧やセミコロンを補って行を閉じる"],["パラメータ情報","Ctrl+P","Cmd+P","引数の型と順番を確認"],["コード整形","Ctrl+Alt+L","Cmd+Opt+L","選択範囲があればその範囲だけ"],["import の最適化","Ctrl+Alt+O","Ctrl+Opt+O","未使用importの削除と並べ替え"],["行の複製","Ctrl+D","Cmd+D","選択範囲があればその範囲を複製"],["行の削除","Ctrl+Y","Cmd+Backspace","カーソル行を丸ごと消す"],["行を上下に移動","Alt+Shift+↑","Opt+Shift+↑","下へは `↓`。構文を無視して動かす"],["ステートメントを上下に移動","Ctrl+Shift+↑","Cmd+Shift+↑","構文単位で動く。メソッドの並べ替えに"],["行コメント","Ctrl+/","Cmd+/","選択範囲まとめて切替"],["ブロックコメント","Ctrl+Shift+/","Cmd+Shift+/","`/* */` で囲む"],["囲む(Surround With)","Ctrl+Alt+T","Cmd+Opt+T","if / try / ループなどで包む"],["ライブテンプレート挿入","Ctrl+J","Cmd+J","`sout` `psvm` `iter` など"],["大文字 / 小文字の切替","Ctrl+Shift+U","Cmd+Shift+U","選択範囲に対して働く"],["クリップボード履歴から貼り付け","Ctrl+Shift+V","Cmd+Shift+V","直前より前のコピーも貼れる"],["折りたたむ / 展開","Ctrl+NumPad-","Cmd+-","展開は NumPad+。すべて畳むのは Ctrl+Shift+NumPad-"],["パスをコピー","Ctrl+Shift+C","Cmd+Shift+C","ファイルの絶対パスを取る"]]},{"g":"edit","id":"multi","t":"選択とマルチキャレット","note":"IntelliJ の選択は「構文単位で広げる」のが基本。文字単位で選ばない。","kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["選択範囲を広げる","Ctrl+W","Opt+↑","押すたびに構文の一段外側へ"],["選択範囲を狭める","Ctrl+Shift+W","Opt+↓","広げすぎたら戻す"],["次の一致にキャレットを追加","Alt+J","Ctrl+G","VS Code の `Ctrl+D` に相当"],["一致をすべて選択","Ctrl+Alt+Shift+J","Ctrl+Cmd+G","一括リネームに使える"],["直前の追加を取り消し","Alt+Shift+J","Ctrl+Shift+G","行き過ぎた選択を1つ戻す"],["キャレットを上下に複製","Ctrl Ctrl+↓","Opt Opt+↓","修飾キーを2回押してから矢印"],["矩形選択モード","Alt+Shift+Insert","Cmd+Shift+8","列単位で編集する"],["マルチキャレットの解除","Esc","Esc","1つに戻す"]]},{"g":"refactor","id":"refactor","t":"リファクタリング","note":"どれを使うか迷ったら `Refactor This` から選ぶ。","kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["リファクタリング一覧","Ctrl+Alt+Shift+T","Ctrl+T","この場所で可能な操作が全部出る"],["名前の変更","Shift+F6","Shift+F6","参照も文字列も追随する"],["変数の抽出","Ctrl+Alt+V","Cmd+Opt+V","式を選んでから押す"],["フィールドの抽出","Ctrl+Alt+F","Cmd+Opt+F",""],["定数の抽出","Ctrl+Alt+C","Cmd+Opt+C",""],["メソッドの抽出","Ctrl+Alt+M","Cmd+Opt+M","選択範囲を切り出す"],["パラメータの抽出","Ctrl+Alt+P","Cmd+Opt+P",""],["インライン化","Ctrl+Alt+N","Cmd+Opt+N","抽出の逆操作"],["移動","F6","F6","クラスやファイルを別パッケージへ"],["コピー","F5","F5","複製して別名にする"],["安全な削除","Alt+Delete","Cmd+Delete","参照が残っていれば警告が出る"],["シグネチャの変更","Ctrl+F6","Cmd+F6","引数の追加・削除・並べ替え"],["生成(Generate)","Alt+Insert","Cmd+N","コンストラクタ・getter・toString など"],["メソッドのオーバーライド","Ctrl+O","Ctrl+O",""],["メソッドの実装","Ctrl+I","Ctrl+I",""]]},{"g":"run","id":"run","t":"実行とデバッグ","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["実行","Shift+F10","Ctrl+R","直前の構成を再実行"],["デバッグ","Shift+F9","Ctrl+D","直前の構成をデバッグ実行"],["カーソル位置の構成を実行","Ctrl+Shift+F10","Ctrl+Shift+R","そのテストメソッドだけ走らせる"],["実行構成を選んで実行","Alt+Shift+F10","Ctrl+Opt+R","一覧から選ぶ"],["停止","Ctrl+F2","Cmd+F2","2回で強制終了"],["ブレークポイント切替","Ctrl+F8","Cmd+F8","右クリックで条件を付けられる"],["ブレークポイント一覧","Ctrl+Shift+F8","Cmd+Shift+F8","条件や無効化をまとめて管理"],["ステップオーバー","F8","F8","現在行を実行して次へ"],["ステップイン","F7","F7","呼び出し先へ入る"],["スマートステップイン","Shift+F7","Shift+F7","入る呼び出しを選べる"],["ステップアウト","Shift+F8","Shift+F8","呼び出し元へ戻る"],["カーソル位置まで実行","Alt+F9","Opt+F9","途中のブレークポイント不要"],["再開","F9","Cmd+Opt+R","次のブレークポイントまで"],["式の評価","Alt+F8","Opt+F8","停止中に任意の式を試せる"]]},{"g":"vcs","id":"vcs","t":"バージョン管理","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["VCS 操作ポップアップ","Alt+`","Ctrl+V","コミット・プッシュ・履歴を1か所から"],["コミット","Ctrl+K","Cmd+K","差分を見ながらファイルを選べる"],["プッシュ","Ctrl+Shift+K","Cmd+Shift+K","コミット画面からも直接押せる"],["プロジェクトを更新(pull)","Ctrl+T","Cmd+T","rebase / merge を選択できる"],["変更を取り消す","Ctrl+Alt+Z","Cmd+Opt+Z","ファイル単位・ハンク単位で戻せる"],["差分を表示","Ctrl+D","Cmd+D","変更ファイルを選んでから"],["次 / 前の変更箇所へ","Ctrl+Alt+Shift+↓","Cmd+Opt+Shift+↓","差分ビュー内を移動する"],["ローカル履歴","—","—","右クリック → Local History。Git 未コミットの変更も辿れる"]]},{"g":"view","id":"view","t":"ウィンドウと表示","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["プロジェクト","Alt+1","Cmd+1","もう一度押すと閉じる"],["バージョン管理","Alt+9","Cmd+9",""],["実行","Alt+4","Cmd+4",""],["デバッグ","Alt+5","Cmd+5",""],["問題(Problems)","Alt+6","Cmd+6","警告とエラーの一覧"],["ターミナル","Alt+F12","Opt+F12","複数タブを持てる"],["アクティブなウィンドウを隠す","Shift+Esc","Shift+Esc","エディタにフォーカスが戻る"],["すべてのウィンドウを隠す","Ctrl+Shift+F12","Cmd+Shift+F12","もう一度押すと復元"],["エディタへフォーカス","Esc","Esc","どのツールウィンドウからでも戻れる"],["設定","Ctrl+Alt+S","Cmd+,",""],["プロジェクト構成","Ctrl+Alt+Shift+S","Cmd+;","SDK やモジュールの設定"],["配色・キーマップの切替","Ctrl+`","Ctrl+`","テーマやキーマップを素早く変える"],["タブを閉じる","Ctrl+F4","Cmd+W",""]]},{"g":"tips","id":"tips","t":"知っておくと効くもの","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["キーマップ一覧を出す","—","—","Help → Keymap Reference。PDFで全キーが出る"],["キーマップを VS Code 風にする","—","—","Settings → Keymap → VSCode を選択"],["ショートカットを調べる","Ctrl+Shift+A","Cmd+Shift+A","アクション名の右に現在の割当が出る"],["直前のアクションを繰り返す","—","—","Find Action の履歴から再実行する"],["プレゼンモード / 集中モード","—","—","View → Appearance から切り替える"]]}];
+const NAV_GROUPS = [{"g":"nav","label":"移動・検索"},{"g":"edit","label":"編集"},{"g":"refactor","label":"リファクタリング"},{"g":"run","label":"実行・デバッグ"},{"g":"vcs","label":"バージョン管理"},{"g":"view","label":"表示"},{"g":"tips","label":"Tips"}];
+const PRIORITY = {"t":"最初に覚える10個","label":"操作","group":"nav","note":"IntelliJ は「名前で引く」ことに最適化されている。キーを覚えるより、引き方を覚えるほうが速い。","rows":[["★★★","Shift Shift","どこでも検索。迷ったらまずこれ"],["★★★","Alt+Enter / Opt+Enter","修正候補。波線を見たら押す"],["★★★","Ctrl+Shift+A / Cmd+Shift+A","アクション検索。キーを覚えなくても機能を呼べる"],["★★★","Ctrl+B / Cmd+B","宣言へ移動。コードを読む速度が変わる"],["★★☆","Ctrl+W / Opt+↑","構文単位で選択を広げる"],["★★☆","Shift+F6","名前の変更。手作業の置換をやめる"],["★★☆","Ctrl+Alt+L / Cmd+Opt+L","整形。コミット前に必ず"],["★★☆","Ctrl+E / Cmd+E","最近のファイル。タブを探さない"],["★☆☆","Alt+F7 / Opt+F7","使用箇所を検索。影響範囲を先に見る"],["★☆☆","Ctrl+K / Cmd+K","コミット。差分を見ながら選べる"]]};
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = s => esc(s)
+  .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+  .replace(/`([^`]+)`/g, '<code>$1</code>');
+
+function keysHtml(raw){
+  if (!raw || raw === '—') return '<span class="knone">—</span>';
+  const chords = String(raw).split(' ').filter(Boolean);
+  const parts = [];
+  chords.forEach((chord, ci) => {
+    if (ci) parts.push('<span class="ksep">›</span>');
+    chord.split('+').forEach((k, i) => {
+      if (i) parts.push('<span class="ksep">+</span>');
+      parts.push('<kbd>' + esc(k) + '</kbd>');
+    });
+  });
+  return parts.join('');
+}
+
+const main = document.getElementById('main');
+const rail = document.getElementById('rail');
+const frag = document.createDocumentFragment();
+let totalRows = 0;
+
+for (const sec of DATA){
+  const el = document.createElement('section');
+  el.className = 'sec';
+  el.id = sec.id;
+  el.dataset.group = sec.g;
+
+  const nCols = sec.cols.length;
+  const isKeys = sec.kind === 'keys';
+  const cls = nCols === 4 ? ['c-cmd','c-sum','c-det','c-par'] : ['c-cmd','c-sum','c-par'];
+  const sigil = sec.sig || SIGIL;
+
+  const head = '<div class="sec-head"><h3>' + esc(sec.t) + '</h3><span class="n">' + sec.rows.length + ' 項目</span></div>'
+    + (sec.note ? '<p class="sec-note">' + fmt(sec.note) + '</p>' : '');
+  const ths = sec.cols.map((c,i) => '<th class="' + cls[i] + '" scope="col">' + esc(c) + '</th>').join('');
+
+  const trs = sec.rows.map(r => {
+    const meta = (typeof r[r.length-1] === 'object') ? r[r.length-1] : null;
+    const vals = meta ? r.slice(0,-1) : r;
+    totalRows++;
+    const cells = [];
+
+    if (isKeys){
+      let c0 = '<span class="act">' + fmt(vals[0]) + '</span>';
+      if (meta && meta.tag) c0 += '<span class="tag">' + esc(meta.tag) + '</span>';
+      cells.push('<td data-label="' + esc(sec.cols[0]) + '">' + c0 + '</td>');
+      for (let i = 1; i < nCols; i++){
+        const v = vals[i] == null ? '—' : vals[i];
+        if (i <= 2){
+          const btn = (v && v !== '—')
+            ? '<button class="keycell" type="button" title="クリックでコピー" data-copy="' + esc(v) + '">' + keysHtml(v) + '</button>'
+            : '<span class="knone">—</span>';
+          cells.push('<td data-label="' + esc(sec.cols[i]) + '">' + btn + '</td>');
+        } else {
+          cells.push('<td data-label="' + esc(sec.cols[i]) + '"><span class="det' + (v === '—' ? ' none' : '') + '">' + fmt(v) + '</span></td>');
+        }
+      }
+    } else {
+      const name = vals[0];
+      let first = '<button class="cmd" type="button" data-copy="' + esc(name) + '" title="クリックでコピー">'
+        + (name.startsWith('/') ? '<i>/</i>' + esc(name.slice(1)) : esc(name)) + '</button>';
+      if (meta && meta.alias) first += '<div class="aliases">' + meta.alias.map(a => '<span class="alias">' + esc(a) + '</span>').join('') + '</div>';
+      if (meta && meta.tag) first += '<span class="tag">' + esc(meta.tag) + '</span>';
+      cells.push('<td class="' + cls[0] + '" data-label="' + esc(sec.cols[0]) + '">' + first + '</td>');
+      for (let i = 1; i < nCols; i++){
+        const isLast = (i === nCols - 1);
+        let v = vals[i];
+        if (v == null || v === '') v = isLast ? '' : '—';
+        let inner;
+        if (isLast){
+          const p = (v && v !== '—') ? '<span class="par">' + fmt(v) + '</span>'
+            : (v === '—' ? '<span class="par none">—</span>' : '');
+          const ex = meta && meta.ex
+            ? '<button class="ex" type="button" title="クリックでコピー" data-copy="' + esc(meta.ex) + '"><b>' + sigil + '</b>' + esc(meta.ex) + '</button>'
+            : '';
+          inner = '<div class="pcell">' + p + ex + '</div>';
+        } else {
+          inner = '<span class="' + (i === 1 ? 'sum' : 'det') + (v === '—' ? ' none' : '') + '">' + fmt(v) + '</span>';
+        }
+        cells.push('<td class="' + cls[i] + '" data-label="' + esc(sec.cols[i]) + '">' + inner + '</td>');
+      }
+    }
+
+    const search = (vals.join(' ') + ' '
+      + (meta && meta.alias ? meta.alias.join(' ') : '') + ' '
+      + (meta && meta.tag ? meta.tag : '') + ' '
+      + (meta && meta.ex ? meta.ex : '')).toLowerCase();
+    return '<tr class="row' + (meta && meta.tag ? ' flagged' : '') + '" data-s="' + esc(search) + '">' + cells.join('') + '</tr>';
+  }).join('');
+
+  el.innerHTML = head + '<div class="tablewrap"><table class="cols-' + nCols + (isKeys ? ' tkeys' : '') + '">'
+    + '<thead><tr>' + ths + '</tr></thead><tbody>' + trs + '</tbody></table></div>';
+  frag.appendChild(el);
+}
+main.insertBefore(frag, document.getElementById('empty'));
+
+if (PRIORITY && PRIORITY.rows.length){
+  const last = document.createElement('section');
+  last.className = 'sec';
+  last.id = 'priority';
+  last.dataset.group = PRIORITY.group;
+  last.innerHTML = '<div class="sec-head"><h3>' + esc(PRIORITY.t) + '</h3><span class="n">優先度順</span></div>'
+    + (PRIORITY.note ? '<p class="sec-note">' + fmt(PRIORITY.note) + '</p>' : '')
+    + '<div class="tablewrap"><table class="cols-3 priority"><thead><tr>'
+    + '<th class="c-cmd" scope="col">優先度</th><th class="c-sum" scope="col">' + esc(PRIORITY.label) + '</th>'
+    + '<th class="c-par" scope="col">理由</th></tr></thead><tbody>'
+    + PRIORITY.rows.map(([s,c,w]) =>
+        '<tr class="row" data-s="' + esc((c + ' ' + w).toLowerCase()) + '">'
+        + '<td data-label="優先度">' + s + '</td>'
+        + '<td data-label="' + esc(PRIORITY.label) + '"><span class="sum">'
+        + c.split(' / ').map(x => '<code>' + esc(x) + '</code>').join(' ') + '</span></td>'
+        + '<td data-label="理由"><span class="det">' + esc(w) + '</span></td></tr>').join('')
+    + '</tbody></table></div>';
+  main.insertBefore(last, document.getElementById('empty'));
+}
+
+let navHtml = '';
+for (const grp of NAV_GROUPS){
+  const secs = DATA.filter(s => s.g === grp.g);
+  if (!secs.length) continue;
+  navHtml += '<h2>' + esc(grp.label) + '</h2><div class="navlist">';
+  for (const s of secs){
+    navHtml += '<a href="#' + s.id + '" data-target="' + s.id + '">' + esc(s.t) + '<span>' + s.rows.length + '</span></a>';
+  }
+  navHtml += '</div>';
+}
+rail.innerHTML = navHtml;
+
+const q = document.getElementById('q');
+const hits = document.getElementById('hits');
+const emptyEl = document.getElementById('empty');
+const chips = [...document.querySelectorAll('.chip')];
+let scope = 'all';
+
+function apply(){
+  const term = q.value.trim().toLowerCase();
+  let shown = 0;
+  for (const sec of document.querySelectorAll('.sec')){
+    const inScope = scope === 'all' || sec.dataset.group === scope;
+    let n = 0;
+    for (const row of sec.querySelectorAll('tr.row')){
+      const ok = inScope && (!term || row.dataset.s.includes(term));
+      row.hidden = !ok;
+      if (ok) n++;
+    }
+    sec.hidden = n === 0;
+    if (sec.id !== 'priority') shown += n;
+  }
+  hits.textContent = (term || scope !== 'all') ? shown + ' / ' + totalRows + ' 件' : totalRows + ' 件';
+  emptyEl.classList.toggle('on', shown === 0);
+}
+q.addEventListener('input', apply);
+chips.forEach(c => c.addEventListener('click', () => {
+  scope = c.dataset.scope;
+  chips.forEach(x => x.setAttribute('aria-pressed', String(x === c)));
+  apply();
+}));
+apply();
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('.cmd, .ex, .keycell');
+  if (!b || !navigator.clipboard || !navigator.clipboard.writeText) return;
+  navigator.clipboard.writeText(b.dataset.copy).then(() => {
+    b.classList.add('copied');
+    const sig = b.querySelector('b');
+    if (sig && !sig.dataset.orig){ sig.dataset.orig = sig.textContent; sig.textContent = '✓'; }
+    setTimeout(() => {
+      b.classList.remove('copied');
+      if (sig && sig.dataset.orig){ sig.textContent = sig.dataset.orig; delete sig.dataset.orig; }
+    }, 1000);
+  }, () => {});
+});
+
+const bar = document.getElementById('bar');
+const setBar = () => document.documentElement.style.setProperty('--bar', bar.offsetHeight + 'px');
+setBar();
+if (window.ResizeObserver) new ResizeObserver(setBar).observe(bar); else window.addEventListener('resize', setBar);
+
+const links = [...rail.querySelectorAll('a')];
+const byId = new Map(links.map(a => [a.dataset.target, a]));
+const io = new IntersectionObserver(entries => {
+  for (const en of entries){
+    if (en.isIntersecting){
+      links.forEach(a => a.removeAttribute('aria-current'));
+      const a = byId.get(en.target.id);
+      if (a){
+        a.setAttribute('aria-current','true');
+        const r = a.getBoundingClientRect(), rr = rail.getBoundingClientRect();
+        if (rail.scrollHeight > rail.clientHeight && (r.top < rr.top || r.bottom > rr.bottom)){
+          rail.scrollTop += (r.top - rr.top) - rail.clientHeight / 3;
+        }
+      }
+      break;
+    }
+  }
+}, {rootMargin:'-80px 0px -70% 0px', threshold:0});
+document.querySelectorAll('.sec').forEach(s => io.observe(s));
+
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)){
+    e.preventDefault();
+    q.focus();
+  }
+});
+
+</script>
+</body>
+</html>

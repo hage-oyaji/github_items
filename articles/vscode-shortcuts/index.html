@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Visual Studio Code の既定キーバインドを用途別に整理した索引。Windows / Linux と macOS を並べて比較できる。">
+<style>
+html{color-scheme:light dark}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>VS Code ショートカット索引</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+
+<style>
+:root{
+  --paper:#F6F7F4; --surface:#FFFFFF; --surface-2:#EDF0EA;
+  --ink:#15181A; --ink-2:#555C55; --ink-3:#848B82;
+  --rule:#DDE1D8; --rule-strong:#C2C8BB;
+  --accent:#0E6B58; --accent-ink:#0A5445;
+  --warn:#87590F; --warn-soft:#F2E7CE;
+  --mono:'JetBrains Mono','SFMono-Regular',Consolas,'Liberation Mono',monospace;
+  --sans:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic UI',system-ui,sans-serif;
+  --bar:56px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111412; --surface:#171B18; --surface-2:#1D221E;
+    --ink:#E9ECE5; --ink-2:#A0A89C; --ink-3:#7A8278;
+    --rule:#272D28; --rule-strong:#39413A;
+    --accent:#5CCFAE; --accent-ink:#7FDDC2;
+    --warn:#DFB35F; --warn-soft:#33280F;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111412; --surface:#171B18; --surface-2:#1D221E;
+  --ink:#E9ECE5; --ink-2:#A0A89C; --ink-3:#7A8278;
+  --rule:#272D28; --rule-strong:#39413A;
+  --accent:#5CCFAE; --accent-ink:#7FDDC2;
+  --warn:#DFB35F; --warn-soft:#33280F;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:15px;line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+code{font-family:var(--mono);font-size:.88em;font-weight:500}
+
+.bar{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--rule-strong)}
+.bar-in{max-width:1280px;margin:0 auto;padding:10px 28px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+.brand{display:flex;align-items:baseline;gap:10px;flex:0 0 auto}
+.brand-name{font-size:15px;font-weight:700;letter-spacing:.01em;white-space:nowrap}
+.brand-meta{font-family:var(--mono);font-size:11px;color:var(--ink-3);white-space:nowrap}
+.search{flex:1 1 240px;min-width:0;position:relative;display:flex;align-items:center}
+.search::before{content:'/';position:absolute;left:11px;font-family:var(--mono);font-weight:700;color:var(--accent);pointer-events:none}
+.search input{
+  width:100%;font-family:var(--sans);font-size:13.5px;color:var(--ink);
+  background:var(--paper);border:1px solid var(--rule-strong);border-radius:2px;padding:6px 12px 6px 26px;
+}
+.search input::placeholder{color:var(--ink-3)}
+.search input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{
+  font-family:var(--mono);font-size:11.5px;border:1px solid var(--rule-strong);
+  background:transparent;color:var(--ink-2);padding:5px 10px;border-radius:2px;cursor:pointer;
+}
+.chip:hover{background:var(--surface-2)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+:root[data-theme="dark"] .chip[aria-pressed="true"]{color:#0D1210}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .chip[aria-pressed="true"]{color:#0D1210}
+}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hitcount{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap;margin-left:auto}
+
+.shell{max-width:1280px;margin:0 auto;padding:0 28px 90px;display:grid;grid-template-columns:214px minmax(0,1fr);gap:40px;align-items:start}
+.rail{
+  position:sticky;top:var(--bar);max-height:calc(100vh - var(--bar));
+  overflow-y:auto;overscroll-behavior:contain;padding:24px 10px 40px 0;
+  scrollbar-width:thin;scrollbar-color:var(--rule-strong) transparent;
+}
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-track{background:transparent}
+.rail::-webkit-scrollbar-thumb{background:var(--rule-strong);border-radius:3px}
+.rail h2{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin:0 0 6px;font-weight:500}
+.rail h2:not(:first-child){margin-top:20px}
+.navlist{display:flex;flex-direction:column}
+.rail a{
+  display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+  padding:3px 0 3px 10px;margin-left:-12px;color:var(--ink-2);text-decoration:none;
+  font-size:13px;line-height:1.45;border-left:2px solid transparent;
+}
+.rail a:hover{color:var(--ink)}
+.rail a[aria-current="true"]{color:var(--accent-ink);border-left-color:var(--accent);font-weight:500}
+.rail a span{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.rail a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+main{padding-top:24px;min-width:0}
+.preface{margin:0 0 30px;color:var(--ink-2);font-size:13px;max-width:76ch}
+
+.sec{margin:0 0 40px;scroll-margin-top:calc(var(--bar) + 14px)}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;border-bottom:1px solid var(--rule-strong);padding-bottom:7px}
+.sec-head h3{font-size:17px;font-weight:700;margin:0;line-height:1.4;text-wrap:balance}
+.sec-head .n{font-family:var(--mono);font-size:11px;color:var(--ink-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.sec-note{margin:9px 0 0;color:var(--ink-2);font-size:13px;max-width:70ch}
+
+.tablewrap{overflow-x:auto;margin-top:12px}
+table{border-collapse:collapse;width:100%;min-width:760px}
+thead th{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:500;text-align:left;padding:0 14px 6px 0;
+  border-bottom:1px solid var(--rule-strong);white-space:nowrap;
+}
+tbody td{padding:11px 14px 12px 0;border-bottom:1px solid var(--rule);vertical-align:top;font-size:13px;line-height:1.65}
+tbody tr:hover td{background:var(--surface-2)}
+tbody td:last-child,thead th:last-child{padding-right:0}
+.c-cmd{width:18%}
+.c-sum{width:20%}
+.c-det{width:auto}
+.c-par{width:27%}
+.cols-3 .c-cmd{width:22%}
+.cols-3 .c-sum{width:auto}
+.cols-3 .c-par{width:34%}
+.tkeys th:nth-child(1),.tkeys td:nth-child(1){width:26%}
+.tkeys th:nth-child(2),.tkeys td:nth-child(2){width:21%}
+.tkeys th:nth-child(3),.tkeys td:nth-child(3){width:21%}
+.tkeys th:nth-child(4),.tkeys td:nth-child(4){width:auto}
+
+.cmd{
+  font-family:var(--mono);font-size:12.5px;font-weight:500;background:none;border:0;
+  padding:0;margin:0;cursor:pointer;color:var(--ink);text-align:left;line-height:1.5;
+  border-bottom:1px dashed transparent;word-break:break-word;
+}
+.cmd i{color:var(--accent);font-style:normal}
+.cmd:hover{border-bottom-color:var(--rule-strong)}
+.cmd:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cmd.copied{color:var(--accent-ink)}
+.act{color:var(--ink);font-weight:500}
+.aliases{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.alias{font-family:var(--mono);font-size:10px;color:var(--ink-3);border:1px solid var(--rule);border-radius:2px;padding:1px 5px;white-space:nowrap}
+.pcell{min-width:0}
+.par{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);word-break:break-word;display:block}
+.par.none{color:var(--ink-3)}
+.sum{color:var(--ink)}
+.det{color:var(--ink-2)}
+.det code,.sum code{background:var(--surface-2);border-radius:2px;padding:1px 4px;color:var(--ink)}
+.ex{
+  display:flex;gap:7px;margin-top:7px;width:100%;
+  font-family:var(--mono);font-size:11.5px;line-height:1.6;text-align:left;
+  background:var(--surface-2);border:0;border-left:2px solid var(--accent);
+  padding:5px 8px;color:var(--ink);cursor:pointer;white-space:pre-wrap;word-break:break-word;
+}
+.ex:hover{box-shadow:inset 0 0 0 1px var(--rule-strong)}
+.ex:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.ex.copied{box-shadow:inset 0 0 0 1px var(--accent)}
+.ex b{color:var(--accent);font-weight:700;flex:0 0 auto;user-select:none;width:.9em}
+
+.keycell{
+  display:flex;flex-wrap:wrap;gap:4px;align-items:center;width:100%;
+  background:none;border:0;padding:1px 0;margin:0;cursor:pointer;text-align:left;
+}
+.keycell:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.keycell.copied kbd{border-color:var(--accent);color:var(--accent-ink)}
+kbd{
+  font-family:var(--mono);font-size:11px;line-height:1.6;
+  border:1px solid var(--rule-strong);border-bottom-width:2px;border-radius:3px;
+  padding:1px 6px;background:var(--surface);color:var(--ink);white-space:nowrap;
+}
+.keycell:hover kbd{border-color:var(--ink-3)}
+.ksep{font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+.knone{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+
+.tag{display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:2px;margin-top:6px;background:var(--warn-soft);color:var(--warn)}
+tr.flagged td:first-child{box-shadow:inset 2px 0 0 var(--warn);padding-left:10px}
+
+.priority td:first-child{font-family:var(--mono);font-size:12px;color:var(--accent-ink);white-space:nowrap}
+
+footer{max-width:1280px;margin:0 auto;padding:24px 28px 60px;border-top:1px solid var(--rule-strong);color:var(--ink-2);font-size:12.5px}
+footer ul{margin:8px 0 0;padding-left:1.1em}
+footer li{margin-bottom:5px}
+footer .siblings{margin-top:16px;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px}
+footer .siblings a{color:var(--accent-ink)}
+
+.empty{display:none;padding:40px 0;color:var(--ink-3);font-family:var(--mono);font-size:13px;text-align:center}
+.empty.on{display:block}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .rail{position:static;max-height:none;overflow:visible;padding:20px 0 16px;border-bottom:1px solid var(--rule)}
+  .navlist{flex-direction:row;flex-wrap:wrap;gap:2px 5px}
+  .rail a{border-left:0;border:1px solid var(--rule);border-radius:2px;padding:3px 8px;margin-left:0}
+  .rail a[aria-current="true"]{border-color:var(--accent)}
+  .rail h2:not(:first-child){margin-top:14px}
+}
+@media (max-width:680px){
+  .bar-in,.shell,footer{padding-left:18px;padding-right:18px}
+  .hitcount{margin-left:0}
+  table{min-width:0}
+  thead{display:none}
+  tbody tr{display:block;border-bottom:1px solid var(--rule-strong);padding:12px 0}
+  tbody tr:hover td{background:none}
+  tbody td{display:grid;grid-template-columns:5.6em minmax(0,1fr);gap:10px;border:0;padding:3px 0}
+  tbody td::before{content:attr(data-label);font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-3);padding-top:4px}
+  .tkeys th:nth-child(n),.tkeys td:nth-child(n){width:auto}
+  tr.flagged td:first-child{box-shadow:none;padding-left:0}
+  tr.flagged{box-shadow:inset 2px 0 0 var(--warn);padding-left:10px}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="bar" id="bar">
+  <div class="bar-in">
+    <div class="brand">
+      <span class="brand-name">VS Code ショートカット索引</span>
+      <span class="brand-meta">v1.127 既定キーバインド</span>
+    </div>
+    <label class="search">
+      <input id="q" type="search" placeholder="操作名・キー(例: Ctrl+Shift+P)で絞り込む" autocomplete="off" spellcheck="false" aria-label="検索">
+    </label>
+    <div class="chips" role="group" aria-label="種別で絞り込む">
+        <button class="chip" data-scope="all" aria-pressed="true">すべて</button>
+        <button class="chip" data-scope="nav" aria-pressed="false">移動・検索</button>
+        <button class="chip" data-scope="edit" aria-pressed="false">編集</button>
+        <button class="chip" data-scope="multi" aria-pressed="false">マルチカーソル</button>
+        <button class="chip" data-scope="view" aria-pressed="false">表示</button>
+        <button class="chip" data-scope="term" aria-pressed="false">ターミナル</button>
+        <button class="chip" data-scope="run" aria-pressed="false">デバッグ</button>
+        <button class="chip" data-scope="git" aria-pressed="false">ソース管理</button>
+        <button class="chip" data-scope="tips" aria-pressed="false">Tips</button>
+    </div>
+    <span class="hitcount" id="hits"></span>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="カテゴリ"></nav>
+  <main id="main">
+    <p class="preface">Visual Studio Code の<b>既定キーバインド</b>を用途別に並べた一覧(v1.127 時点)。 <b>キーはクリックでコピーできる。</b> 記号は <code>Cmd</code> = ⌘、<code>Opt</code> = ⌥。 <code>Ctrl+K Ctrl+S</code> のように空白で区切られたものは、順に押す2段階のキー操作を表す。</p>
+    <p class="empty" id="empty">該当なし</p>
+  </main>
+</div>
+
+<footer>
+  <strong>注記</strong>
+  <ul>
+    <li>このページは <b>公式の既定キーバインドに基づく</b>。ローカル環境からの抽出ではないため、自分の割当は <code>Ctrl+K Ctrl+S</code> で確認すること。</li>
+    <li>拡張機能がキーを上書きすることがある。競合はキーボードショートカット画面で確認できる。</li>
+    <li><code>—</code> は既定のキーが割り当てられていない操作。コマンドパレットまたはUIから実行する。</li>
+    <li>日本語IMEを使う環境では <code>Ctrl+Space</code>(サジェスト)がIME切替と衝突しやすい。どちらかを再割当するとよい。</li>
+    <li>キー操作の完全な一覧は <code>Ctrl+K Ctrl+R</code> / <code>Cmd+K Cmd+R</code> で公式チートシートが開く。</li>
+  </ul>
+  <div class="siblings"><span>同じシリーズ:</span><a href="../claude-code-commands/">Claude Code コマンド索引</a><a href="../git-commands/">Git コマンド索引</a><a href="../intellij-shortcuts/">IntelliJ IDEA ショートカット索引</a></div>
+</footer>
+
+<script>
+const SIGIL = "$";
+const DATA = [{"g":"nav","id":"core","t":"起点になる3つ","note":"VS Code はコマンドパレットが本体。キーを覚えるより、機能名で引くほうが速い。","kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["コマンドパレット","Ctrl+Shift+P","Cmd+Shift+P","`F1` でも開く。全機能をここから呼べる"],["クイックオープン(ファイル)","Ctrl+P","Cmd+P","`>` を付けるとコマンド、`@` でシンボル、`:` で行番号"],["キーボードショートカット設定","Ctrl+K Ctrl+S","Cmd+K Cmd+S","割当の確認と変更。検索欄にキーを打っても引ける"]]},{"g":"nav","id":"nav-open","t":"ファイルとシンボルの移動","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["シンボルへ移動(ファイル内)","Ctrl+Shift+O","Cmd+Shift+O","`@:` を付けると種類別にグループ化される"],["シンボルへ移動(ワークスペース)","Ctrl+T","Cmd+T","プロジェクト全体から探す"],["行へ移動","Ctrl+G","Ctrl+G","クイックオープンで `:12` でも同じ"],["定義へ移動","F12","F12","Ctrl / Cmd + クリックでも同じ"],["定義をその場に表示(Peek)","Alt+F12","Opt+F12","移動せずに覗く"],["実装へ移動","Ctrl+F12","Cmd+F12",""],["参照を検索","Shift+F12","Shift+F12","呼び出し元を一覧する"],["戻る / 進む","Alt+←","Ctrl+-","進むは `Alt+→` / `Ctrl+Shift+-`"],["最後の編集位置へ","Ctrl+K Ctrl+Q","Cmd+K Cmd+Q","「さっき書いていた場所」に戻る"],["次 / 前の問題へ","F8","F8","前は `Shift+F8`。エラーを順に潰す"],["パンくずにフォーカス","Ctrl+Shift+.","Cmd+Shift+.","階層をたどって移動できる"],["最近開いたフォルダ / ファイル","Ctrl+R","Ctrl+R","プロジェクトの切り替えに"]]},{"g":"nav","id":"nav-find","t":"検索と置換","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["ファイル内検索","Ctrl+F","Cmd+F","次は `Enter`、前は `Shift+Enter`"],["ファイル内置換","Ctrl+H","Cmd+Opt+F","`Ctrl+Alt+Enter` で全置換"],["フォルダ内検索","Ctrl+Shift+F","Cmd+Shift+F","include / exclude でパスを絞れる"],["フォルダ内置換","Ctrl+Shift+H","Cmd+Shift+H","適用前に差分を確認できる"],["正規表現の切替","Alt+R","Cmd+Opt+R","検索ボックスにフォーカスがある状態で"],["大文字小文字を区別","Alt+C","Cmd+Opt+C",""],["単語単位で一致","Alt+W","Cmd+Opt+W",""],["一致をすべて選択","Alt+Enter","Opt+Enter","検索ボックスから直接マルチカーソルへ"]]},{"g":"edit","id":"edit","t":"編集","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["行を削除","Ctrl+Shift+K","Cmd+Shift+K","選択があればその行すべて"],["行を上下に移動","Alt+↑","Opt+↑","下へは `↓`"],["行を上下に複製","Shift+Alt+↓","Shift+Opt+↓","上へは `↑`"],["下に空行を挿入","Ctrl+Enter","Cmd+Enter","カーソル位置に関係なく次行へ"],["上に空行を挿入","Ctrl+Shift+Enter","Cmd+Shift+Enter",""],["行コメント","Ctrl+/","Cmd+/","選択範囲をまとめて切替"],["ブロックコメント","Shift+Alt+A","Shift+Opt+A","`/* */` で囲む"],["インデント / 逆インデント","Ctrl+]","Cmd+]","戻すのは `[`"],["ドキュメント全体を整形","Shift+Alt+F","Shift+Opt+F","フォーマッタ未設定なら拡張を促される"],["選択範囲を整形","Ctrl+K Ctrl+F","Cmd+K Cmd+F",""],["名前の変更(リネーム)","F2","F2","参照も追随する"],["クイックフィックス","Ctrl+.","Cmd+.","import 追加や自動修正"],["リファクタリング","Ctrl+Shift+R","Ctrl+Shift+R","抽出などの候補が出る"],["候補を表示(サジェスト)","Ctrl+Space","Ctrl+Space","日本語IMEと衝突する場合は再割当"],["パラメータヒント","Ctrl+Shift+Space","Cmd+Shift+Space","引数の型と順番"],["ホバー情報を表示","Ctrl+K Ctrl+I","Cmd+K Cmd+I","マウスなしで型を見る"],["折りたたむ / 展開","Ctrl+Shift+[","Cmd+Opt+[","展開は `]`"],["すべて折りたたむ","Ctrl+K Ctrl+0","Cmd+K Cmd+0","展開は `Ctrl+K Ctrl+J`"],["クリップボードの履歴から貼付","—","—","既定なし。拡張機能で補う"]]},{"g":"multi","id":"multi","t":"選択とマルチカーソル","note":"VS Code の強みはここ。`Ctrl+D` を覚えるだけで置換の大半が要らなくなる。","kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["次の一致を選択に追加","Ctrl+D","Cmd+D","押すたびに次の同じ語を掴む"],["一致をすべて選択","Ctrl+Shift+L","Cmd+Shift+L","一括で書き換える"],["同じ単語をすべて選択","Ctrl+F2","Cmd+F2","単語単位で厳密に一致"],["カーソルを上下に追加","Ctrl+Alt+↑","Cmd+Opt+↑","縦に並んだ行をまとめて編集"],["選択行の末尾にカーソル追加","Shift+Alt+I","Shift+Opt+I","行末揃えの編集に"],["現在行を選択","Ctrl+L","Cmd+L","押すたびに次の行も足される"],["選択範囲を広げる / 狭める","Shift+Alt+→","Ctrl+Shift+Cmd+→","狭めるのは `←`"],["矩形選択","Shift+Alt+ドラッグ","Shift+Opt+ドラッグ","`Ctrl+Shift+Alt+↓` でも伸ばせる"],["対応する括弧へ移動","Ctrl+Shift+\\","Cmd+Shift+\\","ネストした括弧の対応先へ飛ぶ"],["マルチカーソルの解除","Esc","Esc","1つに戻す"]]},{"g":"view","id":"view","t":"表示とレイアウト","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["サイドバーの表示切替","Ctrl+B","Cmd+B","画面を広く使う"],["エクスプローラー","Ctrl+Shift+E","Cmd+Shift+E",""],["検索ビュー","Ctrl+Shift+F","Cmd+Shift+F",""],["ソース管理ビュー","Ctrl+Shift+G","Ctrl+Shift+G","macOS も Ctrl。Cmd ではない"],["実行とデバッグ","Ctrl+Shift+D","Cmd+Shift+D",""],["拡張機能","Ctrl+Shift+X","Cmd+Shift+X",""],["パネルの表示切替","Ctrl+J","Cmd+J","ターミナルや問題を出し入れする"],["エディタを分割","Ctrl+\\","Cmd+\\","`Ctrl+1` `Ctrl+2` でグループ間を移動"],["タブを閉じる","Ctrl+W","Cmd+W","ウィンドウごと閉じないよう注意"],["閉じたタブを戻す","Ctrl+Shift+T","Cmd+Shift+T","誤って閉じたとき"],["すべてのタブを閉じる","Ctrl+K Ctrl+W","Cmd+K Cmd+W",""],["全画面表示","F11","Ctrl+Cmd+F",""],["Zen モード","Ctrl+K Z","Cmd+K Z","解除は `Esc` を2回"],["折り返しの切替","Alt+Z","Opt+Z","長い行を読むとき"],["拡大 / 縮小","Ctrl+=","Cmd+=","縮小は `-`、リセットは `Ctrl+NumPad0`"]]},{"g":"term","id":"term","t":"ターミナルとパネル","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["ターミナルの表示切替","Ctrl+`","Ctrl+`","macOS も Ctrl"],["新しいターミナル","Ctrl+Shift+`","Ctrl+Shift+`","複数セッションを持てる"],["ターミナルを分割","Ctrl+Shift+5","Cmd+\\","左右に並べる"],["問題パネル","Ctrl+Shift+M","Cmd+Shift+M","エラーと警告の一覧"],["出力パネル","Ctrl+Shift+U","Cmd+Shift+U","拡張機能のログを見る"],["デバッグコンソール","Ctrl+Shift+Y","Cmd+Shift+Y","停止中に式を評価できる"],["ターミナルを閉じる","—","—","パネル右上のゴミ箱、または `exit`"]]},{"g":"run","id":"debug","t":"実行とデバッグ","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["開始 / 続行","F5","F5","構成が無ければ選択を促される"],["デバッグなしで実行","Ctrl+F5","Ctrl+F5","ブレークポイントを無視する"],["停止","Shift+F5","Shift+F5",""],["再起動","Ctrl+Shift+F5","Cmd+Shift+F5","設定を変えた後に"],["ステップオーバー","F10","F10","現在行を実行して次へ"],["ステップイン","F11","F11","呼び出し先へ入る"],["ステップアウト","Shift+F11","Shift+F11","呼び出し元へ戻る"],["ブレークポイントの切替","F9","F9","右クリックで条件を付けられる"],["ログポイントを追加","—","—","ブレークポイント欄を右クリック → Add Logpoint"]]},{"g":"git","id":"git","t":"ソース管理","note":"Git 操作の多くは既定キーが無い。ソース管理ビューかコマンドパレットから呼ぶ。","kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["ソース管理ビューを開く","Ctrl+Shift+G","Ctrl+Shift+G","変更・ステージ・コミットの起点"],["ステージした変更をコミット","—","—","ビュー内で `Ctrl+Enter` / `Cmd+Enter`"],["変更をステージ / 取り消し","—","—","ファイル行の `+` / `-`。ハンク単位も可"],["差分を開く","—","—","変更ファイルをクリックすると差分ビューになる"],["ブランチの切替","—","—","ステータスバー左下のブランチ名をクリック"],["行ごとの変更履歴","—","—","GitLens などの拡張機能で補う"],["マージ競合の解決","—","—","競合ファイルを開くと解決ボタンが出る"]]},{"g":"tips","id":"tips","t":"知っておくと効くもの","note":null,"kind":"keys","cols":["操作","Windows / Linux","macOS","備考"],"rows":[["設定を開く(UI)","Ctrl+,","Cmd+,","検索欄に設定名を打ち込む"],["設定を開く(JSON)","—","—","パレットで `Preferences: Open User Settings (JSON)`"],["配色テーマを切替","Ctrl+K Ctrl+T","Cmd+K Cmd+T","一覧を上下キーでプレビューできる"],["キーマップを IntelliJ 風にする","—","—","拡張機能 `IntelliJ IDEA Keybindings` を入れる"],["ショートカット一覧(PDF)","Ctrl+K Ctrl+R","Cmd+K Cmd+R","公式のキーボードチートシートが開く"],["すべてのキー割当を書き出す","—","—","`keybindings.json` に自分の変更だけが残る"],["マークダウンのプレビュー","Ctrl+K V","Cmd+K V","横に並べて表示する"]]}];
+const NAV_GROUPS = [{"g":"nav","label":"移動・検索"},{"g":"edit","label":"編集"},{"g":"multi","label":"マルチカーソル"},{"g":"view","label":"表示"},{"g":"term","label":"ターミナル"},{"g":"run","label":"実行・デバッグ"},{"g":"git","label":"ソース管理"},{"g":"tips","label":"Tips"}];
+const PRIORITY = {"t":"最初に覚える10個","label":"操作","group":"nav","note":"コマンドパレットとマルチカーソルを押さえれば、残りは必要になった時に引けばよい。","rows":[["★★★","Ctrl+Shift+P / Cmd+Shift+P","コマンドパレット。全機能の入口"],["★★★","Ctrl+P / Cmd+P","ファイルを名前で開く。ツリーを辿らない"],["★★★","Ctrl+D / Cmd+D","次の一致を選択。置換の大半がこれで済む"],["★★★","Ctrl+. / Cmd+.","クイックフィックス。赤い波線の上で押す"],["★★☆","Ctrl+Shift+F / Cmd+Shift+F","フォルダ内検索。影響範囲を先に見る"],["★★☆","F12 / Shift+F12","定義へ移動と参照検索。コードを読む速度が変わる"],["★★☆","Ctrl+` / Ctrl+`","ターミナル。手を止めずに実行する"],["★★☆","Ctrl+B / Cmd+B","サイドバーを畳んで画面を広げる"],["★☆☆","Ctrl+Shift+K / Cmd+Shift+K","行削除。選択してBackspaceをやめる"],["★☆☆","Ctrl+K Ctrl+S / Cmd+K Cmd+S","割当の確認と変更。困ったらここ"]]};
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = s => esc(s)
+  .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+  .replace(/`([^`]+)`/g, '<code>$1</code>');
+
+function keysHtml(raw){
+  if (!raw || raw === '—') return '<span class="knone">—</span>';
+  const chords = String(raw).split(' ').filter(Boolean);
+  const parts = [];
+  chords.forEach((chord, ci) => {
+    if (ci) parts.push('<span class="ksep">›</span>');
+    chord.split('+').forEach((k, i) => {
+      if (i) parts.push('<span class="ksep">+</span>');
+      parts.push('<kbd>' + esc(k) + '</kbd>');
+    });
+  });
+  return parts.join('');
+}
+
+const main = document.getElementById('main');
+const rail = document.getElementById('rail');
+const frag = document.createDocumentFragment();
+let totalRows = 0;
+
+for (const sec of DATA){
+  const el = document.createElement('section');
+  el.className = 'sec';
+  el.id = sec.id;
+  el.dataset.group = sec.g;
+
+  const nCols = sec.cols.length;
+  const isKeys = sec.kind === 'keys';
+  const cls = nCols === 4 ? ['c-cmd','c-sum','c-det','c-par'] : ['c-cmd','c-sum','c-par'];
+  const sigil = sec.sig || SIGIL;
+
+  const head = '<div class="sec-head"><h3>' + esc(sec.t) + '</h3><span class="n">' + sec.rows.length + ' 項目</span></div>'
+    + (sec.note ? '<p class="sec-note">' + fmt(sec.note) + '</p>' : '');
+  const ths = sec.cols.map((c,i) => '<th class="' + cls[i] + '" scope="col">' + esc(c) + '</th>').join('');
+
+  const trs = sec.rows.map(r => {
+    const meta = (typeof r[r.length-1] === 'object') ? r[r.length-1] : null;
+    const vals = meta ? r.slice(0,-1) : r;
+    totalRows++;
+    const cells = [];
+
+    if (isKeys){
+      let c0 = '<span class="act">' + fmt(vals[0]) + '</span>';
+      if (meta && meta.tag) c0 += '<span class="tag">' + esc(meta.tag) + '</span>';
+      cells.push('<td data-label="' + esc(sec.cols[0]) + '">' + c0 + '</td>');
+      for (let i = 1; i < nCols; i++){
+        const v = vals[i] == null ? '—' : vals[i];
+        if (i <= 2){
+          const btn = (v && v !== '—')
+            ? '<button class="keycell" type="button" title="クリックでコピー" data-copy="' + esc(v) + '">' + keysHtml(v) + '</button>'
+            : '<span class="knone">—</span>';
+          cells.push('<td data-label="' + esc(sec.cols[i]) + '">' + btn + '</td>');
+        } else {
+          cells.push('<td data-label="' + esc(sec.cols[i]) + '"><span class="det' + (v === '—' ? ' none' : '') + '">' + fmt(v) + '</span></td>');
+        }
+      }
+    } else {
+      const name = vals[0];
+      let first = '<button class="cmd" type="button" data-copy="' + esc(name) + '" title="クリックでコピー">'
+        + (name.startsWith('/') ? '<i>/</i>' + esc(name.slice(1)) : esc(name)) + '</button>';
+      if (meta && meta.alias) first += '<div class="aliases">' + meta.alias.map(a => '<span class="alias">' + esc(a) + '</span>').join('') + '</div>';
+      if (meta && meta.tag) first += '<span class="tag">' + esc(meta.tag) + '</span>';
+      cells.push('<td class="' + cls[0] + '" data-label="' + esc(sec.cols[0]) + '">' + first + '</td>');
+      for (let i = 1; i < nCols; i++){
+        const isLast = (i === nCols - 1);
+        let v = vals[i];
+        if (v == null || v === '') v = isLast ? '' : '—';
+        let inner;
+        if (isLast){
+          const p = (v && v !== '—') ? '<span class="par">' + fmt(v) + '</span>'
+            : (v === '—' ? '<span class="par none">—</span>' : '');
+          const ex = meta && meta.ex
+            ? '<button class="ex" type="button" title="クリックでコピー" data-copy="' + esc(meta.ex) + '"><b>' + sigil + '</b>' + esc(meta.ex) + '</button>'
+            : '';
+          inner = '<div class="pcell">' + p + ex + '</div>';
+        } else {
+          inner = '<span class="' + (i === 1 ? 'sum' : 'det') + (v === '—' ? ' none' : '') + '">' + fmt(v) + '</span>';
+        }
+        cells.push('<td class="' + cls[i] + '" data-label="' + esc(sec.cols[i]) + '">' + inner + '</td>');
+      }
+    }
+
+    const search = (vals.join(' ') + ' '
+      + (meta && meta.alias ? meta.alias.join(' ') : '') + ' '
+      + (meta && meta.tag ? meta.tag : '') + ' '
+      + (meta && meta.ex ? meta.ex : '')).toLowerCase();
+    return '<tr class="row' + (meta && meta.tag ? ' flagged' : '') + '" data-s="' + esc(search) + '">' + cells.join('') + '</tr>';
+  }).join('');
+
+  el.innerHTML = head + '<div class="tablewrap"><table class="cols-' + nCols + (isKeys ? ' tkeys' : '') + '">'
+    + '<thead><tr>' + ths + '</tr></thead><tbody>' + trs + '</tbody></table></div>';
+  frag.appendChild(el);
+}
+main.insertBefore(frag, document.getElementById('empty'));
+
+if (PRIORITY && PRIORITY.rows.length){
+  const last = document.createElement('section');
+  last.className = 'sec';
+  last.id = 'priority';
+  last.dataset.group = PRIORITY.group;
+  last.innerHTML = '<div class="sec-head"><h3>' + esc(PRIORITY.t) + '</h3><span class="n">優先度順</span></div>'
+    + (PRIORITY.note ? '<p class="sec-note">' + fmt(PRIORITY.note) + '</p>' : '')
+    + '<div class="tablewrap"><table class="cols-3 priority"><thead><tr>'
+    + '<th class="c-cmd" scope="col">優先度</th><th class="c-sum" scope="col">' + esc(PRIORITY.label) + '</th>'
+    + '<th class="c-par" scope="col">理由</th></tr></thead><tbody>'
+    + PRIORITY.rows.map(([s,c,w]) =>
+        '<tr class="row" data-s="' + esc((c + ' ' + w).toLowerCase()) + '">'
+        + '<td data-label="優先度">' + s + '</td>'
+        + '<td data-label="' + esc(PRIORITY.label) + '"><span class="sum">'
+        + c.split(' / ').map(x => '<code>' + esc(x) + '</code>').join(' ') + '</span></td>'
+        + '<td data-label="理由"><span class="det">' + esc(w) + '</span></td></tr>').join('')
+    + '</tbody></table></div>';
+  main.insertBefore(last, document.getElementById('empty'));
+}
+
+let navHtml = '';
+for (const grp of NAV_GROUPS){
+  const secs = DATA.filter(s => s.g === grp.g);
+  if (!secs.length) continue;
+  navHtml += '<h2>' + esc(grp.label) + '</h2><div class="navlist">';
+  for (const s of secs){
+    navHtml += '<a href="#' + s.id + '" data-target="' + s.id + '">' + esc(s.t) + '<span>' + s.rows.length + '</span></a>';
+  }
+  navHtml += '</div>';
+}
+rail.innerHTML = navHtml;
+
+const q = document.getElementById('q');
+const hits = document.getElementById('hits');
+const emptyEl = document.getElementById('empty');
+const chips = [...document.querySelectorAll('.chip')];
+let scope = 'all';
+
+function apply(){
+  const term = q.value.trim().toLowerCase();
+  let shown = 0;
+  for (const sec of document.querySelectorAll('.sec')){
+    const inScope = scope === 'all' || sec.dataset.group === scope;
+    let n = 0;
+    for (const row of sec.querySelectorAll('tr.row')){
+      const ok = inScope && (!term || row.dataset.s.includes(term));
+      row.hidden = !ok;
+      if (ok) n++;
+    }
+    sec.hidden = n === 0;
+    if (sec.id !== 'priority') shown += n;
+  }
+  hits.textContent = (term || scope !== 'all') ? shown + ' / ' + totalRows + ' 件' : totalRows + ' 件';
+  emptyEl.classList.toggle('on', shown === 0);
+}
+q.addEventListener('input', apply);
+chips.forEach(c => c.addEventListener('click', () => {
+  scope = c.dataset.scope;
+  chips.forEach(x => x.setAttribute('aria-pressed', String(x === c)));
+  apply();
+}));
+apply();
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('.cmd, .ex, .keycell');
+  if (!b || !navigator.clipboard || !navigator.clipboard.writeText) return;
+  navigator.clipboard.writeText(b.dataset.copy).then(() => {
+    b.classList.add('copied');
+    const sig = b.querySelector('b');
+    if (sig && !sig.dataset.orig){ sig.dataset.orig = sig.textContent; sig.textContent = '✓'; }
+    setTimeout(() => {
+      b.classList.remove('copied');
+      if (sig && sig.dataset.orig){ sig.textContent = sig.dataset.orig; delete sig.dataset.orig; }
+    }, 1000);
+  }, () => {});
+});
+
+const bar = document.getElementById('bar');
+const setBar = () => document.documentElement.style.setProperty('--bar', bar.offsetHeight + 'px');
+setBar();
+if (window.ResizeObserver) new ResizeObserver(setBar).observe(bar); else window.addEventListener('resize', setBar);
+
+const links = [...rail.querySelectorAll('a')];
+const byId = new Map(links.map(a => [a.dataset.target, a]));
+const io = new IntersectionObserver(entries => {
+  for (const en of entries){
+    if (en.isIntersecting){
+      links.forEach(a => a.removeAttribute('aria-current'));
+      const a = byId.get(en.target.id);
+      if (a){
+        a.setAttribute('aria-current','true');
+        const r = a.getBoundingClientRect(), rr = rail.getBoundingClientRect();
+        if (rail.scrollHeight > rail.clientHeight && (r.top < rr.top || r.bottom > rr.bottom)){
+          rail.scrollTop += (r.top - rr.top) - rail.clientHeight / 3;
+        }
+      }
+      break;
+    }
+  }
+}, {rootMargin:'-80px 0px -70% 0px', threshold:0});
+document.querySelectorAll('.sec').forEach(s => io.observe(s));
+
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)){
+    e.preventDefault();
+    q.focus();
+  }
+});
+
+</script>
+</body>
+</html>

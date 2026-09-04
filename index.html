@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>開発リファレンス</title>
+<meta name="description" content="Claude Code・Git・IntelliJ IDEA・VS Code のコマンドとショートカットの索引。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+:root{
+  --paper:#F6F7F4;--surface:#FFFFFF;--ink:#15181A;--ink-2:#555C55;--ink-3:#848B82;
+  --rule:#DDE1D8;--rule-strong:#C2C8BB;--accent:#0E6B58;--accent-ink:#0A5445;
+  --mono:'JetBrains Mono',Consolas,monospace;
+  --sans:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic UI',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#111412;--surface:#171B18;--ink:#E9ECE5;--ink-2:#A0A89C;--ink-3:#7A8278;
+  --rule:#272D28;--rule-strong:#39413A;--accent:#5CCFAE;--accent-ink:#7FDDC2;
+}}
+:root[data-theme="dark"]{
+  --paper:#111412;--surface:#171B18;--ink:#E9ECE5;--ink-2:#A0A89C;--ink-3:#7A8278;
+  --rule:#272D28;--rule-strong:#39413A;--accent:#5CCFAE;--accent-ink:#7FDDC2;
+}
+*{box-sizing:border-box}
+html{color-scheme:light dark}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.7}
+.wrap{max-width:840px;margin:0 auto;padding:56px 28px 90px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin:0 0 8px}
+h1{font-size:26px;font-weight:700;margin:0 0 10px;letter-spacing:.01em}
+.lede{margin:0 0 34px;color:var(--ink-2);font-size:14px;max-width:64ch}
+.grid{display:grid;gap:14px}
+.card{
+  display:block;text-decoration:none;color:inherit;background:var(--surface);
+  border:1px solid var(--rule);border-left:3px solid var(--accent);padding:16px 18px;
+}
+.card:hover{border-color:var(--rule-strong);border-left-color:var(--accent)}
+.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card h2{font-size:16px;font-weight:700;margin:0 0 4px}
+.card .meta{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin:0 0 8px;font-variant-numeric:tabular-nums}
+.card .desc{margin:0;font-size:13px;color:var(--ink-2)}
+footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--rule);color:var(--ink-3);font-size:12.5px}
+img{max-width:100%}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Reference Index</p>
+  <h1>開発リファレンス</h1>
+  <p class="lede">日常的に引くコマンドとショートカットを、同じ体裁で横断検索できるようにまとめたもの。各ページとも絞り込み検索つきで、コマンド・実行例・キー操作はクリックでコピーできる。</p>
+  <div class="grid">
+    <a class="card" href="articles/claude-code-commands/">
+      <h2>Claude Code コマンド索引</h2>
+      <p class="meta">v2.1.259 / 2026-09-04 &middot; 225 項目</p>
+      <p class="desc">Claude Code v2.1.259 の実行バイナリとヘルプ出力から抽出した、スラッシュコマンド・CLIコマンド・起動フラグの索引。全項目に実行例つき。</p>
+    </a>
+    <a class="card" href="articles/git-commands/">
+      <h2>Git コマンド索引</h2>
+      <p class="meta">git 2.54.0 / 2026-09-04 &middot; 152 項目</p>
+      <p class="desc">Git 2.54 の porcelain コマンドを用途別に整理した索引。全項目に実行例つき、破壊的な操作には警告つき。</p>
+    </a>
+    <a class="card" href="articles/intellij-shortcuts/">
+      <h2>IntelliJ IDEA ショートカット索引</h2>
+      <p class="meta">Default / macOS キーマップ &middot; 113 項目</p>
+      <p class="desc">IntelliJ IDEA の既定キーマップを用途別に整理した索引。Windows / Linux と macOS を並べて比較できる。</p>
+    </a>
+    <a class="card" href="articles/vscode-shortcuts/">
+      <h2>VS Code ショートカット索引</h2>
+      <p class="meta">v1.127 既定キーバインド &middot; 97 項目</p>
+      <p class="desc">Visual Studio Code の既定キーバインドを用途別に整理した索引。Windows / Linux と macOS を並べて比較できる。</p>
+    </a>
+  </div>
+  <footer>最終更新 2026-09-04</footer>
+</div>
+</body>
+</html>
