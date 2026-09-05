@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Base64 エンコーダー</title>
+<meta name="description" content="テキストと Base64 の相互変換をブラウザ内で行うツール。UTF-8 で正しく扱い、標準と URL セーフ（-_、パディングなし）を切り替えられる。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+:root{
+  --paper:#F4F6F9; --surface:#FFFFFF; --surface-2:#E9EEF4;
+  --ink:#131820; --ink-2:#525A67; --ink-3:#828B98;
+  --rule:#D8DEE6; --rule-strong:#BDC5D1;
+  --accent:#1257A6; --accent-ink:#0D4381;
+  --warn:#87590F; --warn-soft:#F2E7CE;
+  --r-sm:6px; --r-md:10px; --r-lg:14px;
+  --shadow-1:0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.06);
+  --mono:'JetBrains Mono','SFMono-Regular',Consolas,'Liberation Mono',monospace;
+  --sans:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic UI',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F1216; --surface:#151A21; --surface-2:#1B222A;
+    --ink:#E6EAF1; --ink-2:#99A3B1; --ink-3:#77818F;
+    --rule:#252C35; --rule-strong:#37404A;
+    --accent:#63B3F5; --accent-ink:#8CC8FA;
+    --warn:#DFB35F; --warn-soft:#33280F;
+    --shadow-1:0 1px 2px rgba(0,0,0,.30), 0 1px 3px rgba(0,0,0,.24);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F1216; --surface:#151A21; --surface-2:#1B222A;
+  --ink:#E6EAF1; --ink-2:#99A3B1; --ink-3:#77818F;
+  --rule:#252C35; --rule-strong:#37404A;
+  --accent:#63B3F5; --accent-ink:#8CC8FA;
+  --warn:#DFB35F; --warn-soft:#33280F;
+  --shadow-1:0 1px 2px rgba(0,0,0,.30), 0 1px 3px rgba(0,0,0,.24);
+}
+
+*{box-sizing:border-box}
+html{color-scheme:light dark}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;
+}
+code{font-family:var(--mono);font-size:.88em;font-weight:500}
+
+.bar{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--rule);box-shadow:var(--shadow-1)}
+@supports (backdrop-filter:blur(2px)){
+  .bar{background:color-mix(in srgb,var(--surface) 78%,transparent);backdrop-filter:blur(14px) saturate(140%)}
+}
+.bar-in{max-width:1100px;margin:0 auto;padding:11px 28px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+.home{
+  flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;
+  font-size:12.5px;line-height:1;color:var(--ink-2);text-decoration:none;
+  border:1px solid var(--rule);border-radius:var(--r-md);background:var(--surface-2);
+  padding:7px 12px;white-space:nowrap;transition:color .12s,border-color .12s,background .12s;
+}
+.home:hover{color:var(--accent);border-color:var(--accent);background:var(--surface)}
+.home:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.home i{font-family:var(--mono);font-style:normal;font-weight:700;color:var(--accent)}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.brand-name{font-size:15px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+.brand-meta{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+
+.shell{max-width:1100px;margin:0 auto;padding:28px 28px 80px}
+
+.opts{display:flex;flex-wrap:wrap;gap:10px 24px;align-items:center;margin-bottom:18px}
+.opt{display:flex;align-items:center;gap:9px}
+.opt-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink-3)}
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--rule);border-radius:999px;padding:3px}
+.seg button{
+  font-family:var(--sans);font-size:12.5px;line-height:1;color:var(--ink-2);
+  background:transparent;border:0;border-radius:999px;padding:7px 14px;cursor:pointer;
+  transition:background .14s,color .14s;white-space:nowrap;
+}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-checked="true"]{background:var(--accent);color:#FFFFFF;font-weight:500}
+:root[data-theme="dark"] .seg button[aria-checked="true"]{color:#0B1016}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .seg button[aria-checked="true"]{color:#0B1016}
+}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.panes{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:860px){.panes{grid-template-columns:1fr 1fr}}
+
+.pane{
+  display:flex;flex-direction:column;min-width:0;
+  background:var(--surface);border:1px solid var(--rule);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-1);overflow:hidden;
+}
+.pane-head{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding:11px 16px;background:var(--surface-2);border-bottom:1px solid var(--rule);
+}
+.pane-head h2{margin:0;font-size:12px;font-weight:700;letter-spacing:.02em}
+.pane-head .meta{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.pane textarea{
+  width:100%;min-height:236px;resize:vertical;
+  font-family:var(--mono);font-size:13px;line-height:1.7;color:var(--ink);
+  background:transparent;border:0;padding:14px 16px;word-break:break-all;
+}
+.pane textarea:focus{outline:0}
+.pane textarea::placeholder{font-family:var(--sans);color:var(--ink-3);word-break:normal}
+.pane-foot{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px;border-top:1px solid var(--rule)}
+
+.btn{
+  font-family:var(--sans);font-size:12.5px;font-weight:500;line-height:1;cursor:pointer;
+  background:var(--accent);border:1px solid var(--accent);color:#FFFFFF;
+  padding:9px 14px;border-radius:var(--r-md);min-width:72px;
+  transition:opacity .12s,transform .12s,color .12s,border-color .12s;
+}
+:root[data-theme="dark"] .btn:not(.ghost){color:#0B1016}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .btn:not(.ghost){color:#0B1016}
+}
+.btn.ghost{background:transparent;border-color:var(--rule);color:var(--ink-2)}
+.btn:hover{opacity:.92;transform:translateY(-1px)}
+.btn.ghost:hover{opacity:1;color:var(--accent);border-color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.err{
+  margin:12px 0 0;padding:10px 14px;border-radius:var(--r-md);
+  background:var(--warn-soft);color:var(--warn);
+  font-family:var(--mono);font-size:12px;line-height:1.6;
+}
+
+.note{margin-top:34px;border-top:1px solid var(--rule);padding-top:22px;color:var(--ink-2);font-size:13px}
+.note h3{margin:0 0 10px;font-size:14px;font-weight:700;color:var(--ink)}
+.note ul{margin:0;padding-left:1.2em}
+.note li{margin-bottom:7px}
+.note code{background:var(--surface-2);border-radius:5px;padding:2px 5px;color:var(--ink)}
+
+@media (max-width:680px){
+  .bar-in,.shell{padding-left:18px;padding-right:18px}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <a class="home" href="../../" title="索引に戻る"><i>‹</i>索引</a>
+    <div class="brand">
+      <span class="brand-name">Base64 エンコーダー</span>
+      <span class="brand-meta">UTF-8 / RFC 4648</span>
+    </div>
+  </div>
+</header>
+
+<main class="shell">
+  <div class="opts">
+    <div class="opt">
+      <span class="opt-label">DIRECTION</span>
+      <div class="seg" id="dir" role="radiogroup" aria-label="変換の向き">
+        <button type="button" role="radio" data-v="encode" aria-checked="true">エンコード</button>
+        <button type="button" role="radio" data-v="decode" aria-checked="false">デコード</button>
+      </div>
+    </div>
+    <div class="opt">
+      <span class="opt-label">ALPHABET</span>
+      <div class="seg" id="variant" role="radiogroup" aria-label="文字種">
+        <button type="button" role="radio" data-v="std" aria-checked="true">標準</button>
+        <button type="button" role="radio" data-v="url" aria-checked="false">URL セーフ</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panes">
+    <section class="pane">
+      <div class="pane-head">
+        <h2 id="inTitle">テキスト</h2>
+        <span class="meta" id="inMeta">0 文字 / 0 バイト</span>
+      </div>
+      <textarea id="in" spellcheck="false" autocomplete="off" aria-label="入力"
+        placeholder="変換したい文字列を貼り付ける（例: こんにちは world）"></textarea>
+      <div class="pane-foot">
+        <button class="btn ghost" id="swap" type="button" title="出力を入力に移して向きを反転する">⇅ 入替</button>
+        <button class="btn ghost" id="clear" type="button">クリア</button>
+      </div>
+    </section>
+
+    <section class="pane">
+      <div class="pane-head">
+        <h2 id="outTitle">Base64</h2>
+        <span class="meta" id="outMeta">0 文字 / 0 バイト</span>
+      </div>
+      <textarea id="out" readonly spellcheck="false" aria-label="出力" placeholder="ここに結果が出る"></textarea>
+      <div class="pane-foot">
+        <button class="btn" id="copy" type="button">コピー</button>
+      </div>
+    </section>
+  </div>
+
+  <p class="err" id="err" hidden></p>
+
+  <section class="note">
+    <h3>この変換について</h3>
+    <ul>
+      <li>文字列は <b>UTF-8 のバイト列に直してから</b> Base64 にする。<code>btoa()</code> に日本語をそのまま渡すと例外になるが、このツールでは <code>TextEncoder</code> を挟んでいるので問題ない。</li>
+      <li><b>URL セーフ</b>(RFC 4648 §5)は <code>+</code> を <code>-</code>、<code>/</code> を <code>_</code> に置き換え、末尾の <code>=</code> を落とす。JWT やクエリ文字列に載せる形式。</li>
+      <li>デコードは<b>どちらの文字種も受け付ける</b>。<code>-_</code> は自動で <code>+/</code> に戻し、足りない <code>=</code> は補う。空白と改行は無視する。</li>
+      <li>デコードで失敗するのは、Base64 の文字種以外が混じっている場合、長さが 4 で割った余り 1 になる場合、復元したバイト列が UTF-8 として不正な場合。</li>
+      <li>エンコード後の長さは元のバイト数の約 4/3 になる。<b>変換はすべてブラウザ内で完結し、入力はどこにも送信されない。</b></li>
+    </ul>
+  </section>
+</main>
+
+<script>
+const inEl = document.getElementById('in');
+const outEl = document.getElementById('out');
+const inMeta = document.getElementById('inMeta');
+const outMeta = document.getElementById('outMeta');
+const inTitle = document.getElementById('inTitle');
+const outTitle = document.getElementById('outTitle');
+const errEl = document.getElementById('err');
+const copyBtn = document.getElementById('copy');
+const enc = new TextEncoder();
+
+let dir = 'encode';
+let variant = 'std';
+
+const measure = s => s.length.toLocaleString() + ' 文字 / ' + enc.encode(s).length.toLocaleString() + ' バイト';
+
+function seg(id, onPick){
+  const box = document.getElementById(id);
+  box.addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    [...box.querySelectorAll('button')].forEach(x => x.setAttribute('aria-checked', String(x === b)));
+    onPick(b.dataset.v);
+  });
+}
+seg('dir', v => { dir = v; convert(); });
+seg('variant', v => { variant = v; convert(); });
+
+// btoa は Latin-1 しか受け取らないので、UTF-8 のバイト列を1バイト1文字に写してから渡す
+function toB64(str, urlSafe){
+  const bytes = enc.encode(str);
+  let bin = '';
+  const CHUNK = 0x8000;
+  for (let i = 0; i < bytes.length; i += CHUNK){
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
+  }
+  let b64 = btoa(bin);
+  if (urlSafe) b64 = b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  return b64;
+}
+
+// 入力はどちらの文字種でも受ける。パディングは足りなければ補う
+function fromB64(str){
+  const s = str.replace(/\s+/g, '').replace(/-/g, '+').replace(/_/g, '/');
+  if (!s) return '';
+  if (!/^[A-Za-z0-9+/]*={0,2}$/.test(s)) throw new Error('CHARS');
+  const rest = s.length % 4;
+  if (rest === 1) throw new Error('LENGTH');
+  const padded = rest ? s + '='.repeat(4 - rest) : s;
+  const bin = atob(padded);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+}
+
+const MSG = {
+  CHARS: 'Base64 に使えない文字が混じっている。使えるのは A-Z a-z 0-9 と + / -  _ と末尾の = だけ。',
+  LENGTH: '長さが不正。空白を除いた文字数を 4 で割った余りが 1 になる Base64 は存在しない。',
+  UTF8: '復元したバイト列が UTF-8 として不正。テキストではなく画像などのバイナリを入れていないか確認する。'
+};
+
+function convert(){
+  const src = inEl.value;
+  let out = '', err = '';
+  if (dir === 'encode'){
+    try{ out = toB64(src, variant === 'url'); }
+    catch(e){ err = 'エンコードできない。単独のサロゲート（壊れた絵文字など）が含まれている。'; }
+  } else {
+    try{ out = fromB64(src); }
+    catch(e){ err = MSG[e.message] || MSG.UTF8; }
+  }
+  inTitle.textContent = dir === 'encode' ? 'テキスト' : 'Base64';
+  outTitle.textContent = dir === 'encode' ? 'Base64' : 'テキスト';
+  outEl.value = err ? '' : out;
+  errEl.textContent = err;
+  errEl.hidden = !err;
+  inMeta.textContent = measure(src);
+  outMeta.textContent = measure(outEl.value);
+}
+
+inEl.addEventListener('input', convert);
+
+document.getElementById('clear').addEventListener('click', () => {
+  inEl.value = '';
+  inEl.focus();
+  convert();
+});
+
+// 出力を入力に移し、向きを反転する。往復の確認に使う
+document.getElementById('swap').addEventListener('click', () => {
+  if (!outEl.value) return;
+  inEl.value = outEl.value;
+  dir = dir === 'encode' ? 'decode' : 'encode';
+  [...document.querySelectorAll('#dir button')].forEach(b => b.setAttribute('aria-checked', String(b.dataset.v === dir)));
+  convert();
+});
+
+copyBtn.addEventListener('click', () => {
+  if (!outEl.value || !navigator.clipboard || !navigator.clipboard.writeText) return;
+  navigator.clipboard.writeText(outEl.value).then(() => {
+    if (copyBtn.dataset.orig) return;
+    copyBtn.dataset.orig = copyBtn.textContent;
+    copyBtn.textContent = '✓ コピー';
+    setTimeout(() => { copyBtn.textContent = copyBtn.dataset.orig; delete copyBtn.dataset.orig; }, 1000);
+  }, () => {});
+});
+
+convert();
+</script>
+</body>
+</html>

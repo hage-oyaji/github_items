@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>開発リファレンス</title>
-<meta name="description" content="Claude Code・Git・AWS CLI・gcloud・IntelliJ IDEA・VS Code・Java Stream・Spring のコマンドとAPIを、同じ体裁で横断検索できる索引集。">
+<meta name="description" content="Claude Code・Git・AWS CLI・gcloud・IntelliJ IDEA・VS Code・Java Stream・Spring のコマンドとAPIを、同じ体裁で横断検索できる索引集。URL エンコーダーと Base64 エンコーダーも収録。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
@@ -88,7 +88,7 @@ h1 i{color:var(--accent);font-style:normal}
 
 /* 外枠。はみ出した最終列・最終行の罫線をここで刈る */
 .sheet{
-  background:var(--surface);border:1px solid var(--rule);border-radius:var(--r-lg);
+  background:transparent;border:1px solid var(--rule);border-radius:var(--r-lg);
   overflow:hidden;box-shadow:var(--shadow-1);
 }
 .grid{display:grid;grid-template-columns:1fr;margin:0 -1px -1px 0}
@@ -140,6 +140,28 @@ h1 i{color:var(--accent);font-style:normal}
   font-variant-numeric:tabular-nums;
 }
 
+.tabs{
+  display:flex;gap:4px;width:fit-content;max-width:100%;margin:0 0 18px;padding:4px;
+  background:var(--surface-2);border:1px solid var(--rule);border-radius:999px;
+}
+.tab{
+  display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
+  font-family:var(--sans);font-size:13px;font-weight:500;line-height:1;color:var(--ink-2);
+  background:transparent;border:0;border-radius:999px;padding:9px 18px;cursor:pointer;
+  transition:background .16s,color .16s;
+}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-1)}
+.tab span{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.tab[aria-selected="true"] span{color:var(--accent)}
+.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ツールは項目数を持たないので、代わりに扱える形式を出す */
+.tnote{
+  margin-top:auto;padding-top:12px;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;line-height:1.6;color:var(--ink-3);
+}
+
 .empty{
   margin:28px 0 0;padding:36px 0;text-align:center;
   font-family:var(--mono);font-size:13px;color:var(--ink-3);
@@ -165,18 +187,24 @@ footer p{margin:0 0 6px;max-width:80em}
     <p class="lede">日常的に引くコマンドとショートカットを、同じ体裁でまとめた索引集。各ページとも絞り込み検索つきで、コマンド・実行例・キー操作はクリックでコピーできる。</p>
     <div class="bar">
       <label class="find">
-        <input id="q" type="search" placeholder="ページを絞り込む（/ でフォーカス）" autocomplete="off" spellcheck="false" aria-label="ページを絞り込む">
+        <input id="q" type="search" placeholder="表示中のタブを絞り込む（/ でフォーカス）" autocomplete="off" spellcheck="false" aria-label="ページを絞り込む">
       </label>
       <ul class="totals">
+        <li>リファレンス <b>8</b> ページ</li>
         <li>収録 <b>9,709</b> 項目</li>
-        <li>ページ <b>8</b></li>
+        <li>ツール <b>2</b></li>
         <li>更新 <b>2026-09-05</b></li>
       </ul>
     </div>
   </header>
 
-  <div class="sheet" id="sheet">
-    <div class="grid" id="grid">
+  <div class="tabs" role="tablist" aria-label="表示の切り替え">
+    <button class="tab" id="tab-ref" type="button" role="tab" data-v="ref" aria-selected="true" aria-controls="panel-ref">リファレンス <span>8</span></button>
+    <button class="tab" id="tab-tool" type="button" role="tab" data-v="tool" aria-selected="false" aria-controls="panel-tool">ツール <span>2</span></button>
+  </div>
+
+  <div class="sheet" id="panel-ref" role="tabpanel" aria-labelledby="tab-ref">
+    <div class="grid">
     <a class="card" href="articles/claude-code-commands/" title="Claude Code コマンド索引" data-s="claude code クロード コマンド cli">
       <span class="idx">01</span><span class="go" aria-hidden="true">→</span>
       <span class="name">Claude Code</span>
@@ -225,7 +253,24 @@ footer p{margin:0 0 6px;max-width:80em}
       <span class="kind">アノテーション</span>
       <span class="count"><b>323</b>項目</span>
     </a>
+    </div>
   </div>
+
+  <div class="sheet" id="panel-tool" role="tabpanel" aria-labelledby="tab-tool" hidden>
+    <div class="grid">
+      <a class="card" href="tools/url-encoder/" title="URL エンコーダー" data-s="url encode encoder エンコード デコード パーセント percent query クエリ">
+        <span class="idx">01</span><span class="go" aria-hidden="true">→</span>
+        <span class="name">URL エンコーダー</span>
+        <span class="kind">ツール</span>
+        <span class="tnote">encodeURIComponent<br>encodeURI</span>
+      </a>
+      <a class="card" href="tools/base64-encoder/" title="Base64 エンコーダー" data-s="base64 encode encoder エンコード デコード btoa atob jwt utf-8">
+        <span class="idx">02</span><span class="go" aria-hidden="true">→</span>
+        <span class="name">Base64 エンコーダー</span>
+        <span class="kind">ツール</span>
+        <span class="tnote">UTF-8 対応<br>標準 / URL セーフ</span>
+      </a>
+    </div>
   </div>
   <p class="empty" id="empty" hidden>該当なし</p>
 
@@ -237,23 +282,50 @@ footer p{margin:0 0 6px;max-width:80em}
 
 <script>
 const q = document.getElementById('q');
-const cards = [...document.querySelectorAll('.card')];
 const empty = document.getElementById('empty');
-const sheet = document.getElementById('sheet');
+const tabs = [...document.querySelectorAll('.tab')];
+const panels = {ref: document.getElementById('panel-ref'), tool: document.getElementById('panel-tool')};
+
+let view = location.hash === '#tools' ? 'tool' : 'ref';
 
 function apply(){
   const term = q.value.trim().toLowerCase();
+  const panel = panels[view];
   let shown = 0;
-  for (const c of cards){
+  for (const c of panel.querySelectorAll('.card')){
     const ok = !term || c.dataset.s.includes(term) || c.textContent.toLowerCase().includes(term);
     c.hidden = !ok;
     if (ok) shown++;
   }
+  // 1枚も残らないときは枠ごと隠す。空の枠だけが線として残るのを避ける
+  panel.hidden = shown === 0;
   empty.hidden = shown > 0;
-  sheet.hidden = shown === 0;
 }
+
+function setView(v){
+  view = v;
+  for (const t of tabs) t.setAttribute('aria-selected', String(t.dataset.v === v));
+  for (const k of Object.keys(panels)) panels[k].hidden = k !== v;
+  apply();
+}
+
+for (const t of tabs){
+  t.addEventListener('click', () => {
+    setView(t.dataset.v);
+    history.replaceState(null, '', t.dataset.v === 'tool' ? '#tools' : location.pathname + location.search);
+  });
+}
+// タブは左右キーでも移せる
+document.querySelector('.tabs').addEventListener('keydown', e => {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  e.preventDefault();
+  const i = tabs.findIndex(t => t.dataset.v === view);
+  const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+  next.focus();
+  next.click();
+});
+
 q.addEventListener('input', apply);
-apply();
 
 document.addEventListener('keydown', e => {
   if (e.key === '/' && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)){
@@ -261,6 +333,8 @@ document.addEventListener('keydown', e => {
     q.focus();
   }
 });
+
+setView(view);
 </script>
 </body>
 </html>
