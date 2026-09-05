@@ -7,16 +7,15 @@
 <meta name="description" content="Claude Code・Git・AWS CLI・gcloud・IntelliJ IDEA・VS Code・Java Stream・Spring のコマンドとAPIを、同じ体裁で横断検索できる索引集。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
 <style>
 :root{
   --paper:#F4F6F9;--surface:#FFFFFF;--surface-2:#E9EEF4;
   --ink:#131820;--ink-2:#525A67;--ink-3:#828B98;
   --rule:#D8DEE6;--rule-strong:#BDC5D1;--accent:#1257A6;--accent-ink:#0D4381;
-  --tile:#E4E8ED;--tile-hover:#D5DBE3;
-  --r-md:10px; --r-lg:14px;
+  --r-md:10px; --r-lg:18px;
   --shadow-1:0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.06);
-  --shadow-2:0 10px 24px rgba(15,23,42,.10), 0 3px 8px rgba(15,23,42,.06);
+  --shadow-2:0 18px 40px rgba(15,23,42,.13), 0 4px 10px rgba(15,23,42,.07);
   --mono:'JetBrains Mono',Consolas,monospace;
   --sans:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic UI',system-ui,sans-serif;
 }
@@ -24,135 +23,243 @@
   --paper:#0F1216;--surface:#151A21;--surface-2:#1B222A;
   --ink:#E6EAF1;--ink-2:#99A3B1;--ink-3:#77818F;
   --rule:#252C35;--rule-strong:#37404A;--accent:#63B3F5;--accent-ink:#8CC8FA;
-  --tile:#2A2F36;--tile-hover:#343A43;
   --shadow-1:0 1px 2px rgba(0,0,0,.30), 0 1px 3px rgba(0,0,0,.24);
-  --shadow-2:0 12px 28px rgba(0,0,0,.46), 0 3px 8px rgba(0,0,0,.32);
+  --shadow-2:0 20px 44px rgba(0,0,0,.55), 0 4px 10px rgba(0,0,0,.35);
 }}
 :root[data-theme="dark"]{
   --paper:#0F1216;--surface:#151A21;--surface-2:#1B222A;
   --ink:#E6EAF1;--ink-2:#99A3B1;--ink-3:#77818F;
   --rule:#252C35;--rule-strong:#37404A;--accent:#63B3F5;--accent-ink:#8CC8FA;
-  --tile:#2A2F36;--tile-hover:#343A43;
   --shadow-1:0 1px 2px rgba(0,0,0,.30), 0 1px 3px rgba(0,0,0,.24);
-  --shadow-2:0 12px 28px rgba(0,0,0,.46), 0 3px 8px rgba(0,0,0,.32);
+  --shadow-2:0 20px 44px rgba(0,0,0,.55), 0 4px 10px rgba(0,0,0,.35);
 }
 *{box-sizing:border-box}
 html{color-scheme:light dark}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.7}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);line-height:1.7;-webkit-font-smoothing:antialiased;
+}
 img{max-width:100%}
+[hidden]{display:none!important}
 
-.wrap{max-width:1180px;margin:0 auto;padding:52px 28px 96px}
-.masthead{border-bottom:1px solid var(--rule);padding-bottom:28px;margin-bottom:44px}
-.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);margin:0 0 10px}
-h1{font-size:clamp(28px,3.6vw,40px);font-weight:700;margin:0 0 14px;letter-spacing:-.02em;line-height:1.2}
-.lede{margin:0;color:var(--ink-2);font-size:14.5px;line-height:1.75}
-.totals{
-  display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 0;padding:0;list-style:none;
-  font-family:var(--mono);font-size:12px;color:var(--ink-3);
+/* 上端から差し込む光。装飾なので操作は素通しさせる */
+.glow{
+  position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(72% 46% at 10% -10%, color-mix(in srgb,var(--accent) 18%,transparent), transparent 70%),
+    radial-gradient(52% 40% at 94% 2%, color-mix(in srgb,var(--accent) 11%,transparent), transparent 70%);
 }
-.totals li{
+
+.wrap{max-width:1240px;margin:0 auto;padding:76px 28px 96px}
+
+.hero{margin-bottom:52px}
+.eyebrow{
+  display:flex;align-items:center;gap:12px;margin:0 0 18px;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.3em;color:var(--ink-3);
+}
+.eyebrow::before{content:'';width:34px;height:1px;background:var(--accent);flex:0 0 auto}
+h1{
+  margin:0 0 18px;font-size:clamp(34px,6.2vw,64px);font-weight:900;
+  letter-spacing:-.035em;line-height:1.04;
+}
+h1 i{color:var(--accent);font-style:normal}
+.lede{margin:0;color:var(--ink-2);font-size:15px;line-height:1.8;max-width:64em}
+
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px;margin-top:30px}
+.find{position:relative;display:flex;align-items:center;flex:1 1 300px;min-width:0;max-width:420px}
+.find::before{
+  content:'/';position:absolute;left:16px;pointer-events:none;
+  font-family:var(--mono);font-weight:700;color:var(--accent);
+}
+.find input{
+  width:100%;font-family:var(--sans);font-size:14px;color:var(--ink);
   background:var(--surface);border:1px solid var(--rule);border-radius:999px;
-  padding:5px 14px;box-shadow:var(--shadow-1);
+  padding:11px 18px 11px 32px;box-shadow:var(--shadow-1);
+  transition:border-color .14s,box-shadow .14s;
 }
-.totals b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
-
-.grid{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));
-  gap:22px;margin-bottom:52px;justify-items:center;
+.find input::placeholder{color:var(--ink-3)}
+.find input:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 20%,transparent)}
+.find input:focus-visible{outline:0}
+.totals{
+  display:flex;flex-wrap:wrap;gap:6px 20px;margin:0;padding:0;list-style:none;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;color:var(--ink-3);
 }
+.totals b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums;font-size:13px}
 
-.tile{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;text-decoration:none;color:inherit;background:var(--tile);
-  border:2px solid var(--accent);border-radius:50%;
-  width:100%;max-width:180px;aspect-ratio:1;padding:18px;min-width:0;
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));gap:14px}
+
+.card{
+  position:relative;overflow:hidden;isolation:isolate;
+  display:flex;flex-direction:column;min-height:186px;
+  padding:18px 20px 20px;text-decoration:none;color:inherit;
+  background:var(--surface);border:1px solid var(--rule);border-radius:var(--r-lg);
   box-shadow:var(--shadow-1);
-  transition:background .16s,border-color .16s,transform .16s,box-shadow .16s;
+  transition:transform .2s cubic-bezier(.2,.7,.3,1),border-color .2s,box-shadow .2s;
 }
-.tile:hover{background:var(--tile-hover);border-color:var(--accent-ink);transform:translateY(-3px);box-shadow:var(--shadow-2)}
-.tile:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.name{font-size:15.5px;font-weight:700;line-height:1.35;word-break:break-word}
-.kind{
-  font-family:var(--mono);font-size:11px;letter-spacing:.1em;
-  color:var(--ink-3);margin-top:3px;
+/* 上端を走るアクセント線。ホバーで左から伸びる */
+.card::before{
+  content:'';position:absolute;inset:0 0 auto;height:2px;z-index:1;
+  background:linear-gradient(90deg,var(--accent),transparent);
+  transform:scaleX(0);transform-origin:0 50%;transition:transform .32s cubic-bezier(.2,.7,.3,1);
 }
-.stat{
-  margin-top:10px;
-  font-family:var(--mono);font-size:11.5px;color:var(--ink-3);
+.card::after{
+  content:'';position:absolute;inset:0;z-index:-1;opacity:0;transition:opacity .28s;
+  background:radial-gradient(120% 92% at 100% 0, color-mix(in srgb,var(--accent) 14%,transparent), transparent 62%);
 }
-.stat b{
-  font-size:16px;font-weight:700;color:var(--accent-ink);
-  font-variant-numeric:tabular-nums;margin-right:3px;
+.card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:var(--shadow-2)}
+.card:hover::before{transform:scaleX(1)}
+.card:hover::after{opacity:1}
+.card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+.idx{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--ink-3)}
+.go{
+  position:absolute;top:17px;right:19px;
+  font-family:var(--mono);font-size:14px;color:var(--ink-3);
+  transition:transform .2s cubic-bezier(.2,.7,.3,1),color .2s;
+}
+.card:hover .go{transform:translateX(4px);color:var(--accent)}
+.name{margin-top:20px;font-size:21px;font-weight:700;letter-spacing:-.02em;line-height:1.24}
+.kind{margin-top:5px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--ink-3)}
+.count{
+  margin-top:auto;padding-top:14px;
+  display:flex;align-items:baseline;gap:6px;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--ink-3);
+}
+.count b{
+  font-size:27px;font-weight:700;letter-spacing:-.02em;color:var(--accent-ink);
+  font-variant-numeric:tabular-nums;
 }
 
-footer{border-top:1px solid var(--rule);padding-top:22px;color:var(--ink-3);font-size:12.5px}
-footer p{margin:0 0 6px}
-@media (max-width:680px){
-  .wrap{padding:36px 18px 70px}
+/* 先頭の1枚だけ横2つ分。索引の入口をはっきりさせる */
+@media (min-width:800px){
+  .card.lead{grid-column:span 2}
+  .card.lead .name{margin-top:26px;font-size:30px}
+  .card.lead .count b{font-size:34px}
 }
-@media (prefers-reduced-motion: reduce){*{transition:none!important}.tile:hover{transform:none}}
+
+.empty{
+  margin:28px 0 0;padding:36px 0;text-align:center;
+  font-family:var(--mono);font-size:13px;color:var(--ink-3);
+}
+
+footer{margin-top:64px;border-top:1px solid var(--rule);padding-top:24px;color:var(--ink-3);font-size:12.5px}
+footer p{margin:0 0 6px;max-width:80em}
+
+@media (max-width:680px){
+  .wrap{padding:48px 18px 70px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .card{min-height:158px;padding:15px 16px 17px}
+  .name{margin-top:16px;font-size:17px}
+  .count b{font-size:22px}
+}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none!important}
+  .card:hover{transform:none}
+  .card::before{transform:scaleX(1)}
+}
 </style>
 </head>
 <body>
+<div class="glow" aria-hidden="true"></div>
 <div class="wrap">
-  <header class="masthead">
-    <p class="eyebrow">Reference Index</p>
-    <h1>開発リファレンス</h1>
+  <header class="hero">
+    <p class="eyebrow">REFERENCE INDEX</p>
+    <h1>開発リファレンス<i>.</i></h1>
     <p class="lede">日常的に引くコマンドとショートカットを、同じ体裁でまとめた索引集。各ページとも絞り込み検索つきで、コマンド・実行例・キー操作はクリックでコピーできる。</p>
-    <ul class="totals">
-      <li>収録 <b>9,709</b> 項目</li>
-      <li>ページ <b>8</b></li>
-      <li>更新 <b>2026-09-05</b></li>
-    </ul>
+    <div class="bar">
+      <label class="find">
+        <input id="q" type="search" placeholder="ページを絞り込む（/ でフォーカス）" autocomplete="off" spellcheck="false" aria-label="ページを絞り込む">
+      </label>
+      <ul class="totals">
+        <li>収録 <b>9,709</b> 項目</li>
+        <li>ページ <b>8</b></li>
+        <li>更新 <b>2026-09-05</b></li>
+      </ul>
+    </div>
   </header>
 
-    <div class="grid">
-      <a class="tile" href="articles/claude-code-commands/" title="Claude Code コマンド索引">
-        <span class="name">Claude Code</span>
-        <span class="kind">コマンド</span>
-        <span class="stat"><b>225</b>項目</span>
-      </a>
-      <a class="tile" href="articles/git-commands/" title="Git コマンド索引">
-        <span class="name">Git</span>
-        <span class="kind">コマンド</span>
-        <span class="stat"><b>197</b>項目</span>
-      </a>
-      <a class="tile" href="articles/aws-cli-commands/" title="AWS CLI コマンド索引">
-        <span class="name">AWS CLI</span>
-        <span class="kind">コマンド</span>
-        <span class="stat"><b>8,292</b>項目</span>
-      </a>
-      <a class="tile" href="articles/gcp-cli-commands/" title="gcloud コマンド索引">
-        <span class="name">gcloud</span>
-        <span class="kind">コマンド</span>
-        <span class="stat"><b>309</b>項目</span>
-      </a>
-      <a class="tile" href="articles/intellij-shortcuts/" title="IntelliJ IDEA ショートカット索引">
-        <span class="name">IntelliJ IDEA</span>
-        <span class="kind">ショートカット</span>
-        <span class="stat"><b>113</b>項目</span>
-      </a>
-      <a class="tile" href="articles/vscode-shortcuts/" title="VS Code ショートカット索引">
-        <span class="name">VS Code</span>
-        <span class="kind">ショートカット</span>
-        <span class="stat"><b>97</b>項目</span>
-      </a>
-      <a class="tile" href="articles/java-stream/" title="Java Stream 早見表">
-        <span class="name">Java Stream</span>
-        <span class="kind">API</span>
-        <span class="stat"><b>153</b>項目</span>
-      </a>
-      <a class="tile" href="articles/spring-annotations/" title="Spring アノテーション一覧">
-        <span class="name">Spring</span>
-        <span class="kind">アノテーション</span>
-        <span class="stat"><b>323</b>項目</span>
-      </a>
-    </div>
+  <div class="grid" id="grid">
+    <a class="card lead" href="articles/claude-code-commands/" title="Claude Code コマンド索引" data-s="claude code クロード コマンド cli">
+      <span class="idx">01</span><span class="go" aria-hidden="true">→</span>
+      <span class="name">Claude Code</span>
+      <span class="kind">コマンド</span>
+      <span class="count"><b>225</b>項目</span>
+    </a>
+    <a class="card" href="articles/git-commands/" title="Git コマンド索引" data-s="git ギット コマンド branch merge rebase stash">
+      <span class="idx">02</span><span class="go" aria-hidden="true">→</span>
+      <span class="name">Git</span>
+      <span class="kind">コマンド</span>
+      <span class="count"><b>197</b>項目</span>
+    </a>
+    <a class="card" href="articles/aws-cli-commands/" title="AWS CLI コマンド索引" data-s="aws cli amazon s3 ec2 lambda コマンド">
+      <span class="idx">03</span><span class="go" aria-hidden="true">→</span>
+      <span class="name">AWS CLI</span>
+      <span class="kind">コマンド</span>
+      <span class="count"><b>8,292</b>項目</span>
+    </a>
+    <a class="card" href="articles/gcp-cli-commands/" title="gcloud コマンド索引" data-s="gcloud gcp google cloud bigquery gke コマンド">
+      <span class="idx">04</span><span class="go" aria-hidden="true">→</span>
+      <span class="name">gcloud</span>
+      <span class="kind">コマンド</span>
+      <span class="count"><b>309</b>項目</span>
+    </a>
+    <a class="card" href="articles/intellij-shortcuts/" title="IntelliJ IDEA ショートカット索引" data-s="intellij idea jetbrains ショートカット キーバインド">
+      <span class="idx">05</span><span class="go" aria-hidden="true">→</span>
+      <span class="name">IntelliJ IDEA</span>
+      <span class="kind">ショートカット</span>
+      <span class="count"><b>113</b>項目</span>
+    </a>
+    <a class="card" href="articles/vscode-shortcuts/" title="VS Code ショートカット索引" data-s="vscode vs code visual studio ショートカット キーバインド">
+      <span class="idx">06</span><span class="go" aria-hidden="true">→</span>
+      <span class="name">VS Code</span>
+      <span class="kind">ショートカット</span>
+      <span class="count"><b>97</b>項目</span>
+    </a>
+    <a class="card" href="articles/java-stream/" title="Java Stream 早見表" data-s="java stream ジャバ api collectors gatherers">
+      <span class="idx">07</span><span class="go" aria-hidden="true">→</span>
+      <span class="name">Java Stream</span>
+      <span class="kind">API</span>
+      <span class="count"><b>153</b>項目</span>
+    </a>
+    <a class="card" href="articles/spring-annotations/" title="Spring アノテーション一覧" data-s="spring boot java アノテーション annotation jpa">
+      <span class="idx">08</span><span class="go" aria-hidden="true">→</span>
+      <span class="name">Spring</span>
+      <span class="kind">アノテーション</span>
+      <span class="count"><b>323</b>項目</span>
+    </a>
+  </div>
+  <p class="empty" id="empty" hidden>該当なし</p>
 
   <footer>
     <p>コマンド系は可能な限り実行環境から機械抽出し、それ以外は公式ドキュメントに基づく。各ページの注記に根拠を明記している。</p>
     <p>実行例のリソース名・ID・リージョンは代表例。自分の環境に読み替えること。</p>
   </footer>
 </div>
+
+<script>
+const q = document.getElementById('q');
+const cards = [...document.querySelectorAll('.card')];
+const empty = document.getElementById('empty');
+
+function apply(){
+  const term = q.value.trim().toLowerCase();
+  let shown = 0;
+  for (const c of cards){
+    const ok = !term || c.dataset.s.includes(term) || c.textContent.toLowerCase().includes(term);
+    c.hidden = !ok;
+    if (ok) shown++;
+  }
+  empty.hidden = shown > 0;
+}
+q.addEventListener('input', apply);
+apply();
+
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)){
+    e.preventDefault();
+    q.focus();
+  }
+});
+</script>
 </body>
 </html>
