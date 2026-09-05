@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>開発リファレンス</title>
-<meta name="description" content="Claude Code・Git・AWS CLI・gcloud・IntelliJ IDEA・VS Code・Java Stream・Spring のコマンドとAPIを、同じ体裁で横断検索できる索引集。URL エンコーダーと Base64 エンコーダーも収録。">
+<meta name="description" content="Claude Code・Git・AWS CLI・gcloud・IntelliJ IDEA・VS Code・Java Stream・Spring のコマンドとAPIを、同じ体裁で横断検索できる索引集。URL エンコーダー、Base64 エンコーダー、文章フォーマッターも収録。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
@@ -88,7 +88,7 @@ h1 i{color:var(--accent);font-style:normal}
 
 /* 外枠。はみ出した最終列・最終行の罫線をここで刈る */
 .sheet{
-  background:transparent;border:1px solid var(--rule);border-radius:var(--r-lg);
+  background:transparent;border:1px solid var(--rule);
   overflow:hidden;box-shadow:var(--shadow-1);
 }
 .grid{display:grid;grid-template-columns:1fr;margin:0 -1px -1px 0}
@@ -193,7 +193,7 @@ footer p{margin:0 0 6px;max-width:80em}
       <ul class="totals">
         <li>リファレンス <b>8</b> ページ</li>
         <li>収録 <b>9,709</b> 項目</li>
-        <li>ツール <b>2</b></li>
+        <li>ツール <b>3</b></li>
         <li>更新 <b>2026-09-05</b></li>
       </ul>
     </div>
@@ -201,7 +201,7 @@ footer p{margin:0 0 6px;max-width:80em}
 
   <div class="tabs" role="tablist" aria-label="表示の切り替え">
     <button class="tab" id="tab-ref" type="button" role="tab" data-v="ref" aria-selected="true" aria-controls="panel-ref">リファレンス <span>8</span></button>
-    <button class="tab" id="tab-tool" type="button" role="tab" data-v="tool" aria-selected="false" aria-controls="panel-tool">ツール <span>2</span></button>
+    <button class="tab" id="tab-tool" type="button" role="tab" data-v="tool" aria-selected="false" aria-controls="panel-tool">ツール <span>3</span></button>
   </div>
 
   <div class="sheet" id="panel-ref" role="tabpanel" aria-labelledby="tab-ref">
@@ -265,11 +265,17 @@ footer p{margin:0 0 6px;max-width:80em}
         <span class="kind">ツール</span>
         <span class="tnote">encodeURIComponent<br>encodeURI</span>
       </a>
-      <a class="card" href="tools/base64-encoder/" title="Base64 エンコーダー" data-s="base64 encode encoder エンコード デコード btoa atob jwt utf-8">
+      <a class="card" href="tools/base64-encoder/" title="Base64 エンコーダー" data-s="base64 encode encoder エンコード デコード btoa atob jwt utf-8 画像 image data uri">
         <span class="idx">02</span><span class="go" aria-hidden="true">→</span>
         <span class="name">Base64 エンコーダー</span>
         <span class="kind">ツール</span>
-        <span class="tnote">UTF-8 対応<br>標準 / URL セーフ</span>
+        <span class="tnote">テキスト / 画像<br>標準 / URL セーフ</span>
+      </a>
+      <a class="card" href="tools/text-formatter/" title="文章フォーマッター" data-s="文章 フォーマット format メール mail チャット chat todo 議事録 要約 音声 voice bedrock claude ai">
+        <span class="idx">03</span><span class="go" aria-hidden="true">→</span>
+        <span class="name">文章フォーマッター</span>
+        <span class="kind">ツール</span>
+        <span class="tnote">音声入力 / Bedrock<br>メール · TODO · 議事録</span>
       </a>
     </div>
   </div>

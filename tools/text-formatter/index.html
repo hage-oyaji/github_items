@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>文章フォーマッター</title>
+<meta name="description" content="話し言葉やメモを、メール文面・チャット連絡・TODO・議事録・要約に整えるツール。音声入力に対応し、Amazon Bedrock の Claude で変換する。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+:root{
+  --paper:#F4F6F9; --surface:#FFFFFF; --surface-2:#E9EEF4;
+  --ink:#131820; --ink-2:#525A67; --ink-3:#828B98;
+  --rule:#D8DEE6; --rule-strong:#BDC5D1;
+  --accent:#1257A6; --accent-ink:#0D4381;
+  --warn:#87590F; --warn-soft:#F2E7CE;
+  --live:#B3261E; --live-soft:#FBE7E5;
+  --r-sm:6px; --r-md:10px;
+  --shadow-1:0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.06);
+  --mono:'JetBrains Mono','SFMono-Regular',Consolas,'Liberation Mono',monospace;
+  --sans:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic UI',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F1216; --surface:#151A21; --surface-2:#1B222A;
+    --ink:#E6EAF1; --ink-2:#99A3B1; --ink-3:#77818F;
+    --rule:#252C35; --rule-strong:#37404A;
+    --accent:#63B3F5; --accent-ink:#8CC8FA;
+    --warn:#DFB35F; --warn-soft:#33280F;
+    --live:#F2857C; --live-soft:#3A1A17;
+    --shadow-1:0 1px 2px rgba(0,0,0,.30), 0 1px 3px rgba(0,0,0,.24);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F1216; --surface:#151A21; --surface-2:#1B222A;
+  --ink:#E6EAF1; --ink-2:#99A3B1; --ink-3:#77818F;
+  --rule:#252C35; --rule-strong:#37404A;
+  --accent:#63B3F5; --accent-ink:#8CC8FA;
+  --warn:#DFB35F; --warn-soft:#33280F;
+  --live:#F2857C; --live-soft:#3A1A17;
+  --shadow-1:0 1px 2px rgba(0,0,0,.30), 0 1px 3px rgba(0,0,0,.24);
+}
+
+*{box-sizing:border-box}
+html{color-scheme:light dark}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;
+}
+code{font-family:var(--mono);font-size:.88em;font-weight:500}
+[hidden]{display:none!important}
+
+.bar{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--rule);box-shadow:var(--shadow-1)}
+@supports (backdrop-filter:blur(2px)){
+  .bar{background:color-mix(in srgb,var(--surface) 78%,transparent);backdrop-filter:blur(14px) saturate(140%)}
+}
+.bar-in{max-width:1180px;margin:0 auto;padding:11px 28px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+.home{
+  flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;
+  font-size:12.5px;line-height:1;color:var(--ink-2);text-decoration:none;
+  border:1px solid var(--rule);border-radius:var(--r-md);background:var(--surface-2);
+  padding:7px 12px;white-space:nowrap;transition:color .12s,border-color .12s,background .12s;
+}
+.home:hover{color:var(--accent);border-color:var(--accent);background:var(--surface)}
+.home:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.home i{font-family:var(--mono);font-style:normal;font-weight:700;color:var(--accent)}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.brand-name{font-size:15px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+.brand-meta{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.spacer{flex:1 1 auto}
+.state{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;white-space:nowrap;
+  border:1px solid var(--rule);border-radius:999px;padding:5px 11px;color:var(--ink-3);
+}
+.state.ok{color:var(--accent);border-color:var(--accent)}
+.state.ng{color:var(--warn);border-color:var(--warn);background:var(--warn-soft)}
+
+.shell{max-width:1180px;margin:0 auto;padding:24px 28px 80px}
+
+.kinds{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.kind{
+  display:flex;flex-direction:column;gap:3px;text-align:left;cursor:pointer;
+  background:var(--surface);border:1px solid var(--rule);border-radius:var(--r-md);
+  padding:10px 14px;min-width:140px;flex:1 1 140px;max-width:210px;
+  transition:border-color .14s,background .14s,transform .14s;
+}
+.kind b{font-family:var(--sans);font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.3}
+.kind span{font-family:var(--mono);font-size:10px;color:var(--ink-3);line-height:1.5}
+.kind:hover{border-color:var(--rule-strong);transform:translateY(-1px)}
+.kind[aria-pressed="true"]{border-color:var(--accent);background:var(--surface-2)}
+.kind[aria-pressed="true"] b{color:var(--accent-ink)}
+.kind:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.panes{display:grid;grid-template-columns:1fr;gap:12px;align-items:start}
+@media (min-width:900px){.panes{grid-template-columns:1fr 1fr}}
+
+.pane{
+  display:flex;flex-direction:column;min-width:0;
+  background:var(--surface);border:1px solid var(--rule);border-radius:var(--r-md);
+  box-shadow:var(--shadow-1);overflow:hidden;
+}
+.pane-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 16px;background:var(--surface-2);border-bottom:1px solid var(--rule);
+}
+.pane-head h2{margin:0;font-size:12px;font-weight:700;letter-spacing:.02em}
+.pane-head .meta{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.pane textarea{
+  width:100%;min-height:330px;resize:vertical;flex:1 1 auto;
+  font-family:var(--sans);font-size:14px;line-height:1.85;color:var(--ink);
+  background:transparent;border:0;padding:16px;
+}
+#out{font-family:var(--mono);font-size:13px;line-height:1.9;white-space:pre-wrap}
+.pane textarea:focus{outline:0}
+.pane textarea::placeholder{color:var(--ink-3)}
+.pane-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid var(--rule)}
+
+.btn{
+  font-family:var(--sans);font-size:12.5px;font-weight:500;line-height:1;cursor:pointer;
+  background:var(--accent);border:1px solid var(--accent);color:#FFFFFF;
+  padding:9px 14px;border-radius:var(--r-md);min-width:76px;
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  transition:opacity .12s,transform .12s,color .12s,border-color .12s;
+}
+:root[data-theme="dark"] .btn:not(.ghost){color:#0B1016}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .btn:not(.ghost){color:#0B1016}
+}
+.btn.ghost{background:transparent;border-color:var(--rule);color:var(--ink-2)}
+.btn:hover{opacity:.92;transform:translateY(-1px)}
+.btn.ghost:hover{opacity:1;color:var(--accent);border-color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+.btn.rec[aria-pressed="true"]{background:var(--live-soft);border-color:var(--live);color:var(--live)}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex:0 0 auto}
+.btn.rec[aria-pressed="true"] .dot{animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+
+.err{
+  margin:14px 0 0;padding:11px 15px;border-radius:var(--r-md);
+  background:var(--warn-soft);color:var(--warn);
+  font-family:var(--mono);font-size:12px;line-height:1.75;white-space:pre-wrap;
+}
+
+/* 資格情報の入力欄。値は sessionStorage にだけ置く */
+.conf{
+  margin-top:16px;background:var(--surface);
+  border:1px solid var(--rule);border-radius:var(--r-md);box-shadow:var(--shadow-1);
+}
+.conf summary{
+  cursor:pointer;list-style:none;padding:12px 16px;
+  font-size:13px;font-weight:700;display:flex;align-items:center;gap:9px;
+}
+.conf summary::-webkit-details-marker{display:none}
+.conf summary::before{content:'▸';font-family:var(--mono);color:var(--accent);transition:transform .14s}
+.conf[open] summary::before{transform:rotate(90deg)}
+.conf-body{padding:4px 16px 16px;border-top:1px solid var(--rule)}
+.fields{display:grid;grid-template-columns:1fr;gap:12px;margin:14px 0 0}
+@media (min-width:760px){.fields{grid-template-columns:1fr 1fr}}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field label{font-family:var(--mono);font-size:10px;letter-spacing:.13em;color:var(--ink-3)}
+.field input{
+  font-family:var(--mono);font-size:12.5px;color:var(--ink);
+  background:var(--surface-2);border:1px solid var(--rule);border-radius:var(--r-sm);padding:9px 11px;
+}
+.field input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.field.wide{grid-column:1/-1}
+.conf-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:16px}
+.conf-note{margin:14px 0 0;font-size:12.5px;color:var(--ink-2);line-height:1.75}
+.conf-note b{color:var(--warn)}
+
+.note{margin-top:32px;border-top:1px solid var(--rule);padding-top:22px;color:var(--ink-2);font-size:13px}
+.note h3{margin:0 0 10px;font-size:14px;font-weight:700;color:var(--ink)}
+.note h3:not(:first-child){margin-top:20px}
+.note ul{margin:0;padding-left:1.2em}
+.note li{margin-bottom:7px}
+.note code{background:var(--surface-2);border-radius:5px;padding:2px 5px;color:var(--ink)}
+
+@media (max-width:680px){
+  .bar-in,.shell{padding-left:18px;padding-right:18px}
+  .kind{max-width:none}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <a class="home" href="../../" title="索引に戻る"><i>‹</i>索引</a>
+    <div class="brand">
+      <span class="brand-name">文章フォーマッター</span>
+      <span class="brand-meta">Amazon Bedrock / Claude</span>
+    </div>
+    <span class="spacer"></span>
+    <span class="state" id="state">未設定</span>
+  </div>
+</header>
+
+<main class="shell">
+  <div class="kinds" id="kinds" role="group" aria-label="出力する形式">
+    <button class="kind" type="button" data-v="mail" aria-pressed="true">
+      <b>メール文面</b><span>宛名・本文・結び</span>
+    </button>
+    <button class="kind" type="button" data-v="chat" aria-pressed="false">
+      <b>チャット連絡</b><span>短文・結論先出し</span>
+    </button>
+    <button class="kind" type="button" data-v="todo" aria-pressed="false">
+      <b>TODO</b><span>担当・期限・粒度</span>
+    </button>
+    <button class="kind" type="button" data-v="minutes" aria-pressed="false">
+      <b>議事録</b><span>決定・宿題・論点</span>
+    </button>
+    <button class="kind" type="button" data-v="summary" aria-pressed="false">
+      <b>要約</b><span>3行 + 箇条書き</span>
+    </button>
+  </div>
+
+  <div class="panes">
+    <section class="pane">
+      <div class="pane-head">
+        <h2>入力</h2>
+        <span class="meta" id="inMeta">0 文字</span>
+      </div>
+      <textarea id="in" spellcheck="false" aria-label="入力"
+        placeholder="話し言葉のままで構わない。&#10;例）えーと明日の定例なんですけど10時からに変更で、田中さんに資料の共有をお願いしたくて、あと先週の課題は来週まで持ち越しです"></textarea>
+      <div class="pane-foot">
+        <button class="btn rec ghost" id="mic" type="button" aria-pressed="false" hidden>
+          <span class="dot" aria-hidden="true"></span><span id="micLabel">音声入力</span>
+        </button>
+        <button class="btn ghost" id="clear" type="button">クリア</button>
+        <span class="spacer"></span>
+        <button class="btn" id="run" type="button">実行</button>
+      </div>
+    </section>
+
+    <section class="pane">
+      <div class="pane-head">
+        <h2 id="outTitle">メール文面</h2>
+        <span class="meta" id="outMeta">—</span>
+      </div>
+      <textarea id="out" readonly spellcheck="false" aria-label="出力" placeholder="ここに整えた文章が出る"></textarea>
+      <div class="pane-foot">
+        <button class="btn" id="copy" type="button">コピー</button>
+      </div>
+    </section>
+  </div>
+
+  <p class="err" id="err" hidden></p>
+
+  <details class="conf" id="conf">
+    <summary>Bedrock の接続設定</summary>
+    <div class="conf-body">
+      <div class="fields">
+        <div class="field">
+          <label for="region">REGION</label>
+          <input id="region" spellcheck="false" autocomplete="off" placeholder="ap-northeast-1">
+        </div>
+        <div class="field">
+          <label for="model">MODEL ID</label>
+          <input id="model" spellcheck="false" autocomplete="off" placeholder="anthropic.claude-opus-5">
+        </div>
+        <div class="field wide">
+          <label for="ak">ACCESS KEY ID</label>
+          <input id="ak" spellcheck="false" autocomplete="off" placeholder="ASIA...">
+        </div>
+        <div class="field wide">
+          <label for="sk">SECRET ACCESS KEY</label>
+          <input id="sk" type="password" spellcheck="false" autocomplete="off" placeholder="••••••••">
+        </div>
+        <div class="field wide">
+          <label for="st">SESSION TOKEN（一時認証情報のとき）</label>
+          <input id="st" type="password" spellcheck="false" autocomplete="off" placeholder="任意">
+        </div>
+        <div class="field wide">
+          <label for="ep">ENDPOINT（既定は Bedrock。CORS 回避のプロキシを使うならその URL）</label>
+          <input id="ep" spellcheck="false" autocomplete="off" placeholder="https://bedrock-runtime.ap-northeast-1.amazonaws.com">
+        </div>
+      </div>
+      <div class="conf-foot">
+        <button class="btn" id="save" type="button">保存</button>
+        <button class="btn ghost" id="forget" type="button">消す</button>
+      </div>
+      <p class="conf-note">
+        入力した値は <b>このタブの sessionStorage にだけ</b>置き、タブを閉じると消える。サーバーにも保存されない。
+        GitHub Pages は同一オリジンを同じアカウントの全リポジトリで共有するため、長期のアクセスキーではなく
+        <b>STS の一時認証情報（セッショントークン付き）</b>を使うこと。
+      </p>
+    </div>
+  </details>
+
+  <section class="note">
+    <h3>使い方</h3>
+    <ul>
+      <li>左に話し言葉のまま書くか、<b>音声入力</b>で吹き込む。形式を選んで「実行」を押すと、右に整えた文章が出る。</li>
+      <li><b>音声入力はブラウザの機能</b>（Web Speech API）を使う。Chrome / Edge / Safari で動作し、<b>Firefox は未対応</b>のためボタン自体を出さない。認識中はマイクの点が明滅する。</li>
+      <li>Chrome の音声認識は<b>音声を Google のサーバーへ送って</b>文字にする。端末内では処理されない。機微な内容はキーボードで入力する。</li>
+    </ul>
+
+    <h3>接続について</h3>
+    <ul>
+      <li>ブラウザから Bedrock の <code>InvokeModel</code> を <b>SigV4 で署名して</b>直接呼ぶ。署名は Web Crypto で組み立てており、外部ライブラリは読み込まない。</li>
+      <li><b>AWS のサービスエンドポイントは CORS ヘッダーを返さない。</b>ブラウザから直に叩くと、署名が正しくてもブラウザ側で遮断されることがある。その場合は「接続設定」の ENDPOINT に、同じ形式を中継する自前のプロキシ（API Gateway + Lambda など）の URL を入れる。失敗時はどちらが原因かを画面に出す。</li>
+      <li>使うモデルは設定で変えられる。推論プロファイル経由なら <code>apac.anthropic.…</code> のような ID を入れる。</li>
+      <li>入力文はモデルへの問い合わせにのみ使う。<b>このページ自体はどこにも記録を残さない。</b></li>
+    </ul>
+  </section>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const inEl = $('in'), outEl = $('out'), errEl = $('err');
+const inMeta = $('inMeta'), outMeta = $('outMeta'), outTitle = $('outTitle');
+const runBtn = $('run'), copyBtn = $('copy'), micBtn = $('mic'), micLabel = $('micLabel');
+const stateEl = $('state');
+const F = { region: $('region'), model: $('model'), ak: $('ak'), sk: $('sk'), st: $('st'), ep: $('ep') };
+
+const DEFAULTS = { region: 'ap-northeast-1', model: 'anthropic.claude-opus-5', ak: '', sk: '', st: '', ep: '' };
+const KEY = 'bedrock-conf';
+
+// ── 形式ごとの指示 ────────────────────────────────────────
+const KINDS = {
+  mail: {
+    label: 'メール文面',
+    rule: `ビジネスメールの本文に整える。
+- 1行目に「件名：」を置く。20字程度で用件が分かるもの。
+- 宛名は分かれば書き、不明なら「〇〇様」とする。
+- 挨拶は1文まで。冗長な定型句は入れない。
+- 依頼事項と期限は本文中で独立した行にする。
+- 結びを1文添える。署名は書かない。`
+  },
+  chat: {
+    label: 'チャット連絡',
+    rule: `Slack や Teams に貼る短い連絡文に整える。
+- 敬語は保つが、挨拶と前置きは省く。結論を最初の1行に置く。
+- 全体で5行以内。1行は40字程度まで。
+- 依頼がある場合は行頭に「@担当」の形で誰宛かを示す（名前が不明なら「@担当者」）。
+- 箇条書きは「・」を使う。装飾記号は使わない。`
+  },
+  todo: {
+    label: 'TODO',
+    rule: `実行できる粒度のタスク一覧に分解する。
+- 各行を「- [ ] 動詞で終わらないタスク名 ／ 担当：… ／ 期限：…」の形にする。
+- 担当や期限が本文にないものは「担当：未定」「期限：未定」と明記し、勝手に決めない。
+- 依存関係があるものは順に並べる。
+- 最後に「確認が必要な点」を箇条書きで添える。無ければその見出しごと省く。`
+  },
+  minutes: {
+    label: '議事録',
+    rule: `議事録の体裁に整える。次の見出しをこの順で使い、該当がない見出しは省く。
+## 決定事項
+## 宿題（担当・期限つき）
+## 論点と結論
+## 次回に向けて
+- 事実として述べられたことだけを書く。推測で補わない。
+- 発言者が分かるものは「（田中）」のように末尾に添える。`
+  },
+  summary: {
+    label: '要約',
+    rule: `要点を抜き出す。
+- 冒頭に3行の要約を書く。1行40字以内。
+- そのあと「## 詳細」として箇条書きで補う。
+- 数値・日付・固有名詞は原文のまま残す。
+- 原文にない情報を足さない。`
+  }
+};
+
+const SYSTEM = `あなたは日本語のビジネス文書を整える編集者です。
+渡された文章は、話し言葉、音声入力の書き起こし、断片的なメモのいずれかです。言い淀み、繰り返し、フィラー（えーと、あの、まあ）を取り除き、指定された形式に整えてください。
+
+守ること:
+- 原文にない事実、数値、日付、固有名詞を作らない。不明な箇所は「（未確認）」と明示する。
+- 原文の敬体・常体は形式の指定に従って調整してよいが、内容は変えない。
+- 前置きや説明を書かない。整えた文章そのものだけを返す。
+- コードブロックで囲まない。`;
+
+let kind = 'mail';
+
+// ── 設定の保存（このタブ限り） ─────────────────────────────
+function loadConf(){
+  let saved = {};
+  try{ saved = JSON.parse(sessionStorage.getItem(KEY) || '{}'); }catch{ saved = {}; }
+  const conf = Object.assign({}, DEFAULTS, saved);
+  for (const k of Object.keys(F)) F[k].value = conf[k] || '';
+  return conf;
+}
+function readConf(){
+  const c = {};
+  for (const k of Object.keys(F)) c[k] = F[k].value.trim();
+  if (!c.region) c.region = DEFAULTS.region;
+  if (!c.model) c.model = DEFAULTS.model;
+  return c;
+}
+function saveConf(){
+  try{ sessionStorage.setItem(KEY, JSON.stringify(readConf())); }catch{}
+  refreshState();
+}
+function refreshState(){
+  const c = readConf();
+  const ready = c.ak && c.sk;
+  stateEl.textContent = ready ? c.region + ' / ' + c.model.split('.').pop() : '未設定';
+  stateEl.className = 'state ' + (ready ? 'ok' : '');
+  runBtn.disabled = !ready;
+}
+
+$('save').addEventListener('click', () => { saveConf(); $('conf').open = false; });
+$('forget').addEventListener('click', () => {
+  try{ sessionStorage.removeItem(KEY); }catch{}
+  for (const k of Object.keys(F)) F[k].value = DEFAULTS[k] || '';
+  refreshState();
+});
+for (const k of Object.keys(F)) F[k].addEventListener('input', refreshState);
+
+// ── SigV4（Web Crypto だけで組み立てる） ───────────────────
+const te = new TextEncoder();
+const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+const sha256 = async data => hex(await crypto.subtle.digest('SHA-256', typeof data === 'string' ? te.encode(data) : data));
+async function hmac(key, msg){
+  const k = await crypto.subtle.importKey('raw', typeof key === 'string' ? te.encode(key) : key, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  return crypto.subtle.sign('HMAC', k, te.encode(msg));
+}
+
+async function signedFetch(conf, path, body){
+  const host = new URL(conf.ep || ('https://bedrock-runtime.' + conf.region + '.amazonaws.com')).host;
+  const base = (conf.ep || ('https://bedrock-runtime.' + conf.region + '.amazonaws.com')).replace(/\/+$/, '');
+  const now = new Date();
+  const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '');   // 20260905T012233Z
+  const dateStamp = amzDate.slice(0, 8);
+  const payload = JSON.stringify(body);
+  const payloadHash = await sha256(payload);
+
+  const headers = {
+    'content-type': 'application/json',
+    'host': host,
+    'x-amz-date': amzDate
+  };
+  if (conf.st) headers['x-amz-security-token'] = conf.st;
+
+  const names = Object.keys(headers).sort();
+  const canonicalHeaders = names.map(n => n + ':' + headers[n].trim() + '\n').join('');
+  const signedHeaders = names.join(';');
+
+  // 署名側のパスは 2 重にエンコードする（S3 以外の SigV4 の決まり）
+  const canonicalPath = path.split('/').map(seg => seg ? encodeURIComponent(seg) : seg).join('/');
+  const canonicalRequest = ['POST', canonicalPath, '', canonicalHeaders, signedHeaders, payloadHash].join('\n');
+
+  const scope = [dateStamp, conf.region, 'bedrock', 'aws4_request'].join('/');
+  const stringToSign = ['AWS4-HMAC-SHA256', amzDate, scope, await sha256(canonicalRequest)].join('\n');
+
+  let k = await hmac('AWS4' + conf.sk, dateStamp);
+  k = await hmac(k, conf.region);
+  k = await hmac(k, 'bedrock');
+  k = await hmac(k, 'aws4_request');
+  const signature = hex(await hmac(k, stringToSign));
+
+  const auth = 'AWS4-HMAC-SHA256 Credential=' + conf.ak + '/' + scope
+    + ', SignedHeaders=' + signedHeaders + ', Signature=' + signature;
+
+  const send = { 'content-type': 'application/json', 'x-amz-date': amzDate, 'authorization': auth };
+  if (conf.st) send['x-amz-security-token'] = conf.st;
+
+  return fetch(base + path, { method: 'POST', headers: send, body: payload });
+}
+
+async function callBedrock(conf, text){
+  // 送信するパスは 1 回だけエンコードする
+  const path = '/model/' + encodeURIComponent(conf.model) + '/invoke';
+  const body = {
+    anthropic_version: 'bedrock-2023-05-31',
+    max_tokens: 16000,
+    system: SYSTEM,
+    messages: [{
+      role: 'user',
+      content: [{ type: 'text', text: '次の文章を「' + KINDS[kind].label + '」に整えてください。\n\n【形式の指定】\n' + KINDS[kind].rule + '\n\n【元の文章】\n' + text }]
+    }]
+  };
+
+  let res;
+  try{
+    res = await signedFetch(conf, path, body);
+  }catch(e){
+    throw new Error(
+      '接続できませんでした。ブラウザが遮断した可能性が高いです（' + e.message + '）。\n' +
+      'AWS のエンドポイントは CORS ヘッダーを返さないため、ページから直接呼べないことがあります。\n' +
+      '「接続設定」の ENDPOINT に、同じ形式を中継するプロキシの URL を入れてください。'
+    );
+  }
+  const raw = await res.text();
+  if (!res.ok){
+    let msg = raw;
+    try{ msg = JSON.parse(raw).message || raw; }catch{}
+    throw new Error('Bedrock がエラーを返しました（HTTP ' + res.status + '）\n' + msg);
+  }
+  const data = JSON.parse(raw);
+  const out = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+  if (!out) throw new Error('本文が空で返りました。stop_reason: ' + (data.stop_reason || '不明'));
+  return { text: out, usage: data.usage || null };
+}
+
+// ── 実行 ──────────────────────────────────────────────────
+async function run(){
+  const text = inEl.value.trim();
+  errEl.hidden = true;
+  if (!text){ inEl.focus(); return; }
+
+  const conf = readConf();
+  runBtn.disabled = true;
+  const label = runBtn.textContent;
+  runBtn.textContent = '変換中…';
+  outMeta.textContent = '待機中';
+
+  try{
+    const { text: out, usage } = await callBedrock(conf, text);
+    outEl.value = out;
+    outMeta.textContent = usage
+      ? '入力 ' + usage.input_tokens.toLocaleString() + ' / 出力 ' + usage.output_tokens.toLocaleString() + ' トークン'
+      : out.length.toLocaleString() + ' 文字';
+  }catch(e){
+    outEl.value = '';
+    outMeta.textContent = '失敗';
+    errEl.textContent = e.message;
+    errEl.hidden = false;
+  }finally{
+    runBtn.textContent = label;
+    refreshState();
+  }
+}
+
+$('kinds').addEventListener('click', e => {
+  const b = e.target.closest('.kind');
+  if (!b) return;
+  kind = b.dataset.v;
+  for (const x of document.querySelectorAll('.kind')) x.setAttribute('aria-pressed', String(x === b));
+  outTitle.textContent = KINDS[kind].label;
+});
+
+runBtn.addEventListener('click', run);
+inEl.addEventListener('input', () => { inMeta.textContent = inEl.value.length.toLocaleString() + ' 文字'; });
+$('clear').addEventListener('click', () => { inEl.value = ''; inMeta.textContent = '0 文字'; inEl.focus(); });
+
+// Ctrl / Cmd + Enter でも実行できる
+inEl.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); if (!runBtn.disabled) run(); }
+});
+
+copyBtn.addEventListener('click', () => {
+  if (!outEl.value || !navigator.clipboard || !navigator.clipboard.writeText) return;
+  navigator.clipboard.writeText(outEl.value).then(() => {
+    if (copyBtn.dataset.orig) return;
+    copyBtn.dataset.orig = copyBtn.textContent;
+    copyBtn.textContent = '✓ コピー';
+    setTimeout(() => { copyBtn.textContent = copyBtn.dataset.orig; delete copyBtn.dataset.orig; }, 1000);
+  }, () => {});
+});
+
+// ── 音声入力（Web Speech API） ─────────────────────────────
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (SR){
+  micBtn.hidden = false;
+  const rec = new SR();
+  rec.lang = 'ja-JP';
+  rec.continuous = true;
+  rec.interimResults = true;
+
+  let listening = false;
+  let committed = '';   // 確定済みのテキスト。途中結果は毎回この後ろに描き直す
+
+  rec.onresult = e => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++){
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) committed += t;
+      else interim += t;
+    }
+    inEl.value = committed + interim;
+    inMeta.textContent = inEl.value.length.toLocaleString() + ' 文字';
+  };
+  rec.onerror = ev => {
+    stop();
+    errEl.textContent = ev.error === 'not-allowed'
+      ? 'マイクの使用が許可されていません。ブラウザの設定でこのサイトのマイクを許可してください。'
+      : '音声認識が止まりました（' + ev.error + '）。';
+    errEl.hidden = false;
+  };
+  // continuous でも無音が続くと勝手に終わるので、押している間は繋ぎ直す
+  rec.onend = () => { if (listening) { try{ rec.start(); }catch{} } else { paint(); } };
+
+  function paint(){
+    micBtn.setAttribute('aria-pressed', String(listening));
+    micLabel.textContent = listening ? '停止' : '音声入力';
+  }
+  function start(){
+    committed = inEl.value ? inEl.value.replace(/\s*$/, '') + '\n' : '';
+    listening = true;
+    errEl.hidden = true;
+    try{ rec.start(); }catch{}
+    paint();
+  }
+  function stop(){ listening = false; try{ rec.stop(); }catch{} paint(); }
+
+  micBtn.addEventListener('click', () => listening ? stop() : start());
+}
+
+loadConf();
+refreshState();
+outTitle.textContent = KINDS[kind].label;
+</script>
+</body>
+</html>
