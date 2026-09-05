@@ -14,6 +14,9 @@
   --ink:#131820;--ink-2:#525A67;--ink-3:#828B98;
   --rule:#D8DEE6;--rule-strong:#BDC5D1;--accent:#1257A6;--accent-ink:#0D4381;
   --tile:#E4E8ED;--tile-hover:#D5DBE3;
+  --r-md:10px; --r-lg:14px;
+  --shadow-1:0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.06);
+  --shadow-2:0 10px 24px rgba(15,23,42,.10), 0 3px 8px rgba(15,23,42,.06);
   --mono:'JetBrains Mono',Consolas,monospace;
   --sans:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic UI',system-ui,sans-serif;
 }
@@ -22,12 +25,16 @@
   --ink:#E6EAF1;--ink-2:#99A3B1;--ink-3:#77818F;
   --rule:#252C35;--rule-strong:#37404A;--accent:#63B3F5;--accent-ink:#8CC8FA;
   --tile:#2A2F36;--tile-hover:#343A43;
+  --shadow-1:0 1px 2px rgba(0,0,0,.30), 0 1px 3px rgba(0,0,0,.24);
+  --shadow-2:0 12px 28px rgba(0,0,0,.46), 0 3px 8px rgba(0,0,0,.32);
 }}
 :root[data-theme="dark"]{
   --paper:#0F1216;--surface:#151A21;--surface-2:#1B222A;
   --ink:#E6EAF1;--ink-2:#99A3B1;--ink-3:#77818F;
   --rule:#252C35;--rule-strong:#37404A;--accent:#63B3F5;--accent-ink:#8CC8FA;
   --tile:#2A2F36;--tile-hover:#343A43;
+  --shadow-1:0 1px 2px rgba(0,0,0,.30), 0 1px 3px rgba(0,0,0,.24);
+  --shadow-2:0 12px 28px rgba(0,0,0,.46), 0 3px 8px rgba(0,0,0,.32);
 }
 *{box-sizing:border-box}
 html{color-scheme:light dark}
@@ -35,19 +42,23 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);l
 img{max-width:100%}
 
 .wrap{max-width:1180px;margin:0 auto;padding:52px 28px 96px}
-.masthead{border-bottom:1px solid var(--rule-strong);padding-bottom:24px;margin-bottom:36px}
+.masthead{border-bottom:1px solid var(--rule);padding-bottom:28px;margin-bottom:44px}
 .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);margin:0 0 10px}
-h1{font-size:clamp(24px,3.2vw,32px);font-weight:700;margin:0 0 12px;letter-spacing:.01em}
-.lede{margin:0;color:var(--ink-2);font-size:14px}
+h1{font-size:clamp(28px,3.6vw,40px);font-weight:700;margin:0 0 14px;letter-spacing:-.02em;line-height:1.2}
+.lede{margin:0;color:var(--ink-2);font-size:14.5px;line-height:1.75}
 .totals{
-  display:flex;flex-wrap:wrap;gap:6px 24px;margin:18px 0 0;padding:0;list-style:none;
+  display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 0;padding:0;list-style:none;
   font-family:var(--mono);font-size:12px;color:var(--ink-3);
+}
+.totals li{
+  background:var(--surface);border:1px solid var(--rule);border-radius:999px;
+  padding:5px 14px;box-shadow:var(--shadow-1);
 }
 .totals b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
 
 .grid{
   display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));
-  gap:18px;margin-bottom:44px;justify-items:center;
+  gap:22px;margin-bottom:52px;justify-items:center;
 }
 
 .tile{
@@ -55,9 +66,10 @@ h1{font-size:clamp(24px,3.2vw,32px);font-weight:700;margin:0 0 12px;letter-spaci
   text-align:center;text-decoration:none;color:inherit;background:var(--tile);
   border:2px solid var(--accent);border-radius:50%;
   width:100%;max-width:180px;aspect-ratio:1;padding:18px;min-width:0;
-  transition:background .12s,border-color .12s,transform .12s;
+  box-shadow:var(--shadow-1);
+  transition:background .16s,border-color .16s,transform .16s,box-shadow .16s;
 }
-.tile:hover{background:var(--tile-hover);border-color:var(--accent-ink);transform:translateY(-2px)}
+.tile:hover{background:var(--tile-hover);border-color:var(--accent-ink);transform:translateY(-3px);box-shadow:var(--shadow-2)}
 .tile:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .name{font-size:15.5px;font-weight:700;line-height:1.35;word-break:break-word}
 .kind{
@@ -73,12 +85,12 @@ h1{font-size:clamp(24px,3.2vw,32px);font-weight:700;margin:0 0 12px;letter-spaci
   font-variant-numeric:tabular-nums;margin-right:3px;
 }
 
-footer{border-top:1px solid var(--rule-strong);padding-top:18px;color:var(--ink-3);font-size:12.5px}
+footer{border-top:1px solid var(--rule);padding-top:22px;color:var(--ink-3);font-size:12.5px}
 footer p{margin:0 0 6px}
 @media (max-width:680px){
   .wrap{padding:36px 18px 70px}
 }
-@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}.tile:hover{transform:none}}
 </style>
 </head>
 <body>
