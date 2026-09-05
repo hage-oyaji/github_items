@@ -167,6 +167,25 @@ code{font-family:var(--mono);font-size:.88em;font-weight:500}
 .field input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .field.wide{grid-column:1/-1}
 .conf-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:16px}
+.picker{margin-top:16px;border:1px solid var(--rule);border-radius:var(--r-sm);overflow:hidden}
+.picker-head{
+  margin:0;padding:9px 13px;background:var(--surface-2);border-bottom:1px solid var(--rule);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--ink-3);
+}
+.picker-list{max-height:280px;overflow-y:auto}
+.pick{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;width:100%;
+  background:transparent;border:0;border-bottom:1px solid var(--rule);
+  padding:9px 13px;cursor:pointer;text-align:left;
+  transition:background .12s;
+}
+.pick:last-child{border-bottom:0}
+.pick:hover{background:var(--surface-2)}
+.pick:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.pick b{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink);word-break:break-all}
+.pick span{font-family:var(--mono);font-size:10px;color:var(--ink-3);white-space:nowrap}
+.pick.on b{color:var(--accent-ink);font-weight:700}
+
 .conf-note{margin:14px 0 0;font-size:12.5px;color:var(--ink-2);line-height:1.75}
 .conf-note b{color:var(--warn)}
 
@@ -257,8 +276,8 @@ code{font-family:var(--mono);font-size:.88em;font-weight:500}
           <input id="region" spellcheck="false" autocomplete="off" placeholder="ap-northeast-1">
         </div>
         <div class="field">
-          <label for="model">MODEL ID</label>
-          <input id="model" spellcheck="false" autocomplete="off" placeholder="anthropic.claude-opus-5">
+          <label for="model">MODEL ID（「使えるモデルを取得」から選ぶ）</label>
+          <input id="model" spellcheck="false" autocomplete="off" placeholder="apac.anthropic.claude-...-v1:0">
         </div>
         <div class="field wide">
           <label for="ak">ACCESS KEY ID</label>
@@ -279,7 +298,12 @@ code{font-family:var(--mono);font-size:.88em;font-weight:500}
       </div>
       <div class="conf-foot">
         <button class="btn" id="save" type="button">保存</button>
+        <button class="btn ghost" id="list" type="button">使えるモデルを取得</button>
         <button class="btn ghost" id="forget" type="button">消す</button>
+      </div>
+      <div class="picker" id="picker" hidden>
+        <p class="picker-head" id="pickerHead"></p>
+        <div class="picker-list" id="pickerList"></div>
       </div>
       <p class="conf-note">
         入力した値は <b>このタブの sessionStorage にだけ</b>置き、タブを閉じると消える。サーバーにも保存されない。
@@ -301,7 +325,10 @@ code{font-family:var(--mono);font-size:.88em;font-weight:500}
     <ul>
       <li>ブラウザから Bedrock の <code>InvokeModel</code> を <b>SigV4 で署名して</b>直接呼ぶ。署名は Web Crypto で組み立てており、外部ライブラリは読み込まない。</li>
       <li><b>AWS のサービスエンドポイントは CORS ヘッダーを返さない。</b>ブラウザから直に叩くと、署名が正しくてもブラウザ側で遮断されることがある。その場合は「接続設定」の ENDPOINT に、同じ形式を中継する自前のプロキシ（API Gateway + Lambda など）の URL を入れる。失敗時はどちらが原因かを画面に出す。</li>
-      <li>使うモデルは設定で変えられる。推論プロファイル経由なら <code>apac.anthropic.…</code> のような ID を入れる。</li>
+      <li><b>モデル ID はアカウントとリージョンで違う。</b>「接続設定」の<b>「使えるモデルを取得」</b>を押すと、
+        その資格情報で実際に呼べるものを <code>ListInferenceProfiles</code> と <code>ListFoundationModels</code> から集めて並べる。クリックで選べる。</li>
+      <li>新しめのモデルは <b>ID を直接指定して呼べず、推論プロファイル</b>（<code>apac.</code> / <code>us.</code> / <code>eu.</code> で始まる ID）が要る。
+        一覧では「推論プロファイル」と付いているものがそれ。</li>
       <li>入力文はモデルへの問い合わせにのみ使う。<b>このページ自体はどこにも記録を残さない。</b></li>
     </ul>
   </section>
@@ -315,7 +342,7 @@ const runBtn = $('run'), copyBtn = $('copy'), micBtn = $('mic'), micLabel = $('m
 const stateEl = $('state');
 const F = { region: $('region'), model: $('model'), ak: $('ak'), sk: $('sk'), st: $('st'), ep: $('ep') };
 
-const DEFAULTS = { region: 'ap-northeast-1', model: 'anthropic.claude-opus-5', ak: '', sk: '', st: '', ep: '' };
+const DEFAULTS = { region: 'ap-northeast-1', model: '', ak: '', sk: '', st: '', ep: '' };
 const KEY = 'bedrock-conf';
 
 // ── 形式ごとの指示 ────────────────────────────────────────
@@ -388,7 +415,6 @@ function readConf(){
   const c = {};
   for (const k of Object.keys(F)) c[k] = F[k].value.trim();
   if (!c.region) c.region = DEFAULTS.region;
-  if (!c.model) c.model = DEFAULTS.model;
   return c;
 }
 function saveConf(){
@@ -397,11 +423,18 @@ function saveConf(){
 }
 function refreshState(){
   const c = readConf();
-  const ready = c.ak && c.sk;
-  stateEl.textContent = ready ? c.region + ' / ' + c.model.split('.').pop() : '未設定';
+  const ready = c.ak && c.sk && c.model;
+  stateEl.textContent = ready ? c.region + ' / ' + shortModel(c.model)
+    : (c.ak && c.sk ? 'モデル未選択' : '未設定');
   stateEl.className = 'state ' + (ready ? 'ok' : '');
   runBtn.disabled = !ready;
+  $('list').disabled = !(c.ak && c.sk);
 }
+// apac.anthropic.claude-sonnet-4-5-20250929-v1:0 → claude-sonnet-4-5
+const shortModel = id => {
+  const m = id.match(/claude[a-z0-9-]*?(?=-\d{8}|-v\d|$)/i);
+  return m ? m[0] : id.split('.').pop();
+};
 
 $('save').addEventListener('click', () => { saveConf(); $('conf').open = false; });
 $('forget').addEventListener('click', () => {
@@ -420,20 +453,19 @@ async function hmac(key, msg){
   return crypto.subtle.sign('HMAC', k, te.encode(msg));
 }
 
-async function signedFetch(conf, path, body){
-  const host = new URL(conf.ep || ('https://bedrock-runtime.' + conf.region + '.amazonaws.com')).host;
-  const base = (conf.ep || ('https://bedrock-runtime.' + conf.region + '.amazonaws.com')).replace(/\/+$/, '');
+async function signedFetch(conf, opts){
+  const { method = 'POST', path, query = {}, body = null, endpoint } = opts;
+  const origin = (endpoint || conf.ep || ('https://bedrock-runtime.' + conf.region + '.amazonaws.com')).replace(/\/+$/, '');
+  const host = new URL(origin).host;
+  const base = origin;
   const now = new Date();
   const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '');   // 20260905T012233Z
   const dateStamp = amzDate.slice(0, 8);
-  const payload = JSON.stringify(body);
+  const payload = body === null ? '' : JSON.stringify(body);
   const payloadHash = await sha256(payload);
 
-  const headers = {
-    'content-type': 'application/json',
-    'host': host,
-    'x-amz-date': amzDate
-  };
+  const headers = { 'host': host, 'x-amz-date': amzDate };
+  if (body !== null) headers['content-type'] = 'application/json';
   if (conf.st) headers['x-amz-security-token'] = conf.st;
 
   const names = Object.keys(headers).sort();
@@ -442,7 +474,9 @@ async function signedFetch(conf, path, body){
 
   // 署名側のパスは 2 重にエンコードする（S3 以外の SigV4 の決まり）
   const canonicalPath = path.split('/').map(seg => seg ? encodeURIComponent(seg) : seg).join('/');
-  const canonicalRequest = ['POST', canonicalPath, '', canonicalHeaders, signedHeaders, payloadHash].join('\n');
+  const canonicalQuery = Object.keys(query).sort()
+    .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(query[k])).join('&');
+  const canonicalRequest = [method, canonicalPath, canonicalQuery, canonicalHeaders, signedHeaders, payloadHash].join('\n');
 
   const scope = [dateStamp, conf.region, 'bedrock', 'aws4_request'].join('/');
   const stringToSign = ['AWS4-HMAC-SHA256', amzDate, scope, await sha256(canonicalRequest)].join('\n');
@@ -456,11 +490,100 @@ async function signedFetch(conf, path, body){
   const auth = 'AWS4-HMAC-SHA256 Credential=' + conf.ak + '/' + scope
     + ', SignedHeaders=' + signedHeaders + ', Signature=' + signature;
 
-  const send = { 'content-type': 'application/json', 'x-amz-date': amzDate, 'authorization': auth };
+  const send = { 'x-amz-date': amzDate, 'authorization': auth };
+  if (body !== null) send['content-type'] = 'application/json';
   if (conf.st) send['x-amz-security-token'] = conf.st;
 
-  return fetch(base + path, { method: 'POST', headers: send, body: payload });
+  const url = base + path + (canonicalQuery ? '?' + canonicalQuery : '');
+  return fetch(url, { method, headers: send, body: body === null ? undefined : payload });
 }
+
+const CORS_HINT =
+  'ブラウザが遮断した可能性があります。AWS のエンドポイントは CORS ヘッダーを返さないため、\n' +
+  'ページから直接呼べないことがあります。「ENDPOINT」に中継プロキシの URL を入れてください。';
+
+// 使えるモデルを、推論プロファイルと基盤モデルの両方から集める
+async function fetchModels(conf){
+  const control = 'https://bedrock.' + conf.region + '.amazonaws.com';
+  const get = async (path, query) => {
+    const res = await signedFetch(conf, { method: 'GET', path, query, endpoint: control });
+    const raw = await res.text();
+    if (!res.ok){
+      let msg = raw;
+      try{ msg = JSON.parse(raw).message || raw; }catch{}
+      throw new Error('一覧を取得できません（HTTP ' + res.status + '）\n' + msg);
+    }
+    return JSON.parse(raw);
+  };
+
+  const out = [];
+  // 推論プロファイル。新しめのモデルはこちらの ID でしか呼べない
+  try{
+    const p = await get('/inference-profiles', { maxResults: '1000' });
+    for (const x of p.inferenceProfileSummaries || []){
+      if (!/anthropic/i.test(x.inferenceProfileId || '')) continue;
+      if (x.status && x.status !== 'ACTIVE') continue;
+      out.push({ id: x.inferenceProfileId, kind: '推論プロファイル' });
+    }
+  }catch(e){ if (!out.length) throw e; }
+
+  // オンデマンドで直接呼べる基盤モデル
+  try{
+    const f = await get('/foundation-models', { byProvider: 'anthropic', byInferenceType: 'ON_DEMAND' });
+    for (const x of f.modelSummaries || []){
+      if ((x.modelLifecycle || {}).status === 'LEGACY') continue;
+      if (out.some(o => o.id === x.modelId)) continue;
+      out.push({ id: x.modelId, kind: 'オンデマンド' });
+    }
+  }catch(e){ if (!out.length) throw e; }
+
+  return out;
+}
+
+function renderModels(items){
+  const picker = $('picker'), head = $('pickerHead'), list = $('pickerList');
+  picker.hidden = false;
+  if (!items.length){
+    head.textContent = '使えるモデルが見つかりません';
+    list.innerHTML = '';
+    return;
+  }
+  head.textContent = items.length + ' 件 · クリックで選ぶ';
+  const cur = readConf().model;
+  list.innerHTML = '';
+  for (const it of items){
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'pick' + (it.id === cur ? ' on' : '');
+    b.innerHTML = '<b></b><span></span>';
+    b.querySelector('b').textContent = it.id;
+    b.querySelector('span').textContent = it.kind;
+    b.addEventListener('click', () => {
+      F.model.value = it.id;
+      for (const x of list.querySelectorAll('.pick')) x.classList.toggle('on', x === b);
+      saveConf();
+    });
+    list.appendChild(b);
+  }
+}
+
+$('list').addEventListener('click', async () => {
+  const btn = $('list');
+  const label = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '取得中…';
+  errEl.hidden = true;
+  try{
+    renderModels(await fetchModels(readConf()));
+  }catch(e){
+    $('picker').hidden = true;
+    errEl.textContent = e.message + (/Failed to fetch|NetworkError|Load failed/i.test(e.message) ? '\n' + CORS_HINT : '');
+    errEl.hidden = false;
+  }finally{
+    btn.textContent = label;
+    refreshState();
+  }
+});
 
 async function callBedrock(conf, text){
   // 送信するパスは 1 回だけエンコードする
@@ -477,19 +600,15 @@ async function callBedrock(conf, text){
 
   let res;
   try{
-    res = await signedFetch(conf, path, body);
+    res = await signedFetch(conf, { path, body });
   }catch(e){
-    throw new Error(
-      '接続できませんでした。ブラウザが遮断した可能性が高いです（' + e.message + '）。\n' +
-      'AWS のエンドポイントは CORS ヘッダーを返さないため、ページから直接呼べないことがあります。\n' +
-      '「接続設定」の ENDPOINT に、同じ形式を中継するプロキシの URL を入れてください。'
-    );
+    throw new Error('接続できませんでした（' + e.message + '）。\n' + CORS_HINT);
   }
   const raw = await res.text();
   if (!res.ok){
     let msg = raw;
     try{ msg = JSON.parse(raw).message || raw; }catch{}
-    throw new Error('Bedrock がエラーを返しました（HTTP ' + res.status + '）\n' + msg);
+    throw new Error('Bedrock がエラーを返しました（HTTP ' + res.status + '）\n' + msg + hintFor(res.status, msg));
   }
   const data = JSON.parse(raw);
   const out = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
@@ -498,6 +617,22 @@ async function callBedrock(conf, text){
 }
 
 // ── 実行 ──────────────────────────────────────────────────
+// よくある失敗に、次の一手を添える
+function hintFor(status, msg){
+  const m = String(msg);
+  if (/on-demand throughput isn.t supported|inference profile/i.test(m))
+    return '\n\n→ このモデルは ID を直接指定して呼べません。「使えるモデルを取得」から'
+         + '「推論プロファイル」と付いた ID（apac. / us. / eu. で始まるもの）を選んでください。';
+  if (status === 403 || /AccessDenied|not authorized/i.test(m))
+    return '\n\n→ 権限がありません。Bedrock コンソールでそのモデルの利用を有効にしているか、'
+         + 'IAM に bedrock:InvokeModel があるかを確認してください。';
+  if (status === 404 || /ResourceNotFound|model identifier is invalid/i.test(m))
+    return '\n\n→ モデル ID かリージョンが違います。「使えるモデルを取得」で一覧から選び直してください。';
+  if (status === 400 && /ValidationException/i.test(m))
+    return '\n\n→ リクエストが受け付けられませんでした。リージョンとモデル ID の組み合わせを確認してください。';
+  return '';
+}
+
 async function run(){
   const text = inEl.value.trim();
   errEl.hidden = true;
