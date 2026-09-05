@@ -45,13 +45,16 @@ h1{font-size:clamp(24px,3.2vw,32px);font-weight:700;margin:0 0 12px;letter-spaci
 }
 .totals b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
 
-.grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:44px}
+.grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(146px,1fr));
+  gap:18px;margin-bottom:44px;justify-items:center;
+}
 
 .tile{
-  display:flex;flex-direction:column;align-items:flex-start;
-  text-decoration:none;color:inherit;background:var(--tile);
-  border:1px solid var(--tile-rule);border-top:2px solid var(--accent);border-radius:10px;
-  padding:13px 13px 11px;min-width:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;text-decoration:none;color:inherit;background:var(--tile);
+  border:1px solid var(--tile-rule);border-top:2px solid var(--accent);border-radius:50%;
+  width:100%;max-width:168px;aspect-ratio:1;padding:16px;min-width:0;
   transition:background .12s,border-color .12s,transform .12s;
 }
 .tile:hover{background:var(--tile-hover);border-color:var(--accent);transform:translateY(-2px)}
@@ -59,10 +62,10 @@ h1{font-size:clamp(24px,3.2vw,32px);font-weight:700;margin:0 0 12px;letter-spaci
 .name{font-size:13.5px;font-weight:700;line-height:1.35;word-break:break-word}
 .kind{
   font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;
-  color:var(--ink-3);margin-top:1px;margin-bottom:10px;
+  color:var(--ink-3);margin-top:2px;
 }
 .stat{
-  width:100%;border-top:1px solid var(--tile-rule);padding-top:8px;margin-top:auto;
+  margin-top:9px;
   font-family:var(--mono);font-size:10px;color:var(--ink-3);
 }
 .stat b{
@@ -72,10 +75,8 @@ h1{font-size:clamp(24px,3.2vw,32px);font-weight:700;margin:0 0 12px;letter-spaci
 
 footer{border-top:1px solid var(--rule-strong);padding-top:18px;color:var(--ink-3);font-size:12.5px}
 footer p{margin:0 0 6px}
-@media (max-width:1040px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:680px){
   .wrap{padding:36px 18px 70px}
-  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style>
