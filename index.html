@@ -50,7 +50,7 @@ img{max-width:100%}
     radial-gradient(52% 40% at 94% 2%, color-mix(in srgb,var(--accent) 11%,transparent), transparent 70%);
 }
 
-.wrap{max-width:1240px;margin:0 auto;padding:76px 28px 96px}
+.wrap{max-width:1360px;margin:0 auto;padding:76px 28px 96px}
 
 .hero{margin-bottom:52px}
 .eyebrow{
@@ -92,14 +92,16 @@ h1 i{color:var(--accent);font-style:normal}
   overflow:hidden;box-shadow:var(--shadow-1);
 }
 .grid{display:grid;grid-template-columns:1fr;margin:0 -1px -1px 0}
-/* 列数は固定する。auto-fill だと幅によって最終行の埋まり方が変わる */
-@media (min-width:620px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (min-width:1000px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* 列数は幅ごとに固定する。auto-fill だと1枚あたりの幅が揃わない */
+@media (min-width:520px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:720px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:960px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (min-width:1200px){.grid{grid-template-columns:repeat(6,minmax(0,1fr))}}
 
 .card{
   position:relative;isolation:isolate;
-  display:flex;flex-direction:column;min-height:196px;
-  padding:20px 22px 22px;text-decoration:none;color:inherit;
+  display:flex;flex-direction:column;min-height:172px;
+  padding:16px 17px 18px;text-decoration:none;color:inherit;
   background:var(--surface);
   border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);
   transition:background .18s;
@@ -121,28 +123,21 @@ h1 i{color:var(--accent);font-style:normal}
 
 .idx{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--ink-3)}
 .go{
-  position:absolute;top:17px;right:19px;
+  position:absolute;top:15px;right:16px;
   font-family:var(--mono);font-size:14px;color:var(--ink-3);
   transition:transform .2s cubic-bezier(.2,.7,.3,1),color .2s;
 }
 .card:hover .go{transform:translateX(4px);color:var(--accent)}
-.name{margin-top:20px;font-size:21px;font-weight:700;letter-spacing:-.02em;line-height:1.24}
+.name{margin-top:18px;font-size:16.5px;font-weight:700;letter-spacing:-.02em;line-height:1.24}
 .kind{margin-top:5px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--ink-3)}
 .count{
-  margin-top:auto;padding-top:14px;
+  margin-top:auto;padding-top:12px;
   display:flex;align-items:baseline;gap:6px;
   font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--ink-3);
 }
 .count b{
-  font-size:27px;font-weight:700;letter-spacing:-.02em;color:var(--accent-ink);
+  font-size:23px;font-weight:700;letter-spacing:-.02em;color:var(--accent-ink);
   font-variant-numeric:tabular-nums;
-}
-
-/* 3列のときだけ先頭を横2つ分にする。8枚 + 1 = 9セルで3行がぴったり埋まる */
-@media (min-width:1000px){
-  .card.lead{grid-column:span 2}
-  .card.lead .name{margin-top:26px;font-size:30px}
-  .card.lead .count b{font-size:34px}
 }
 
 .empty{
@@ -155,9 +150,8 @@ footer p{margin:0 0 6px;max-width:80em}
 
 @media (max-width:680px){
   .wrap{padding:48px 18px 70px}
-  .card{min-height:158px;padding:16px 17px 18px}
-  .name{margin-top:16px;font-size:17px}
-  .count b{font-size:22px}
+  .card{min-height:150px;padding:14px 15px 16px}
+  .name{margin-top:14px;font-size:16px}
 }
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style>
@@ -183,7 +177,7 @@ footer p{margin:0 0 6px;max-width:80em}
 
   <div class="sheet" id="sheet">
     <div class="grid" id="grid">
-    <a class="card lead" href="articles/claude-code-commands/" title="Claude Code コマンド索引" data-s="claude code クロード コマンド cli">
+    <a class="card" href="articles/claude-code-commands/" title="Claude Code コマンド索引" data-s="claude code クロード コマンド cli">
       <span class="idx">01</span><span class="go" aria-hidden="true">→</span>
       <span class="name">Claude Code</span>
       <span class="kind">コマンド</span>
