@@ -86,30 +86,38 @@ h1 i{color:var(--accent);font-style:normal}
 }
 .totals b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums;font-size:13px}
 
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));gap:14px}
+/* 外枠。はみ出した最終列・最終行の罫線をここで刈る */
+.sheet{
+  background:var(--surface);border:1px solid var(--rule);border-radius:var(--r-lg);
+  overflow:hidden;box-shadow:var(--shadow-1);
+}
+.grid{display:grid;grid-template-columns:1fr;margin:0 -1px -1px 0}
+/* 列数は固定する。auto-fill だと幅によって最終行の埋まり方が変わる */
+@media (min-width:620px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:1000px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
 .card{
-  position:relative;overflow:hidden;isolation:isolate;
-  display:flex;flex-direction:column;min-height:186px;
-  padding:18px 20px 20px;text-decoration:none;color:inherit;
-  background:var(--surface);border:1px solid var(--rule);border-radius:var(--r-lg);
-  box-shadow:var(--shadow-1);
-  transition:transform .2s cubic-bezier(.2,.7,.3,1),border-color .2s,box-shadow .2s;
+  position:relative;isolation:isolate;
+  display:flex;flex-direction:column;min-height:196px;
+  padding:20px 22px 22px;text-decoration:none;color:inherit;
+  background:var(--surface);
+  border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  transition:background .18s;
 }
-/* 上端を走るアクセント線。ホバーで左から伸びる */
+/* ホバーで四辺すべてに枠線が乗る。inset は padding box 基準なので、
+   カード自身の右下の罫線に重ねる分だけ 1px はみ出させる */
 .card::before{
-  content:'';position:absolute;inset:0 0 auto;height:2px;z-index:1;
-  background:linear-gradient(90deg,var(--accent),transparent);
-  transform:scaleX(0);transform-origin:0 50%;transition:transform .32s cubic-bezier(.2,.7,.3,1);
+  content:'';position:absolute;inset:0 -1px -1px 0;z-index:2;pointer-events:none;
+  border:1px solid var(--accent);opacity:0;transition:opacity .2s;
 }
 .card::after{
   content:'';position:absolute;inset:0;z-index:-1;opacity:0;transition:opacity .28s;
   background:radial-gradient(120% 92% at 100% 0, color-mix(in srgb,var(--accent) 14%,transparent), transparent 62%);
 }
-.card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:var(--shadow-2)}
-.card:hover::before{transform:scaleX(1)}
+.card:hover{background:var(--surface-2)}
+.card:hover::before{opacity:1}
 .card:hover::after{opacity:1}
-.card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.card:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
 
 .idx{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--ink-3)}
 .go{
@@ -130,8 +138,8 @@ h1 i{color:var(--accent);font-style:normal}
   font-variant-numeric:tabular-nums;
 }
 
-/* 先頭の1枚だけ横2つ分。索引の入口をはっきりさせる */
-@media (min-width:800px){
+/* 3列のときだけ先頭を横2つ分にする。8枚 + 1 = 9セルで3行がぴったり埋まる */
+@media (min-width:1000px){
   .card.lead{grid-column:span 2}
   .card.lead .name{margin-top:26px;font-size:30px}
   .card.lead .count b{font-size:34px}
@@ -147,16 +155,11 @@ footer p{margin:0 0 6px;max-width:80em}
 
 @media (max-width:680px){
   .wrap{padding:48px 18px 70px}
-  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
-  .card{min-height:158px;padding:15px 16px 17px}
+  .card{min-height:158px;padding:16px 17px 18px}
   .name{margin-top:16px;font-size:17px}
   .count b{font-size:22px}
 }
-@media (prefers-reduced-motion: reduce){
-  *{transition:none!important}
-  .card:hover{transform:none}
-  .card::before{transform:scaleX(1)}
-}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
@@ -178,7 +181,8 @@ footer p{margin:0 0 6px;max-width:80em}
     </div>
   </header>
 
-  <div class="grid" id="grid">
+  <div class="sheet" id="sheet">
+    <div class="grid" id="grid">
     <a class="card lead" href="articles/claude-code-commands/" title="Claude Code コマンド索引" data-s="claude code クロード コマンド cli">
       <span class="idx">01</span><span class="go" aria-hidden="true">→</span>
       <span class="name">Claude Code</span>
@@ -228,6 +232,7 @@ footer p{margin:0 0 6px;max-width:80em}
       <span class="count"><b>323</b>項目</span>
     </a>
   </div>
+  </div>
   <p class="empty" id="empty" hidden>該当なし</p>
 
   <footer>
@@ -240,6 +245,7 @@ footer p{margin:0 0 6px;max-width:80em}
 const q = document.getElementById('q');
 const cards = [...document.querySelectorAll('.card')];
 const empty = document.getElementById('empty');
+const sheet = document.getElementById('sheet');
 
 function apply(){
   const term = q.value.trim().toLowerCase();
@@ -250,6 +256,7 @@ function apply(){
     if (ok) shown++;
   }
   empty.hidden = shown > 0;
+  sheet.hidden = shown === 0;
 }
 q.addEventListener('input', apply);
 apply();
