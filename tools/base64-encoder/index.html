@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Base64 エンコーダー</title>
-<meta name="description" content="テキストと Base64 の相互変換をブラウザ内で行うツール。UTF-8 で正しく扱い、標準と URL セーフ（-_、パディングなし）を切り替えられる。">
+<meta name="description" content="テキストと画像を Base64 に相互変換するツール。UTF-8 を正しく扱い、標準と URL セーフを切り替えられる。画像はドラッグ&ドロップで data URI にでき、Base64 からのプレビューと保存にも対応。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
@@ -46,6 +46,7 @@ body{
   font-family:var(--sans);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;
 }
 code{font-family:var(--mono);font-size:.88em;font-weight:500}
+[hidden]{display:none!important}
 
 .bar{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--rule);box-shadow:var(--shadow-1)}
 @supports (backdrop-filter:blur(2px)){
@@ -97,9 +98,9 @@ code{font-family:var(--mono);font-size:.88em;font-weight:500}
   padding:11px 16px;background:var(--surface-2);border-bottom:1px solid var(--rule);
 }
 .pane-head h2{margin:0;font-size:12px;font-weight:700;letter-spacing:.02em}
-.pane-head .meta{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.pane-head .meta{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;text-align:right}
 .pane textarea{
-  width:100%;min-height:236px;resize:vertical;
+  width:100%;min-height:252px;resize:vertical;flex:1 1 auto;
   font-family:var(--mono);font-size:13px;line-height:1.7;color:var(--ink);
   background:transparent;border:0;padding:14px 16px;word-break:break-all;
 }
@@ -107,10 +108,34 @@ code{font-family:var(--mono);font-size:.88em;font-weight:500}
 .pane textarea::placeholder{font-family:var(--sans);color:var(--ink-3);word-break:normal}
 .pane-foot{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px;border-top:1px solid var(--rule)}
 
+/* 画像の受け口。ドラッグ中は枠がアクセント色になる */
+.drop{
+  flex:1 1 auto;min-height:252px;margin:14px 16px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  border:1.5px dashed var(--rule-strong);border-radius:var(--r-md);
+  padding:20px;text-align:center;cursor:pointer;
+  transition:border-color .14s,background .14s;
+}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--surface-2)}
+.drop:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.drop-mark{font-family:var(--mono);font-size:26px;color:var(--accent);line-height:1}
+.drop-text{font-size:13px;color:var(--ink-2)}
+.drop-hint{font-family:var(--mono);font-size:10.5px;color:var(--ink-3)}
+
+.shot{
+  flex:1 1 auto;min-height:252px;margin:14px 16px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  border:1px solid var(--rule);border-radius:var(--r-md);background:var(--surface-2);padding:16px;
+}
+.shot img{max-width:100%;max-height:340px;border-radius:var(--r-sm);background:#FFFFFF;box-shadow:var(--shadow-1)}
+.shot .info{font-family:var(--mono);font-size:11px;color:var(--ink-3);text-align:center;line-height:1.7}
+.shot .placeholder{font-family:var(--mono);font-size:12.5px;color:var(--ink-3)}
+
 .btn{
   font-family:var(--sans);font-size:12.5px;font-weight:500;line-height:1;cursor:pointer;
   background:var(--accent);border:1px solid var(--accent);color:#FFFFFF;
-  padding:9px 14px;border-radius:var(--r-md);min-width:72px;
+  padding:9px 14px;border-radius:var(--r-md);min-width:72px;text-decoration:none;
+  display:inline-flex;align-items:center;justify-content:center;
   transition:opacity .12s,transform .12s,color .12s,border-color .12s;
 }
 :root[data-theme="dark"] .btn:not(.ghost){color:#0B1016}
@@ -130,6 +155,7 @@ code{font-family:var(--mono);font-size:.88em;font-weight:500}
 
 .note{margin-top:34px;border-top:1px solid var(--rule);padding-top:22px;color:var(--ink-2);font-size:13px}
 .note h3{margin:0 0 10px;font-size:14px;font-weight:700;color:var(--ink)}
+.note h3:not(:first-child){margin-top:20px}
 .note ul{margin:0;padding-left:1.2em}
 .note li{margin-bottom:7px}
 .note code{background:var(--surface-2);border-radius:5px;padding:2px 5px;color:var(--ink)}
@@ -146,7 +172,7 @@ code{font-family:var(--mono);font-size:.88em;font-weight:500}
     <a class="home" href="../../" title="索引に戻る"><i>‹</i>索引</a>
     <div class="brand">
       <span class="brand-name">Base64 エンコーダー</span>
-      <span class="brand-meta">UTF-8 / RFC 4648</span>
+      <span class="brand-meta">テキスト / 画像 · UTF-8 · RFC 4648</span>
     </div>
   </div>
 </header>
@@ -154,17 +180,31 @@ code{font-family:var(--mono);font-size:.88em;font-weight:500}
 <main class="shell">
   <div class="opts">
     <div class="opt">
+      <span class="opt-label">SOURCE</span>
+      <div class="seg" id="mode" role="radiogroup" aria-label="扱う対象">
+        <button type="button" role="radio" data-v="text" aria-checked="true">テキスト</button>
+        <button type="button" role="radio" data-v="image" aria-checked="false">画像</button>
+      </div>
+    </div>
+    <div class="opt">
       <span class="opt-label">DIRECTION</span>
       <div class="seg" id="dir" role="radiogroup" aria-label="変換の向き">
         <button type="button" role="radio" data-v="encode" aria-checked="true">エンコード</button>
         <button type="button" role="radio" data-v="decode" aria-checked="false">デコード</button>
       </div>
     </div>
-    <div class="opt">
+    <div class="opt" id="variantOpt">
       <span class="opt-label">ALPHABET</span>
       <div class="seg" id="variant" role="radiogroup" aria-label="文字種">
         <button type="button" role="radio" data-v="std" aria-checked="true">標準</button>
         <button type="button" role="radio" data-v="url" aria-checked="false">URL セーフ</button>
+      </div>
+    </div>
+    <div class="opt" id="wrapOpt" hidden>
+      <span class="opt-label">OUTPUT</span>
+      <div class="seg" id="wrap" role="radiogroup" aria-label="出力の形">
+        <button type="button" role="radio" data-v="raw" aria-checked="true">Base64 のみ</button>
+        <button type="button" role="radio" data-v="datauri" aria-checked="false">data URI</button>
       </div>
     </div>
   </div>
@@ -175,8 +215,17 @@ code{font-family:var(--mono);font-size:.88em;font-weight:500}
         <h2 id="inTitle">テキスト</h2>
         <span class="meta" id="inMeta">0 文字 / 0 バイト</span>
       </div>
+
       <textarea id="in" spellcheck="false" autocomplete="off" aria-label="入力"
         placeholder="変換したい文字列を貼り付ける（例: こんにちは world）"></textarea>
+
+      <div class="drop" id="drop" tabindex="0" role="button" aria-label="画像を選ぶ" hidden>
+        <span class="drop-mark" aria-hidden="true">↧</span>
+        <span class="drop-text">画像をドロップ、またはクリックして選ぶ</span>
+        <span class="drop-hint">PNG / JPEG / GIF / WebP / SVG / ICO · 8 MB まで</span>
+      </div>
+      <input type="file" id="file" accept="image/*" hidden>
+
       <div class="pane-foot">
         <button class="btn ghost" id="swap" type="button" title="出力を入力に移して向きを反転する">⇅ 入替</button>
         <button class="btn ghost" id="clear" type="button">クリア</button>
@@ -188,9 +237,18 @@ code{font-family:var(--mono);font-size:.88em;font-weight:500}
         <h2 id="outTitle">Base64</h2>
         <span class="meta" id="outMeta">0 文字 / 0 バイト</span>
       </div>
+
       <textarea id="out" readonly spellcheck="false" aria-label="出力" placeholder="ここに結果が出る"></textarea>
+
+      <div class="shot" id="shot" hidden>
+        <img id="shotImg" alt="デコードした画像のプレビュー" hidden>
+        <p class="placeholder" id="shotNone">Base64 を貼るとここに画像が出る</p>
+        <p class="info" id="shotInfo" hidden></p>
+      </div>
+
       <div class="pane-foot">
         <button class="btn" id="copy" type="button">コピー</button>
+        <a class="btn ghost" id="save" download hidden>保存</a>
       </div>
     </section>
   </div>
@@ -198,48 +256,58 @@ code{font-family:var(--mono);font-size:.88em;font-weight:500}
   <p class="err" id="err" hidden></p>
 
   <section class="note">
-    <h3>この変換について</h3>
+    <h3>テキストの変換について</h3>
     <ul>
       <li>文字列は <b>UTF-8 のバイト列に直してから</b> Base64 にする。<code>btoa()</code> に日本語をそのまま渡すと例外になるが、このツールでは <code>TextEncoder</code> を挟んでいるので問題ない。</li>
       <li><b>URL セーフ</b>(RFC 4648 §5)は <code>+</code> を <code>-</code>、<code>/</code> を <code>_</code> に置き換え、末尾の <code>=</code> を落とす。JWT やクエリ文字列に載せる形式。</li>
       <li>デコードは<b>どちらの文字種も受け付ける</b>。<code>-_</code> は自動で <code>+/</code> に戻し、足りない <code>=</code> は補う。空白と改行は無視する。</li>
-      <li>デコードで失敗するのは、Base64 の文字種以外が混じっている場合、長さが 4 で割った余り 1 になる場合、復元したバイト列が UTF-8 として不正な場合。</li>
-      <li>エンコード後の長さは元のバイト数の約 4/3 になる。<b>変換はすべてブラウザ内で完結し、入力はどこにも送信されない。</b></li>
+      <li>テキストのデコードで失敗するのは、Base64 の文字種以外が混じっている場合、長さが 4 で割った余り 1 になる場合、復元したバイト列が UTF-8 として不正な場合。<b>画像を入れたときは「画像」に切り替える。</b></li>
+    </ul>
+
+    <h3>画像の変換について</h3>
+    <ul>
+      <li><b>エンコード</b>はドロップまたはクリックで画像を選ぶ。<code>data URI</code> を選ぶと <code>data:image/png;base64,…</code> の形で出力するので、CSS や HTML にそのまま貼れる。</li>
+      <li><b>デコード</b>は Base64 でも <code>data:</code> 付きでも受け付ける。形式は先頭のバイト列(マジックナンバー)から判定し、プレビューと保存ボタンを出す。</li>
+      <li>Base64 にすると<b>元のバイト数の約 4/3 に増える</b>。data URI で HTML に埋めると、その分だけ HTML が重くなる。</li>
+      <li><b>変換はすべてブラウザ内で完結し、画像もテキストもどこにも送信されない。</b></li>
     </ul>
   </section>
 </main>
 
 <script>
-const inEl = document.getElementById('in');
-const outEl = document.getElementById('out');
-const inMeta = document.getElementById('inMeta');
-const outMeta = document.getElementById('outMeta');
-const inTitle = document.getElementById('inTitle');
-const outTitle = document.getElementById('outTitle');
-const errEl = document.getElementById('err');
-const copyBtn = document.getElementById('copy');
+const $ = id => document.getElementById(id);
+const inEl = $('in'), outEl = $('out');
+const inMeta = $('inMeta'), outMeta = $('outMeta');
+const inTitle = $('inTitle'), outTitle = $('outTitle');
+const dropEl = $('drop'), fileEl = $('file');
+const shotEl = $('shot'), shotImg = $('shotImg'), shotNone = $('shotNone'), shotInfo = $('shotInfo');
+const errEl = $('err'), copyBtn = $('copy'), saveEl = $('save');
 const enc = new TextEncoder();
 
-let dir = 'encode';
-let variant = 'std';
+let mode = 'text', dir = 'encode', variant = 'std', wrap = 'raw';
+let picked = null;            // 選んだ画像 {name, type, size, b64}
+const MAX = 8 * 1024 * 1024;
 
-const measure = s => s.length.toLocaleString() + ' 文字 / ' + enc.encode(s).length.toLocaleString() + ' バイト';
+const nf = n => n.toLocaleString();
+const measureText = s => nf(s.length) + ' 文字 / ' + nf(enc.encode(s).length) + ' バイト';
+const kb = n => n < 1024 ? n + ' B' : n < 1048576 ? (n / 1024).toFixed(1) + ' KB' : (n / 1048576).toFixed(2) + ' MB';
 
 function seg(id, onPick){
-  const box = document.getElementById(id);
+  const box = $(id);
   box.addEventListener('click', e => {
     const b = e.target.closest('button');
     if (!b) return;
-    [...box.querySelectorAll('button')].forEach(x => x.setAttribute('aria-checked', String(x === b)));
+    for (const x of box.querySelectorAll('button')) x.setAttribute('aria-checked', String(x === b));
     onPick(b.dataset.v);
   });
 }
-seg('dir', v => { dir = v; convert(); });
+seg('mode', v => { mode = v; layout(); convert(); });
+seg('dir', v => { dir = v; layout(); convert(); });
 seg('variant', v => { variant = v; convert(); });
+seg('wrap', v => { wrap = v; convert(); });
 
-// btoa は Latin-1 しか受け取らないので、UTF-8 のバイト列を1バイト1文字に写してから渡す
-function toB64(str, urlSafe){
-  const bytes = enc.encode(str);
+// btoa は Latin-1 しか受け取らないので、バイト列を1バイト1文字に写してから渡す
+function bytesToB64(bytes, urlSafe){
   let bin = '';
   const CHUNK = 0x8000;
   for (let i = 0; i < bytes.length; i += CHUNK){
@@ -249,60 +317,185 @@ function toB64(str, urlSafe){
   if (urlSafe) b64 = b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   return b64;
 }
-
-// 入力はどちらの文字種でも受ける。パディングは足りなければ補う
-function fromB64(str){
-  const s = str.replace(/\s+/g, '').replace(/-/g, '+').replace(/_/g, '/');
-  if (!s) return '';
+// 入力はどちらの文字種でも受ける。data URI の前置きが付いていれば落とす
+function b64ToBytes(str){
+  let s = str.trim();
+  const m = s.match(/^data:([^;,]*)(;[^,]*)?,/);
+  if (m) s = s.slice(m[0].length);
+  s = s.replace(/\s+/g, '').replace(/-/g, '+').replace(/_/g, '/');
+  if (!s) return new Uint8Array(0);
   if (!/^[A-Za-z0-9+/]*={0,2}$/.test(s)) throw new Error('CHARS');
   const rest = s.length % 4;
   if (rest === 1) throw new Error('LENGTH');
-  const padded = rest ? s + '='.repeat(4 - rest) : s;
-  const bin = atob(padded);
+  const bin = atob(rest ? s + '='.repeat(4 - rest) : s);
   const bytes = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  return bytes;
+}
+
+// 先頭のバイト列から画像形式を当てる
+function sniff(b){
+  const at = (i, ...v) => v.every((x, k) => b[i + k] === x);
+  if (at(0, 0x89, 0x50, 0x4E, 0x47)) return ['image/png', 'png'];
+  if (at(0, 0xFF, 0xD8, 0xFF)) return ['image/jpeg', 'jpg'];
+  if (at(0, 0x47, 0x49, 0x46, 0x38)) return ['image/gif', 'gif'];
+  if (at(0, 0x52, 0x49, 0x46, 0x46) && at(8, 0x57, 0x45, 0x42, 0x50)) return ['image/webp', 'webp'];
+  if (at(0, 0x42, 0x4D)) return ['image/bmp', 'bmp'];
+  if (at(0, 0x00, 0x00, 0x01, 0x00)) return ['image/x-icon', 'ico'];
+  const head = new TextDecoder().decode(b.subarray(0, 200)).trimStart();
+  if (head.startsWith('<svg') || head.startsWith('<?xml')) return ['image/svg+xml', 'svg'];
+  return [null, null];
 }
 
 const MSG = {
-  CHARS: 'Base64 に使えない文字が混じっている。使えるのは A-Z a-z 0-9 と + / -  _ と末尾の = だけ。',
+  CHARS: 'Base64 に使えない文字が混じっている。使えるのは A-Z a-z 0-9 と + / - _ と末尾の = だけ。',
   LENGTH: '長さが不正。空白を除いた文字数を 4 で割った余りが 1 になる Base64 は存在しない。',
-  UTF8: '復元したバイト列が UTF-8 として不正。テキストではなく画像などのバイナリを入れていないか確認する。'
+  UTF8: '復元したバイト列が UTF-8 として不正。画像なら「画像」に切り替える。',
+  NOTIMG: '画像として認識できない。対応形式は PNG / JPEG / GIF / WebP / BMP / ICO / SVG。',
+  BIG: 'ファイルが大きすぎる。8 MB までにする。',
+  NOTFILE: '画像ファイルではない。'
 };
 
-function convert(){
-  const src = inEl.value;
-  let out = '', err = '';
-  if (dir === 'encode'){
-    try{ out = toB64(src, variant === 'url'); }
-    catch(e){ err = 'エンコードできない。単独のサロゲート（壊れた絵文字など）が含まれている。'; }
+function layout(){
+  const imageIn = mode === 'image' && dir === 'encode';
+  const imageOut = mode === 'image' && dir === 'decode';
+  inEl.hidden = imageIn;
+  dropEl.hidden = !imageIn;
+  outEl.hidden = imageOut;
+  shotEl.hidden = !imageOut;
+  $('variantOpt').hidden = mode === 'image';
+  $('wrapOpt').hidden = mode !== 'image' || dir !== 'encode';
+  saveEl.hidden = !imageOut;
+  copyBtn.hidden = imageOut;
+  if (mode === 'text'){
+    inTitle.textContent = dir === 'encode' ? 'テキスト' : 'Base64';
+    outTitle.textContent = dir === 'encode' ? 'Base64' : 'テキスト';
   } else {
-    try{ out = fromB64(src); }
-    catch(e){ err = MSG[e.message] || MSG.UTF8; }
+    inTitle.textContent = dir === 'encode' ? '画像' : 'Base64';
+    outTitle.textContent = dir === 'encode' ? 'Base64' : '画像';
   }
-  inTitle.textContent = dir === 'encode' ? 'テキスト' : 'Base64';
-  outTitle.textContent = dir === 'encode' ? 'Base64' : 'テキスト';
-  outEl.value = err ? '' : out;
-  errEl.textContent = err;
-  errEl.hidden = !err;
-  inMeta.textContent = measure(src);
-  outMeta.textContent = measure(outEl.value);
 }
+
+function fail(key){
+  errEl.textContent = MSG[key] || key;
+  errEl.hidden = false;
+}
+
+function convert(){
+  errEl.hidden = true;
+  errEl.textContent = '';
+
+  if (mode === 'text'){
+    const src = inEl.value;
+    let out = '';
+    try{
+      out = dir === 'encode'
+        ? bytesToB64(enc.encode(src), variant === 'url')
+        : new TextDecoder('utf-8', { fatal: true }).decode(b64ToBytes(src));
+    }catch(e){
+      fail(dir === 'encode' ? 'エンコードできない。単独のサロゲート（壊れた絵文字など）が含まれている。' : (MSG[e.message] ? e.message : 'UTF8'));
+      out = '';
+    }
+    outEl.value = out;
+    inMeta.textContent = measureText(src);
+    outMeta.textContent = measureText(out);
+    return;
+  }
+
+  if (dir === 'encode'){
+    if (!picked){
+      outEl.value = '';
+      inMeta.textContent = '未選択';
+      outMeta.textContent = '0 文字';
+      return;
+    }
+    outEl.value = wrap === 'datauri' ? 'data:' + picked.type + ';base64,' + picked.b64 : picked.b64;
+    inMeta.textContent = picked.type + ' / ' + kb(picked.size);
+    outMeta.textContent = nf(outEl.value.length) + ' 文字';
+    return;
+  }
+
+  // Base64 → 画像
+  const src = inEl.value.trim();
+  inMeta.textContent = nf(inEl.value.length) + ' 文字';
+  showImage(null);
+  if (!src){ outMeta.textContent = '—'; return; }
+  let bytes;
+  try{ bytes = b64ToBytes(src); }
+  catch(e){ fail(MSG[e.message] ? e.message : 'CHARS'); outMeta.textContent = '—'; return; }
+  const [type, ext] = sniff(bytes);
+  if (!type){ fail('NOTIMG'); outMeta.textContent = '—'; return; }
+  const b64 = bytesToB64(bytes, false);
+  showImage({ type, ext, size: bytes.length, url: 'data:' + type + ';base64,' + b64 });
+  outMeta.textContent = type.replace('image/', '') + ' / ' + kb(bytes.length);
+}
+
+function showImage(img){
+  if (!img){
+    shotImg.hidden = true;
+    shotImg.removeAttribute('src');
+    shotInfo.hidden = true;
+    shotNone.hidden = false;
+    saveEl.removeAttribute('href');
+    saveEl.setAttribute('aria-disabled', 'true');
+    return;
+  }
+  shotNone.hidden = true;
+  shotImg.src = img.url;
+  shotImg.hidden = false;
+  shotImg.onload = () => {
+    shotInfo.textContent = img.type + '  ·  ' + shotImg.naturalWidth + ' × ' + shotImg.naturalHeight + ' px  ·  ' + kb(img.size);
+    shotInfo.hidden = false;
+  };
+  shotImg.onerror = () => { showImage(null); fail('NOTIMG'); };
+  saveEl.href = img.url;
+  saveEl.download = 'decoded.' + img.ext;
+  saveEl.removeAttribute('aria-disabled');
+}
+
+function takeFile(file){
+  if (!file) return;
+  if (!/^image\//.test(file.type) && !/\.(png|jpe?g|gif|webp|bmp|ico|svg)$/i.test(file.name)) return fail('NOTFILE');
+  if (file.size > MAX) return fail('BIG');
+  const fr = new FileReader();
+  fr.onload = () => {
+    const bytes = new Uint8Array(fr.result);
+    const [sniffed] = sniff(bytes);
+    picked = { name: file.name, type: sniffed || file.type || 'application/octet-stream', size: bytes.length, b64: bytesToB64(bytes, false) };
+    dropEl.querySelector('.drop-text').textContent = file.name;
+    dropEl.querySelector('.drop-hint').textContent = picked.type + ' · ' + kb(picked.size);
+    convert();
+  };
+  fr.onerror = () => fail('読み込みに失敗した。');
+  fr.readAsArrayBuffer(file);
+}
+
+dropEl.addEventListener('click', () => fileEl.click());
+dropEl.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); fileEl.click(); } });
+fileEl.addEventListener('change', () => takeFile(fileEl.files[0]));
+for (const ev of ['dragenter', 'dragover']) dropEl.addEventListener(ev, e => { e.preventDefault(); dropEl.classList.add('over'); });
+for (const ev of ['dragleave', 'drop']) dropEl.addEventListener(ev, e => { e.preventDefault(); dropEl.classList.remove('over'); });
+dropEl.addEventListener('drop', e => takeFile(e.dataTransfer.files[0]));
 
 inEl.addEventListener('input', convert);
 
-document.getElementById('clear').addEventListener('click', () => {
+$('clear').addEventListener('click', () => {
   inEl.value = '';
-  inEl.focus();
+  picked = null;
+  dropEl.querySelector('.drop-text').textContent = '画像をドロップ、またはクリックして選ぶ';
+  dropEl.querySelector('.drop-hint').textContent = 'PNG / JPEG / GIF / WebP / SVG / ICO · 8 MB まで';
+  fileEl.value = '';
+  if (!inEl.hidden) inEl.focus();
   convert();
 });
 
-// 出力を入力に移し、向きを反転する。往復の確認に使う
-document.getElementById('swap').addEventListener('click', () => {
-  if (!outEl.value) return;
+// 出力を入力に移して向きを反転する。画像→Base64 のあと、そのまま戻せるか確かめられる
+$('swap').addEventListener('click', () => {
+  if (outEl.hidden || !outEl.value) return;
   inEl.value = outEl.value;
   dir = dir === 'encode' ? 'decode' : 'encode';
-  [...document.querySelectorAll('#dir button')].forEach(b => b.setAttribute('aria-checked', String(b.dataset.v === dir)));
+  for (const b of document.querySelectorAll('#dir button')) b.setAttribute('aria-checked', String(b.dataset.v === dir));
+  layout();
   convert();
 });
 
@@ -316,6 +509,7 @@ copyBtn.addEventListener('click', () => {
   }, () => {});
 });
 
+layout();
 convert();
 </script>
 </body>

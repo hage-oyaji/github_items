@@ -107,9 +107,10 @@ h1 i{color:var(--accent);font-style:normal}
   transition:background .18s;
 }
 /* ホバーで四辺すべてに枠線が乗る。inset は padding box 基準なので、
-   カード自身の右下の罫線に重ねる分だけ 1px はみ出させる */
+   カード自身の罫線の内側に引かれる。最下行・最右列でも
+   外枠の overflow に刈られずに四辺が見える */
 .card::before{
-  content:'';position:absolute;inset:0 -1px -1px 0;z-index:2;pointer-events:none;
+  content:'';position:absolute;inset:0;z-index:2;pointer-events:none;
   border:1px solid var(--accent);opacity:0;transition:opacity .2s;
 }
 .card::after{
